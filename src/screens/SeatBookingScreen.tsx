@@ -119,6 +119,7 @@ const SeatBookingScreen = ({navigation, route}: any) => {
             time: timeArray[selectedTimeIndex],
             date: dateArray[selectedDateIndex],
             ticketImage: route.params.PosterImage,
+            price: price, // Thêm giá vào đây
           }),
         );
       } catch (error) {
@@ -127,12 +128,14 @@ const SeatBookingScreen = ({navigation, route}: any) => {
           error,
         );
       }
-      navigation.navigate('Ticket', {
+      navigation.navigate('PaymentConfirmationScreen', {
         seatArray: selectedSeatArray,
         time: timeArray[selectedTimeIndex],
         date: dateArray[selectedDateIndex],
         ticketImage: route.params.PosterImage,
+        amount: price, // Thêm số tiền vào đây
       });
+      
     } else {
       ToastAndroid.showWithGravity(
         'Please Select Seats, Date and Time of the Show',
@@ -141,7 +144,7 @@ const SeatBookingScreen = ({navigation, route}: any) => {
       );
     }
   };
-
+  
   return (
     <ScrollView
       style={styles.container}

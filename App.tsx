@@ -1,9 +1,13 @@
-import * as React from 'react';
-import {NavigationContainer} from '@react-navigation/native';
-import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import TabNavigator from './src/navigators/TabNavigator';
 import MovieDetailsScreen from './src/screens/MovieDetailsScreen';
 import SeatBookingScreen from './src/screens/SeatBookingScreen';
+import PaymentConfirmationScreen from './src/screens/PaymentConfirmationScreen';  // Import PaymentConfirmationScreen
+import SuccessScreen from './src/screens/SuccessScreen';  // Import SuccessScreen
+import FailScreen from './src/screens/FailScreen';  // Import FailScreen
+import AppNavigator from './src/navigators/AppNavigator';
 
 const Stack = createNativeStackNavigator();
 
@@ -24,6 +28,26 @@ const App = () => {
         <Stack.Screen
           name="SeatBooking"
           component={SeatBookingScreen}
+          options={{animation: 'slide_from_bottom'}}
+        />
+        <Stack.Screen
+          name="PaymentConfirmationScreen"  // Thêm màn hình PaymentConfirmationScreen
+          component={PaymentConfirmationScreen}
+          options={{animation: 'slide_from_bottom'}}
+        />
+        <Stack.Screen
+          name="SuccessScreen"  // Thêm màn hình SuccessScreen
+          component={SuccessScreen}
+          options={{animation: 'slide_from_bottom'}}
+        />
+        <Stack.Screen
+          name="FailScreen"  // Thêm màn hình FailScreen
+          component={FailScreen}
+          options={{animation: 'slide_from_bottom'}}
+        />
+        <Stack.Screen
+          name="Auth"
+          component={AppNavigator}
           options={{animation: 'slide_from_bottom'}}
         />
       </Stack.Navigator>

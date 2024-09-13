@@ -12,6 +12,7 @@ interface Spacing {
   space_28: number;
   space_32: number;
   space_36: number;
+  space_40: number,
 }
 
 export const SPACING: Spacing = {
@@ -28,6 +29,7 @@ export const SPACING: Spacing = {
   space_28: 28,
   space_32: 32,
   space_36: 36,
+  space_40: 40,
 };
 
 interface Color {
@@ -43,6 +45,16 @@ interface Color {
   WhiteRGBA50: string;
   WhiteRGBA32: string;
   WhiteRGBA15: string;
+  primary: string;  // Thêm thuộc tính mới vào đây
+  title: string;
+  white: string;
+  lightGrey: string;
+  grey: string;
+  blue: string;
+  yellow: string;
+  Background: string; // Thêm thuộc tính Background
+  Red: string;
+  BackgroundGray: string, 
 }
 
 export const COLORS: Color = {
@@ -58,6 +70,16 @@ export const COLORS: Color = {
   WhiteRGBA50: 'rgba(255,255,255,0.50)',
   WhiteRGBA32: 'rgba(255,255,255,0.32)',
   WhiteRGBA15: 'rgba(255,255,255,0.15)',
+  primary: '#f52d56',
+  title: '#072F4A',
+  white: '#FFFFFF',
+  lightGrey: '#D3D6D6',
+  grey: '#C1C0C9',
+  blue: '#087BB6',
+  yellow: '#F4D03F',
+  Background: '#F5F5F5',
+  Red: '#FF0000',
+  BackgroundGray: '#F0F0F0', 
 };
 
 interface FontFamily {
@@ -125,3 +147,19 @@ export const BORDERRADIUS: BorderRadius = {
   radius_20: 20,
   radius_25: 25,
 };
+
+import { Dimensions } from 'react-native';
+
+const { width, height } = Dimensions.get('window');
+
+export const SIZES = {
+  h1: 22,
+  h2: 20,
+  h3: 18,
+  h4: 16,
+  h5: 14,
+  h6: 12,
+
+  width,
+  height,
+}

@@ -1,10 +1,21 @@
-import * as React from 'react';
-import {Text, View, StyleSheet, StatusBar, Image} from 'react-native';
-import {COLORS, FONTFAMILY, FONTSIZE, SPACING} from '../theme/theme';
+// UserAccountScreen.tsx
+import React, { useState } from 'react';
+import { Text, View, StyleSheet, StatusBar, Image } from 'react-native';
+import { COLORS, FONTFAMILY, FONTSIZE, SPACING } from '../theme/theme';
 import AppHeader from '../components/AppHeader';
 import SettingComponent from '../components/SettingComponent';
 
-const UserAccountScreen = ({navigation}: any) => {
+const UserAccountScreen = ({ navigation }: any) => {
+  const [hasBankAccount, setHasBankAccount] = useState(false); // Giả sử trạng thái có tài khoản ngân hàng
+
+  const handleBankAccountPress = () => {
+    if (hasBankAccount) {
+      navigation.navigate('InfoCardScreen'); // Điều hướng đến InfoCardScreen nếu có tài khoản ngân hàng
+    } else {
+      navigation.navigate('CardScreen'); // Điều hướng đến CardScreen nếu chưa có tài khoản ngân hàng
+    }
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar hidden />
@@ -30,18 +41,20 @@ const UserAccountScreen = ({navigation}: any) => {
           heading="Account"
           subheading="Edit Profile"
           subtitle="Change Password"
+          onPress={() => navigation.navigate('InfoScreen')} // Điều hướng đến InfoScreen
+        />
+        <SettingComponent
+          icon="dollar"
+          heading="Bank Account"
+          subheading="View Bank Details"
+          subtitle="Add or Update Bank Account"
+          onPress={handleBankAccountPress} // Sử dụng hàm handlePress để điều hướng
         />
         <SettingComponent
           icon="setting"
           heading="Settings"
           subheading="Theme"
           subtitle="Permissions"
-        />
-        <SettingComponent
-          icon="dollar"
-          heading="Offers & Refferrals"
-          subheading="Offer"
-          subtitle="Refferrals"
         />
         <SettingComponent
           icon="info"

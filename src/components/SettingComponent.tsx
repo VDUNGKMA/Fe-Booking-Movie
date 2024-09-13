@@ -1,11 +1,12 @@
-import * as React from 'react';
-import {Text, View, StyleSheet} from 'react-native';
-import {COLORS, FONTFAMILY, FONTSIZE, SPACING} from '../theme/theme';
+// SettingComponent.tsx
+import React from 'react';
+import { Text, View, StyleSheet, TouchableOpacity } from 'react-native';
+import { COLORS, FONTFAMILY, FONTSIZE, SPACING } from '../theme/theme';
 import CustomIcon from './CustomIcon';
 
 const SettingComponent = (props: any) => {
   return (
-    <View style={styles.container}>
+    <TouchableOpacity style={styles.container} onPress={props.onPress}>
       <View>
         <CustomIcon name={props.icon} style={styles.iconStyle} />
       </View>
@@ -17,11 +18,9 @@ const SettingComponent = (props: any) => {
       <View style={styles.iconBG}>
         <CustomIcon name={'arrow-right'} style={styles.iconStyle} />
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
-
-export default SettingComponent;
 
 const styles = StyleSheet.create({
   container: {
@@ -50,3 +49,5 @@ const styles = StyleSheet.create({
     color: COLORS.WhiteRGBA15,
   },
 });
+
+export default SettingComponent;
