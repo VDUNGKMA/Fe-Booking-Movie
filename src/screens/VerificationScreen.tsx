@@ -27,7 +27,7 @@ const VerificationScreen = () => {
   const handleContinue = () => {
     // Ví dụ logic: chỉ chuyển tiếp nếu tất cả các ô mã được điền đầy đủ
     if (code.every((digit) => digit !== '')) {
-      navigation.navigate('ChangePwdScreen');
+      navigation.navigate('ResetPwdScreen');
     } else {
       Alert.alert('Please enter the full verification code');
     }
