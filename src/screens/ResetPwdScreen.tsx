@@ -2,41 +2,27 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { COLORS, SIZES } from '../theme/theme';
 
-const ChangePwdScreen = ({ navigation }: any) => {
+const ResetPwdScreen = ({ navigation }: any) => {
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
 
-    const handleChangePassword = () => {
-        if (!currentPassword) {
-            Alert.alert('Error', 'Please enter your current password');
-            return;
-        }
+    const handleResetPassword = () => {
         if (newPassword !== confirmPassword) {
             Alert.alert('Error', 'New password and confirmation do not match');
             return;
         }
-        // Logic to handle password change (giả sử thay đổi mật khẩu thành công)
+        // Logic to handle password change
         Alert.alert('Success', 'Password changed successfully', [
             {
                 text: 'OK',
-                onPress: () => navigation.navigate('SignInScreen') // Điều hướng đến SignInScreen sau khi đổi mật khẩu thành công
+                onPress: () => navigation.navigate('SignInScreen') // Navigate to the SignInScreen after successful password change
             }
         ]);
     };
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Change Password</Text>
-
-            <TextInput
-                placeholder='Current Password'
-                secureTextEntry
-                value={currentPassword}
-                onChangeText={setCurrentPassword}
-                style={styles.textinput}
-            />
-
             <TextInput
                 placeholder='New Password'
                 secureTextEntry
@@ -44,7 +30,6 @@ const ChangePwdScreen = ({ navigation }: any) => {
                 onChangeText={setNewPassword}
                 style={styles.textinput}
             />
-
             <TextInput
                 placeholder='Confirm New Password'
                 secureTextEntry
@@ -52,8 +37,7 @@ const ChangePwdScreen = ({ navigation }: any) => {
                 onChangeText={setConfirmPassword}
                 style={styles.textinput}
             />
-
-            <TouchableOpacity onPress={handleChangePassword}>
+            <TouchableOpacity onPress={handleResetPassword}>
                 <View style={styles.button}>
                     <Text style={styles.buttonTxt}>Change Password</Text>
                 </View>
@@ -67,27 +51,27 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: 'white',
         paddingHorizontal: 20,
-        paddingTop: 50,
+        paddingTop: 20,
     },
     title: {
         fontWeight: 'bold',
-        color: COLORS.Black,
+        color: 'black',
         fontSize: SIZES.h1,
-        marginBottom: 30,
-        textAlign: 'center',
+        marginVertical: 10,
     },
     textinput: {
-        borderBottomColor: COLORS.Black,
+        borderBottomColor: 'black',
         borderBottomWidth: 1,
         fontSize: SIZES.h4,
         paddingVertical: 10,
         marginVertical: 15,
-        color: COLORS.Black,
+        color: 'black',
     },
     button: {
         backgroundColor: COLORS.primary,
         padding: 20,
         borderRadius: 10,
+        marginHorizontal: 20,
         marginTop: 30,
         alignItems: 'center',
     },
@@ -98,4 +82,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default ChangePwdScreen;
+export default ResetPwdScreen;

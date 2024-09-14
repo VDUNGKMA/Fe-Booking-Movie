@@ -1,24 +1,25 @@
-// InfoScreen.tsx
 import React from 'react';
-import { View, Text, StyleSheet, Button, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { COLORS, FONTSIZE, SPACING, FONTFAMILY } from '../theme/theme';
 
-const InfoScreen = ({ navigation }: any) => {
-  const handleChangePasswordPress = () => {
-    navigation.navigate('ChangePwdScreen');
-  };
+const InfoScreen = ({ route, navigation }: any) => {
+    const { user } = route.params; // Lấy thông tin người dùng từ route.params
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>User Information</Text>
-      <Text style={styles.infoLabel}>Email: user@example.com</Text>
-      <Text style={styles.infoLabel}>Password: ********</Text>
-      <Text style={styles.infoLabel}>Bank Account: **** **** **** 1234</Text>
-      <TouchableOpacity style={styles.button} onPress={handleChangePasswordPress}>
-        <Text style={styles.buttonText}>Change Password</Text>
-      </TouchableOpacity>
-    </View>
-  );
+    const handleChangePasswordPress = () => {
+        navigation.navigate('ChangePwdScreen');
+    };
+
+    return (
+        <View style={styles.container}>
+            <Text style={styles.title}>User Information</Text>
+            <Text style={styles.infoLabel}>Username: {user.username}</Text>
+            <Text style={styles.infoLabel}>Email: {user.email}</Text>
+            <Text style={styles.infoLabel}>Contact Number: {user.contactNumber}</Text>
+            <TouchableOpacity style={styles.button} onPress={handleChangePasswordPress}>
+                <Text style={styles.buttonText}>Change Password</Text>
+            </TouchableOpacity>
+        </View>
+    );
 };
 
 const styles = StyleSheet.create({
