@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { View, Text, ImageBackground, ScrollView, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { COLORS, SIZES } from '../theme/theme';
+import api from '../api/api';
+import { AxiosError } from 'axios';
+import axios from 'axios';
 
 const SignUpScreen = ({ navigation }: any) => {
     const [username, setUsername] = useState('');
@@ -9,18 +12,37 @@ const SignUpScreen = ({ navigation }: any) => {
     const [password, setPassword] = useState('');
     const [error, setError] = useState<string | null>(null);
 
-    const handleSignUp = () => {
+    const handleSignUp = async () => {
         // Kiểm tra các trường bắt buộc
         if (!username || !email || !contactNumber || !password) {
             setError('Please fill in all fields');
             return;
         }
-
-        // Lưu thông tin người dùng (giả sử lưu vào bộ nhớ tạm thời)
-        global.userInfo = { username, email, contactNumber, password };
-        navigation.navigate('SignInScreen'); // Điều hướng đến màn hình đăng nhập
+    
+        try {
+            const response = await api.post('/register-customer', {
+                username,
+                email,
+                phone_number: contactNumber,
+                password,
+            });
+    
+            if (response.status === 200) {
+                // Đăng ký thành công, điều hướng đến màn hình đăng nhập
+                navigation.navigate('SignInScreen');
+            }
+        } catch (err) {
+            // Xử lý lỗi từ API
+            if (err instanceof AxiosError && err.response) {
+                // Lỗi trả về từ server
+                setError(err.response.data.message || 'Something went wrong');
+            } else {
+                // Lỗi kết nối hoặc lỗi khác
+                setError('Unable to connect to the server. Please try again later.');
+            }
+        }
     };
-
+    
     return (
         <View style={styles.container}>
             <ImageBackground

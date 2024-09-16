@@ -13,17 +13,22 @@ const CardScreen = ({ navigation }: any) => {
       return;
     }
   
-    // Logic to save bank account details
+    // Truyền thông tin thẻ ngân hàng qua navigation
     Alert.alert('Success', 'Bank account details saved successfully', [
       {
         text: 'OK',
         onPress: () => {
-          // Điều hướng đến InfoCardScreen sau khi nhấn OK
-          navigation.navigate('InfoCardScreen');
+          // Điều hướng đến InfoCardScreen và truyền dữ liệu thẻ ngân hàng
+          navigation.navigate('InfoCardScreen', {
+            accountNumber,
+            accountHolder,
+            bankName,
+          });
         },
       },
     ]);
   };
+  
   
 
   return (

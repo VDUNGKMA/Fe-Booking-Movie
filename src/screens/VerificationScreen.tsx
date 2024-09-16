@@ -12,11 +12,9 @@ import { useNavigation } from '@react-navigation/native';
 import { COLORS, SIZES } from '../theme/theme'; // Điều chỉnh nếu cần dựa theo thiết lập theme của bạn
 import { Alert } from 'react-native';
 
-
-
 const VerificationScreen = () => {
   const navigation = useNavigation();
-  const [code, setCode] = useState(['', '', '', '']);
+  const [code, setCode] = useState(['', '', '', '', '', '']); // Thay đổi kích thước thành 6
 
   const handleCodeChange = (value: string, index: number) => {
     const newCode = [...code];
@@ -42,7 +40,7 @@ const VerificationScreen = () => {
       />
       <Text style={styles.title}>Enter verification code</Text>
       <Text style={styles.subtitle}>
-       We have sent the code to your email. Please check your mailbox
+        We have sent the code to your email. Please check your mailbox
       </Text>
     
       <View style={styles.inputContainer}>

@@ -2,28 +2,8 @@ import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
 
 const InfoCardScreen = ({ navigation, route }: any) => {
-  const { onBack } = route.params || {};
-
-  useEffect(() => {
-    // Lắng nghe sự kiện khi màn hình được focus
-    const unsubscribe = navigation.addListener('focus', () => {
-      if (onBack) {
-        onBack(); // Gọi hàm callback khi quay lại
-      }
-    });
-
-    // Cleanup listener
-    return () => {
-      unsubscribe();
-    };
-  }, [navigation, onBack]);
-
-  // Ví dụ dữ liệu thẻ ngân hàng
-  const cardData = {
-    cardNumber: '1234 5678 9012 3456',
-    cardHolder: 'John Doe',
-    bankName: 'Sample Bank'
-  };
+  // Nhận dữ liệu từ route.params
+  const { accountNumber, accountHolder, bankName } = route.params;
 
   return (
     <View style={styles.container}>
@@ -38,17 +18,18 @@ const InfoCardScreen = ({ navigation, route }: any) => {
       {/* Thông tin thẻ ngân hàng */}
       <View style={styles.infoContainer}>
         <Text style={styles.label}>Card Number:</Text>
-        <Text style={styles.info}>{cardData.cardNumber}</Text>
+        <Text style={styles.info}>{accountNumber}</Text>
         
         <Text style={styles.label}>Card Holder:</Text>
-        <Text style={styles.info}>{cardData.cardHolder}</Text>
+        <Text style={styles.info}>{accountHolder}</Text>
         
         <Text style={styles.label}>Bank Name:</Text>
-        <Text style={styles.info}>{cardData.bankName}</Text>
+        <Text style={styles.info}>{bankName}</Text>
       </View>
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
