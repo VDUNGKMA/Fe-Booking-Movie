@@ -20,14 +20,15 @@ const SignUpScreen = ({ navigation }: any) => {
         }
     
         try {
-            const response = await api.post('/register-customer', {
+            const response = await api.post('/api/auth/register-customer', {
                 username,
                 email,
                 phone_number: contactNumber,
                 password,
             });
     
-            if (response.status === 200) {
+            // console.log("cmt",response);
+            if (response.status === 201) {
                 // Đăng ký thành công, điều hướng đến màn hình đăng nhập
                 navigation.navigate('SignInScreen');
             }

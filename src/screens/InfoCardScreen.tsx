@@ -1,9 +1,47 @@
-import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, Image, ActivityIndicator } from 'react-native';
+import axios from 'axios';
+import api from '../api/api';
 
 const InfoCardScreen = ({ navigation, route }: any) => {
-  // Nhận dữ liệu từ route.params
-  const { accountNumber, accountHolder, bankName } = route.params;
+  const { accountNumber } = route.params; // Chỉ sử dụng accountNumber để gọi API
+
+  const [cardDetails, setCardDetails] = useState<any>(null); // State để lưu thông tin thẻ ngân hàng
+  const [loading, setLoading] = useState(true); // State để theo dõi trạng thái loading
+  const [error, setError] = useState<string | null>(null); // State để lưu lỗi nếu có
+
+  // Hàm gọi API để lấy thông tin thẻ ngân hàng
+  const fetchCardDetails = async () => {
+    try {
+      const response = await axios.get(`/api/user/me/${accountNumber}`); // Thay đổi URL theo API của bạn
+      setCardDetails(response.data);
+    } catch (error) {
+      console.error('Error fetching card details:', error);
+      setError('Failed to load card details.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCardDetails(); // Gọi API khi component được render
+  }, [accountNumber]);
+
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.errorText}>{error}</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -18,18 +56,17 @@ const InfoCardScreen = ({ navigation, route }: any) => {
       {/* Thông tin thẻ ngân hàng */}
       <View style={styles.infoContainer}>
         <Text style={styles.label}>Card Number:</Text>
-        <Text style={styles.info}>{accountNumber}</Text>
+        <Text style={styles.info}>{cardDetails?.accountNumber || 'N/A'}</Text>
         
         <Text style={styles.label}>Card Holder:</Text>
-        <Text style={styles.info}>{accountHolder}</Text>
+        <Text style={styles.info}>{cardDetails?.accountHolder || 'N/A'}</Text>
         
         <Text style={styles.label}>Bank Name:</Text>
-        <Text style={styles.info}>{bankName}</Text>
+        <Text style={styles.info}>{cardDetails?.bankName || 'N/A'}</Text>
       </View>
     </View>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {
@@ -65,6 +102,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#555',
     marginBottom: 10,
+  },
+  errorText: {
+    fontSize: 16,
+    color: 'red',
   },
 });
 

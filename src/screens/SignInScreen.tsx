@@ -1,19 +1,27 @@
 import React, { useState } from 'react';
 import { View, Text, ImageBackground, ScrollView, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { COLORS, SIZES } from '../theme/theme';
+import api from '../api/api'; // Import API
+import { AxiosError } from 'axios';
+import axios from 'axios';
 
 const SignInScreen = ({ navigation }: any) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState(''); // Biến để lưu thông báo lỗi
 
-    const handleSignIn = () => {
-        // Kiểm tra thông tin đăng nhập
-        const userInfo = global.userInfo;
-        if (userInfo && userInfo.email === email && userInfo.password === password) {
-            navigation.navigate('UserAccountScreen', { user: userInfo }); // Điều hướng đến UserAccountScreen với thông tin người dùng
-        } else {
-            // Xử lý lỗi đăng nhập
-            alert('Invalid email or password');
+    const handleSignIn = async () => {
+        try {
+            const response = await api.post('/api/auth/login', { email, password }); // Gọi API đăng nhập
+            const userInfo = response.data;
+            console.log("cmt",userInfo);
+            
+            // Nếu đăng nhập thành công, điều hướng tới UserAccountScreen
+            navigation.navigate('UserAccountScreen', { user: userInfo });
+        } catch (error: any) {
+            console.error(error);
+            // Hiển thị thông báo lỗi nếu đăng nhập thất bại
+            setError('Invalid email or password');
         }
     };
 
@@ -45,6 +53,7 @@ const SignInScreen = ({ navigation }: any) => {
                             placeholderTextColor={COLORS.white}
                             secureTextEntry
                         />
+                        {error ? <Text style={styles.errorText}>{error}</Text> : null}
                     </View>
                     <View style={styles.btnContainer}>
                         <TouchableOpacity onPress={handleSignIn}>
@@ -122,6 +131,12 @@ const styles = StyleSheet.create({
   bottomContainer: {
     justifyContent: 'center',
     marginTop: 50,
+  },
+  errorText: {
+    color: 'red',
+    textAlign: 'center',
+    marginTop: 10,
+    fontSize: SIZES.h5,
   },
 });
 

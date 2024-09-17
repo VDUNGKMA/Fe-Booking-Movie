@@ -7,14 +7,18 @@ import {
   StyleSheet,
   Image,
   ScrollView,
+  Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { COLORS, SIZES } from '../theme/theme'; // Điều chỉnh nếu cần dựa theo thiết lập theme của bạn
-import { Alert } from 'react-native';
+import { COLORS, SIZES } from '../theme/theme';
+import api from '../api/api'; // Import file API
+import { AxiosError } from 'axios';
+import axios from 'axios';
 
 const VerificationScreen = () => {
   const navigation = useNavigation();
-  const [code, setCode] = useState(['', '', '', '', '', '']); // Thay đổi kích thước thành 6
+  const [code, setCode] = useState(['', '', '', '', '', '']); // Mã xác thực gồm 6 số
+  const [error, setError] = useState('');
 
   const handleCodeChange = (value: string, index: number) => {
     const newCode = [...code];
@@ -22,10 +26,24 @@ const VerificationScreen = () => {
     setCode(newCode);
   };
 
-  const handleContinue = () => {
-    // Ví dụ logic: chỉ chuyển tiếp nếu tất cả các ô mã được điền đầy đủ
+  const handleContinue = async () => {
+    // Kiểm tra nếu tất cả các ô đã được điền đầy đủ
     if (code.every((digit) => digit !== '')) {
-      navigation.navigate('ResetPwdScreen');
+      const verificationCode = code.join(''); // Nối tất cả các số thành một chuỗi
+      try {
+        // Gọi API xác thực mã
+        const response = await api.post('/api/auth/verifyOTP', { code: verificationCode });
+        console.log(response);
+        if (response.status === 200) {
+      
+          navigation.navigate('ResetPwdScreen'); // Điều hướng đến màn hình đặt lại mật khẩu
+          
+        } else {
+          setError('Invalid verification code. Please try again.');
+        }
+      } catch (error) {
+        setError('Unable to verify the code. Please try again later.');
+      }
     } else {
       Alert.alert('Please enter the full verification code');
     }
@@ -42,7 +60,9 @@ const VerificationScreen = () => {
       <Text style={styles.subtitle}>
         We have sent the code to your email. Please check your mailbox
       </Text>
-    
+
+      {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
       <View style={styles.inputContainer}>
         {code.map((digit, index) => (
           <TextInput
@@ -122,6 +142,11 @@ const styles = StyleSheet.create({
     color: COLORS.white,
     fontSize: SIZES.h4,
     fontWeight: 'bold',
+  },
+  errorText: {
+    color: 'red',
+    marginBottom: 20,
+    textAlign: 'center',
   },
 });
 
