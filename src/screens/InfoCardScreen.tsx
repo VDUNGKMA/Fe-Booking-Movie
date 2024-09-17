@@ -1,29 +1,47 @@
-import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, Image, ActivityIndicator } from 'react-native';
+import axios from 'axios';
+import api from '../api/api';
 
 const InfoCardScreen = ({ navigation, route }: any) => {
-  const { onBack } = route.params || {};
+  const { accountNumber } = route.params; // Chỉ sử dụng accountNumber để gọi API
+
+  const [cardDetails, setCardDetails] = useState<any>(null); // State để lưu thông tin thẻ ngân hàng
+  const [loading, setLoading] = useState(true); // State để theo dõi trạng thái loading
+  const [error, setError] = useState<string | null>(null); // State để lưu lỗi nếu có
+
+  // Hàm gọi API để lấy thông tin thẻ ngân hàng
+  const fetchCardDetails = async () => {
+    try {
+      const response = await axios.get(`/api/user/me/${accountNumber}`); // Thay đổi URL theo API của bạn
+      setCardDetails(response.data);
+    } catch (error) {
+      console.error('Error fetching card details:', error);
+      setError('Failed to load card details.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // Lắng nghe sự kiện khi màn hình được focus
-    const unsubscribe = navigation.addListener('focus', () => {
-      if (onBack) {
-        onBack(); // Gọi hàm callback khi quay lại
-      }
-    });
+    fetchCardDetails(); // Gọi API khi component được render
+  }, [accountNumber]);
 
-    // Cleanup listener
-    return () => {
-      unsubscribe();
-    };
-  }, [navigation, onBack]);
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
 
-  // Ví dụ dữ liệu thẻ ngân hàng
-  const cardData = {
-    cardNumber: '1234 5678 9012 3456',
-    cardHolder: 'John Doe',
-    bankName: 'Sample Bank'
-  };
+  if (error) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.errorText}>{error}</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
@@ -38,13 +56,13 @@ const InfoCardScreen = ({ navigation, route }: any) => {
       {/* Thông tin thẻ ngân hàng */}
       <View style={styles.infoContainer}>
         <Text style={styles.label}>Card Number:</Text>
-        <Text style={styles.info}>{cardData.cardNumber}</Text>
+        <Text style={styles.info}>{cardDetails?.accountNumber || 'N/A'}</Text>
         
         <Text style={styles.label}>Card Holder:</Text>
-        <Text style={styles.info}>{cardData.cardHolder}</Text>
+        <Text style={styles.info}>{cardDetails?.accountHolder || 'N/A'}</Text>
         
         <Text style={styles.label}>Bank Name:</Text>
-        <Text style={styles.info}>{cardData.bankName}</Text>
+        <Text style={styles.info}>{cardDetails?.bankName || 'N/A'}</Text>
       </View>
     </View>
   );
@@ -84,6 +102,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#555',
     marginBottom: 10,
+  },
+  errorText: {
+    fontSize: 16,
+    color: 'red',
   },
 });
 

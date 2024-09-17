@@ -1,24 +1,43 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { COLORS, SIZES } from '../theme/theme';
+import axios from 'axios'; // Sử dụng axios để gọi API
+import api from '../api/api';
 
 const ResetPwdScreen = ({ navigation }: any) => {
-    const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
 
-    const handleResetPassword = () => {
+    const handleResetPassword = async () => {
         if (newPassword !== confirmPassword) {
             Alert.alert('Error', 'New password and confirmation do not match');
             return;
         }
-        // Logic to handle password change
-        Alert.alert('Success', 'Password changed successfully', [
-            {
-                text: 'OK',
-                onPress: () => navigation.navigate('SignInScreen') // Navigate to the SignInScreen after successful password change
+
+        try {
+            // Giả sử token được truyền từ màn hình trước đó hoặc lấy từ storage
+            const token = 'user_reset_token'; // Thay thế bằng token thực tế
+
+            const response = await axios.post('/resetPassword', {
+                token,  // Token để xác nhận người dùng
+                newPassword,  // Mật khẩu mới
+            });
+
+            // Kiểm tra phản hồi từ API
+            if (response.status === 201) {
+                Alert.alert('Success', 'Password changed successfully', [
+                    {
+                        text: 'OK',
+                        onPress: () => navigation.navigate('SignInScreen') // Điều hướng sau khi đổi mật khẩu thành công
+                    }
+                ]);
+            } else {
+                Alert.alert('Error', 'Unable to change password');
             }
-        ]);
+        } catch (error) {
+            console.error('Error resetting password:', error);
+            Alert.alert('Error', 'An error occurred while changing the password');
+        }
     };
 
     return (
@@ -52,12 +71,6 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         paddingHorizontal: 20,
         paddingTop: 20,
-    },
-    title: {
-        fontWeight: 'bold',
-        color: 'black',
-        fontSize: SIZES.h1,
-        marginVertical: 10,
     },
     textinput: {
         borderBottomColor: 'black',

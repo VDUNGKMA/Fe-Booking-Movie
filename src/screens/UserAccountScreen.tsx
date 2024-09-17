@@ -1,19 +1,48 @@
-import React from 'react';
-import { Text, View, StyleSheet, StatusBar, Image } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Text, View, StyleSheet, StatusBar, Image, ActivityIndicator } from 'react-native';
+import axios from 'axios';
 import { COLORS, FONTFAMILY, FONTSIZE, SPACING } from '../theme/theme';
 import AppHeader from '../components/AppHeader';
 import SettingComponent from '../components/SettingComponent';
+import api from '../api/api';
+
 
 const UserAccountScreen = ({ route, navigation }: any) => {
-    const { user } = route.params; // Lấy thông tin người dùng từ route.params
+    const { userId } = route.params; // Lấy userId từ route.params
+    const [user, setUser] = useState<any>(null); // State lưu thông tin người dùng
+    const [loading, setLoading] = useState(true); // State để theo dõi trạng thái loading
+
+    // Hàm gọi API để lấy thông tin người dùng
+    const fetchUserData = async () => {
+        try {
+            const response = await axios.get(`/api/user/${userId}`); // Sửa URL API ở đây
+            setUser(response.data);
+        } catch (error) {
+            console.error('Error fetching user data:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchUserData(); // Gọi API khi component được render
+    }, [userId]);
 
     const handleBankAccountPress = () => {
-        if (user.hasBankAccount) {
+        if (user?.hasBankAccount) {
             navigation.navigate('InfoCardScreen');
         } else {
             navigation.navigate('CardScreen');
         }
     };
+
+    if (loading) {
+        return (
+            <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color={COLORS.White} />
+            </View>
+        );
+    }
 
     return (
         <View style={styles.container}>
@@ -31,7 +60,7 @@ const UserAccountScreen = ({ route, navigation }: any) => {
                     source={require('../assets/image/avatar.png')}
                     style={styles.avatarImage}
                 />
-                <Text style={styles.avatarText}>{user.username}</Text>
+                <Text style={styles.avatarText}>{user?.username}</Text>
             </View>
 
             <View style={styles.profileContainer}>
@@ -66,7 +95,6 @@ const UserAccountScreen = ({ route, navigation }: any) => {
     );
 };
 
-
 const styles = StyleSheet.create({
   container: {
     display: 'flex',
@@ -91,6 +119,12 @@ const styles = StyleSheet.create({
     fontSize: FONTSIZE.size_16,
     marginTop: SPACING.space_16,
     color: COLORS.White,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: COLORS.Black,
   },
 });
 

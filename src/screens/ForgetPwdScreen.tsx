@@ -1,18 +1,47 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { COLORS, SIZES } from '../theme/theme';
+import api from '../api/api'; // Import file API
+import { AxiosError } from 'axios';
+import axios from 'axios';
 
 const ForgetPwdScreen = ({ navigation }: any) => {
-    const handleSendEmail = () => {
-        // Logic for sending password recovery email
-        navigation.navigate('VerificationScreen'); // Navigate to the verification screen after sending the email
+    const [email, setEmail] = useState('');
+    const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
+
+    const handleSendEmail = async () => {
+        try {
+            // Gọi API để gửi email khôi phục mật khẩu
+            const response = await api.post('/api/auth/forgotPassword', { email });
+
+            if (response.status === 200) {
+                setSuccess('Password recovery email sent successfully.');
+                navigation.navigate('VerificationScreen'); // Điều hướng đến màn hình xác minh sau khi gửi email thành công
+            } else {
+                setError('Unable to send recovery email. Please try again.');
+            }
+        } catch (error) {
+            console.error(error);
+            setError('Unable to connect to the server. Please try again later.');
+        }
     };
 
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Forgot Password</Text>
-            <Text style={styles.subtitle}>Enter your email address below and we will send you an email with instructions on how to reset your password.</Text>
-            <TextInput placeholder='Enter your email' style={styles.textinput} />
+            <Text style={styles.subtitle}>
+                Enter your email address below and we will send you an email with instructions on how to reset your password.
+            </Text>
+            <TextInput
+                placeholder='Enter your email'
+                value={email}
+                onChangeText={setEmail}
+                style={styles.textinput}
+                placeholderTextColor="gray"
+            />
+            {error ? <Text style={styles.errorText}>{error}</Text> : null}
+            {success ? <Text style={styles.successText}>{success}</Text> : null}
             <TouchableOpacity onPress={handleSendEmail}>
                 <View style={styles.button}>
                     <Text style={styles.buttonTxt}>Send</Text>
@@ -25,27 +54,27 @@ const ForgetPwdScreen = ({ navigation }: any) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: 'white', // Set background color to white
+        backgroundColor: 'white',
         paddingHorizontal: 20,
         paddingTop: 20,
     },
     title: {
         fontWeight: 'bold',
-        color: 'black', // Set text color to black
+        color: 'black',
         fontSize: SIZES.h1,
         marginVertical: 10,
     },
     subtitle: {
         fontWeight: '500',
-        color: 'black', // Set text color to black
+        color: 'black',
     },
     textinput: {
-        borderBottomColor: 'black', // Set border color to black
+        borderBottomColor: 'black',
         borderBottomWidth: 1,
         fontSize: SIZES.h4,
         paddingVertical: 10,
         marginVertical: 30,
-        color: 'black', // Set text color to black
+        color: 'black',
     },
     button: {
         backgroundColor: COLORS.primary,
@@ -59,7 +88,17 @@ const styles = StyleSheet.create({
         color: COLORS.white,
         fontWeight: 'bold',
         fontSize: SIZES.h4,
-    }
+    },
+    errorText: {
+        color: 'red',
+        textAlign: 'center',
+        marginTop: 10,
+    },
+    successText: {
+        color: 'green',
+        textAlign: 'center',
+        marginTop: 10,
+    },
 });
 
 export default ForgetPwdScreen;
