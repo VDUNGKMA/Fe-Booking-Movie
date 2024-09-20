@@ -15,10 +15,11 @@ import api from '../api/api'; // Import file API
 import { AxiosError } from 'axios';
 import axios from 'axios';
 
-const VerificationScreen = () => {
-  const navigation = useNavigation();
+const VerificationScreen = ({ route,navigation }: any) => {
+  //const navigation = useNavigation();
   const [code, setCode] = useState(['', '', '', '', '', '']); // Mã xác thực gồm 6 số
   const [error, setError] = useState('');
+  const {email} = route.params;
 
   const handleCodeChange = (value: string, index: number) => {
     const newCode = [...code];
@@ -32,11 +33,14 @@ const VerificationScreen = () => {
       const verificationCode = code.join(''); // Nối tất cả các số thành một chuỗi
       try {
         // Gọi API xác thực mã
-        const response = await api.post('/api/auth/verifyOTP', { code: verificationCode });
+        const response = await api.post('/api/auth/verifyOTP', { otp: verificationCode , email});
+        console.log('Verification response:', response); // Log response
+        console.log('Navigating to ResetPwdScreen with email:', email);
+
         console.log(response);
         if (response.status === 200) {
       
-          navigation.navigate('ResetPwdScreen'); // Điều hướng đến màn hình đặt lại mật khẩu
+          navigation.navigate('ResetPwdScreen',{email}); // Điều hướng đến màn hình đặt lại mật khẩu
           
         } else {
           setError('Invalid verification code. Please try again.');

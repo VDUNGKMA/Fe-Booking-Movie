@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, ActivityIndicator } from 'react-native';
-import axios from 'axios';
+import { View, Text, StyleSheet, Image, ActivityIndicator, TextInput } from 'react-native';
 import api from '../api/api';
 
 const InfoCardScreen = ({ navigation, route }: any) => {
-  const { accountNumber } = route.params; // Chỉ sử dụng accountNumber để gọi API
+  const { accountNumber } = route.params;
 
-  const [cardDetails, setCardDetails] = useState<any>(null); // State để lưu thông tin thẻ ngân hàng
-  const [loading, setLoading] = useState(true); // State để theo dõi trạng thái loading
-  const [error, setError] = useState<string | null>(null); // State để lưu lỗi nếu có
+  const [cardDetails, setCardDetails] = useState<any>({
+    accountNumber: '',
+    accountHolder: '',
+    bankName: ''
+  }); // State để lưu thông tin thẻ ngân hàng
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Hàm gọi API để lấy thông tin thẻ ngân hàng
   const fetchCardDetails = async () => {
     try {
-      const response = await axios.get(`/api/user/me/${accountNumber}`); // Thay đổi URL theo API của bạn
+      const response = await api.get(`/api/user/me/${accountNumber}`); // Thay đổi URL theo API của bạn
       setCardDetails(response.data);
     } catch (error) {
       console.error('Error fetching card details:', error);
@@ -24,7 +26,7 @@ const InfoCardScreen = ({ navigation, route }: any) => {
   };
 
   useEffect(() => {
-    fetchCardDetails(); // Gọi API khi component được render
+    fetchCardDetails();
   }, [accountNumber]);
 
   if (loading) {
@@ -53,16 +55,28 @@ const InfoCardScreen = ({ navigation, route }: any) => {
         />
       </View>
 
-      {/* Thông tin thẻ ngân hàng */}
+      {/* Thông tin thẻ ngân hàng với TextInput */}
       <View style={styles.infoContainer}>
         <Text style={styles.label}>Card Number:</Text>
-        <Text style={styles.info}>{cardDetails?.accountNumber || 'N/A'}</Text>
-        
+        <TextInput
+          style={styles.input}
+          value={cardDetails.accountNumber}
+          onChangeText={(text) => setCardDetails({ ...cardDetails, accountNumber: text })}
+        />
+
         <Text style={styles.label}>Card Holder:</Text>
-        <Text style={styles.info}>{cardDetails?.accountHolder || 'N/A'}</Text>
-        
+        <TextInput
+          style={styles.input}
+          value={cardDetails.accountHolder}
+          onChangeText={(text) => setCardDetails({ ...cardDetails, accountHolder: text })}
+        />
+
         <Text style={styles.label}>Bank Name:</Text>
-        <Text style={styles.info}>{cardDetails?.bankName || 'N/A'}</Text>
+        <TextInput
+          style={styles.input}
+          value={cardDetails.bankName}
+          onChangeText={(text) => setCardDetails({ ...cardDetails, bankName: text })}
+        />
       </View>
     </View>
   );
@@ -97,11 +111,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
+    marginBottom: 5,
   },
-  info: {
+  input: {
+    height: 40,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 5,
+    marginBottom: 15,
+    paddingLeft: 10,
     fontSize: 16,
-    color: '#555',
-    marginBottom: 10,
   },
   errorText: {
     fontSize: 16,

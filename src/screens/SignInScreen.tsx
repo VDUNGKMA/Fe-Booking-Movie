@@ -13,11 +13,12 @@ const SignInScreen = ({ navigation }: any) => {
     const handleSignIn = async () => {
         try {
             const response = await api.post('/api/auth/login', { email, password }); // Gọi API đăng nhập
-            const userInfo = response.data;
-            console.log("cmt",userInfo);
+            const userId = response.data.data.user.id;
+            
+            //console.log("cmt",userId.user);
             
             // Nếu đăng nhập thành công, điều hướng tới UserAccountScreen
-            navigation.navigate('UserAccountScreen', { user: userInfo });
+            navigation.navigate('UserAccountScreen', { userId: userId });
         } catch (error: any) {
             console.error(error);
             // Hiển thị thông báo lỗi nếu đăng nhập thất bại
