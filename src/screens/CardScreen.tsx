@@ -12,8 +12,7 @@ const CardScreen = ({ navigation }: any) => {
       Alert.alert('Error', 'Please fill in all fields');
       return;
     }
-  
-    // Truyền thông tin thẻ ngân hàng qua navigation
+
     Alert.alert('Success', 'Bank account details saved successfully', [
       {
         text: 'OK',
@@ -28,30 +27,45 @@ const CardScreen = ({ navigation }: any) => {
       },
     ]);
   };
-  
-  
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Add Bank Account</Text>
-      <TextInput
-        placeholder='Account Number'
-        value={accountNumber}
-        onChangeText={setAccountNumber}
-        style={styles.input}
-      />
-      <TextInput
-        placeholder='Account Holder Name'
-        value={accountHolder}
-        onChangeText={setAccountHolder}
-        style={styles.input}
-      />
-      <TextInput
-        placeholder='Bank Name'
-        value={bankName}
-        onChangeText={setBankName}
-        style={styles.input}
-      />
+
+      {/* Account Number Input */}
+      <View style={styles.textBox}>
+        <TextInput
+          placeholder='Account Number'
+          placeholderTextColor={COLORS.Grey}
+          value={accountNumber}
+          onChangeText={setAccountNumber}
+          style={styles.textinput}
+        />
+      </View>
+
+      {/* Account Holder Name Input */}
+      <View style={styles.textBox}>
+        <TextInput
+          placeholder='Account Holder Name'
+          placeholderTextColor={COLORS.Grey}
+          value={accountHolder}
+          onChangeText={setAccountHolder}
+          style={styles.textinput}
+        />
+      </View>
+
+      {/* Bank Name Input */}
+      <View style={styles.textBox}>
+        <TextInput
+          placeholder='Bank Name'
+          placeholderTextColor={COLORS.Grey}
+          value={bankName}
+          onChangeText={setBankName}
+          style={styles.textinput}
+        />
+      </View>
+
+      {/* Save Button */}
       <TouchableOpacity style={styles.button} onPress={handleSave}>
         <Text style={styles.buttonText}>Save</Text>
       </TouchableOpacity>
@@ -63,32 +77,43 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: SPACING.space_20,
-    backgroundColor: COLORS.White,
+    backgroundColor: COLORS.Black,
   },
   title: {
     fontFamily: FONTFAMILY.poppins_medium,
     fontSize: FONTSIZE.size_24,
     marginBottom: SPACING.space_20,
+    color: COLORS.White,
   },
-  input: {
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.Black,
-    fontSize: FONTSIZE.size_16,
-    marginBottom: SPACING.space_15,
-    paddingVertical: SPACING.space_10,
+  textBox: {
+    backgroundColor: COLORS.White,
+    padding: SPACING.space_8,  // Giảm padding cho text box nhỏ lại
+    borderRadius: 8,
+    marginBottom: SPACING.space_10,  // Giảm margin giữa các text box
+    shadowColor: 'rgba(0, 0, 0, 0.4)',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 10,
+    elevation: 12,
+  },
+  textinput: {
+    fontFamily: FONTFAMILY.poppins_regular,
+    fontSize: FONTSIZE.size_14,  // Giảm font size cho chữ nhỏ hơn
+    color: COLORS.Black,
+    paddingVertical: SPACING.space_8,  // Giảm padding dọc để text box nhỏ hơn
   },
   button: {
     marginTop: SPACING.space_20,
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.Orange,
     paddingVertical: SPACING.space_12,
     paddingHorizontal: SPACING.space_24,
     borderRadius: 5,
+    alignItems: 'center',
   },
   buttonText: {
     color: COLORS.White,
     fontFamily: FONTFAMILY.poppins_medium,
     fontSize: FONTSIZE.size_16,
-    textAlign: 'center',
   },
 });
 

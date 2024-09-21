@@ -17,7 +17,7 @@ const ForgetPwdScreen = ({ navigation }: any) => {
 
             if (response.status === 200) {
                 setSuccess('Password recovery email sent successfully.');
-                navigation.navigate('VerificationScreen'); // Điều hướng đến màn hình xác minh sau khi gửi email thành công
+                navigation.navigate('VerificationScreen',{email}); // Điều hướng đến màn hình xác minh sau khi gửi email thành công
             } else {
                 setError('Unable to send recovery email. Please try again.');
             }

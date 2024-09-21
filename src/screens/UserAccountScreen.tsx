@@ -5,29 +5,29 @@ import { COLORS, FONTFAMILY, FONTSIZE, SPACING } from '../theme/theme';
 import AppHeader from '../components/AppHeader';
 import SettingComponent from '../components/SettingComponent';
 import api from '../api/api';
-
-
+ 
 const UserAccountScreen = ({ route, navigation }: any) => {
     const { userId } = route.params; // Lấy userId từ route.params
     const [user, setUser] = useState<any>(null); // State lưu thông tin người dùng
     const [loading, setLoading] = useState(true); // State để theo dõi trạng thái loading
-
+ 
     // Hàm gọi API để lấy thông tin người dùng
     const fetchUserData = async () => {
         try {
-            const response = await axios.get(`/api/user/${userId}`); // Sửa URL API ở đây
-            setUser(response.data);
+            const response = await api.get(`api/customer/user/${userId}`); // Sửa URL API ở đây
+            setUser(response.data.data.user);
+           
         } catch (error) {
             console.error('Error fetching user data:', error);
         } finally {
             setLoading(false);
         }
     };
-
+ 
     useEffect(() => {
         fetchUserData(); // Gọi API khi component được render
     }, [userId]);
-
+ 
     const handleBankAccountPress = () => {
         if (user?.hasBankAccount) {
             navigation.navigate('InfoCardScreen');
@@ -35,7 +35,7 @@ const UserAccountScreen = ({ route, navigation }: any) => {
             navigation.navigate('CardScreen');
         }
     };
-
+ 
     if (loading) {
         return (
             <View style={styles.loadingContainer}>
@@ -43,8 +43,9 @@ const UserAccountScreen = ({ route, navigation }: any) => {
             </View>
         );
     }
-
+console.log("check user",user)
     return (
+   
         <View style={styles.container}>
             <StatusBar hidden />
             <View style={styles.appHeaderContainer}>
@@ -54,7 +55,7 @@ const UserAccountScreen = ({ route, navigation }: any) => {
                     action={() => navigation.goBack()}
                 />
             </View>
-
+ 
             <View style={styles.profileContainer}>
                 <Image
                     source={require('../assets/image/avatar.png')}
@@ -62,7 +63,7 @@ const UserAccountScreen = ({ route, navigation }: any) => {
                 />
                 <Text style={styles.avatarText}>{user?.username}</Text>
             </View>
-
+ 
             <View style={styles.profileContainer}>
                 <SettingComponent
                     icon="user"
@@ -94,7 +95,7 @@ const UserAccountScreen = ({ route, navigation }: any) => {
         </View>
     );
 };
-
+ 
 const styles = StyleSheet.create({
   container: {
     display: 'flex',
@@ -127,5 +128,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.Black,
   },
 });
-
+ 
 export default UserAccountScreen;
+ 
+ 

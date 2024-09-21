@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { COLORS, SIZES } from '../theme/theme';
+import { COLORS, FONTSIZE, SPACING, FONTFAMILY } from '../theme/theme';
 
 const ChangePwdScreen = ({ navigation }: any) => {
     const [currentPassword, setCurrentPassword] = useState('');
@@ -16,7 +16,7 @@ const ChangePwdScreen = ({ navigation }: any) => {
             Alert.alert('Error', 'New password and confirmation do not match');
             return;
         }
-        // Logic to handle password change (giả sử thay đổi mật khẩu thành công)
+        // Giả sử thay đổi mật khẩu thành công
         Alert.alert('Success', 'Password changed successfully', [
             {
                 text: 'OK',
@@ -31,6 +31,7 @@ const ChangePwdScreen = ({ navigation }: any) => {
 
             <TextInput
                 placeholder='Current Password'
+                placeholderTextColor={COLORS.grey}
                 secureTextEntry
                 value={currentPassword}
                 onChangeText={setCurrentPassword}
@@ -39,6 +40,7 @@ const ChangePwdScreen = ({ navigation }: any) => {
 
             <TextInput
                 placeholder='New Password'
+                placeholderTextColor={COLORS.grey}
                 secureTextEntry
                 value={newPassword}
                 onChangeText={setNewPassword}
@@ -47,6 +49,7 @@ const ChangePwdScreen = ({ navigation }: any) => {
 
             <TextInput
                 placeholder='Confirm New Password'
+                placeholderTextColor={COLORS.grey}
                 secureTextEntry
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
@@ -65,36 +68,40 @@ const ChangePwdScreen = ({ navigation }: any) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: 'white',
-        paddingHorizontal: 20,
-        paddingTop: 50,
+        backgroundColor: COLORS.Black, // Nền màu đen
+        paddingHorizontal: SPACING.space_20,
+        paddingTop: 50, // Thay thế SPACING.space_50 bằng giá trị số cụ thể
     },
     title: {
-        fontWeight: 'bold',
-        color: COLORS.Black,
-        fontSize: SIZES.h1,
-        marginBottom: 30,
+        fontFamily: FONTFAMILY.poppins_medium,
+        fontSize: FONTSIZE.size_24,
+        marginBottom: 30, // Thay thế SPACING.space_30 bằng giá trị số cụ thể
+        color: COLORS.White, // Màu trắng cho tiêu đề
         textAlign: 'center',
     },
     textinput: {
-        borderBottomColor: COLORS.Black,
-        borderBottomWidth: 1,
-        fontSize: SIZES.h4,
-        paddingVertical: 10,
-        marginVertical: 15,
-        color: COLORS.Black,
+        backgroundColor: COLORS.White, // Textbox nền trắng
+        borderRadius: 8,
+        fontFamily: FONTFAMILY.poppins_regular, // Áp dụng font chữ giống InfoScreen
+        fontSize: FONTSIZE.size_16, // Kích thước text giống InfoScreen
+        paddingVertical: SPACING.space_12,
+        paddingHorizontal: SPACING.space_15,
+        marginVertical: SPACING.space_15,
+        color: COLORS.Black, // Text màu đen trên nền trắng
     },
     button: {
-        backgroundColor: COLORS.primary,
-        padding: 20,
-        borderRadius: 10,
-        marginTop: 30,
+        backgroundColor: COLORS.Orange, // Nút màu cam
+        paddingVertical: SPACING.space_12, // Giảm kích thước nút
+        paddingHorizontal: SPACING.space_40, // Giảm kích thước chiều ngang nút
+        borderRadius: 8,
         alignItems: 'center',
+        alignSelf: 'center', // Căn giữa nút
+        marginTop: SPACING.space_20,
     },
     buttonTxt: {
-        color: COLORS.white,
-        fontWeight: 'bold',
-        fontSize: SIZES.h4,
+        color: COLORS.White, // Text màu trắng trên nút
+        fontFamily: FONTFAMILY.poppins_medium,
+        fontSize: FONTSIZE.size_16, // Áp dụng kích thước và kiểu font giống InfoScreen
     }
 });
 
