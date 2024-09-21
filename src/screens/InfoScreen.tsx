@@ -8,7 +8,7 @@ const InfoScreen = ({ route, navigation }: any) => {
     const [newUsername, setNewUsername] = useState(user.username); // Khởi tạo giá trị mới cho username
 
     const handleChangePasswordPress = () => {
-        navigation.navigate('ChangePwdScreen');
+        navigation.navigate('ChangePwdScreen',{userId:user.id});
     };
 
     const handleSaveUsername = () => {

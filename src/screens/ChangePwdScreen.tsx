@@ -1,13 +1,24 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { COLORS, FONTSIZE, SPACING, FONTFAMILY } from '../theme/theme';
+import { changePassword } from '../api/api';
 
-const ChangePwdScreen = ({ navigation }: any) => {
+const ChangePwdScreen = ({route,navigation}: any) => {
+    const { userId } = route.params || {};
+    
+    console.log('User ID:', userId); // Log userId để kiểm tra
+
+    if (!userId) {
+        Alert.alert('Error', 'User ID is missing');
+        navigation.goBack();
+        return null;
+    }
+
     const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
 
-    const handleChangePassword = () => {
+    const handleChangePassword = async () => {
         if (!currentPassword) {
             Alert.alert('Error', 'Please enter your current password');
             return;
@@ -16,14 +27,29 @@ const ChangePwdScreen = ({ navigation }: any) => {
             Alert.alert('Error', 'New password and confirmation do not match');
             return;
         }
-        // Giả sử thay đổi mật khẩu thành công
-        Alert.alert('Success', 'Password changed successfully', [
-            {
-                text: 'OK',
-                onPress: () => navigation.navigate('SignInScreen') // Điều hướng đến SignInScreen sau khi đổi mật khẩu thành công
+    
+        try {
+            const response = await changePassword(userId, currentPassword, newPassword);
+            console.log('Response:', response); // Log response để kiểm tra
+            if (response.status === 'success') {
+                Alert.alert('Success', 'Password changed successfully', [
+                    {
+                        text: 'OK',
+                        onPress: () => navigation.navigate('SignInScreen')
+                    }
+                ]);
+            } else {
+                Alert.alert('Error', response.message || 'Failed to change password');
             }
-        ]);
+        } catch (error) {
+            // console.error('Error in changePassword:', error); // Log chi tiết lỗi
+            // console.error('Error response:', error.response); // Log response để kiểm tra
+           // const errorMessage = error.response?.data?.message || error.message || 'Failed to change password';
+            //Alert.alert('Error', errorMessage);
+        }
+        
     };
+    
 
     return (
         <View style={styles.container}>
@@ -68,40 +94,40 @@ const ChangePwdScreen = ({ navigation }: any) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: COLORS.Black, // Nền màu đen
+        backgroundColor: COLORS.Black,
         paddingHorizontal: SPACING.space_20,
-        paddingTop: 50, // Thay thế SPACING.space_50 bằng giá trị số cụ thể
+        paddingTop: 50,
     },
     title: {
         fontFamily: FONTFAMILY.poppins_medium,
         fontSize: FONTSIZE.size_24,
-        marginBottom: 30, // Thay thế SPACING.space_30 bằng giá trị số cụ thể
-        color: COLORS.White, // Màu trắng cho tiêu đề
+        marginBottom: 30,
+        color: COLORS.White,
         textAlign: 'center',
     },
     textinput: {
-        backgroundColor: COLORS.White, // Textbox nền trắng
+        backgroundColor: COLORS.White,
         borderRadius: 8,
-        fontFamily: FONTFAMILY.poppins_regular, // Áp dụng font chữ giống InfoScreen
-        fontSize: FONTSIZE.size_16, // Kích thước text giống InfoScreen
+        fontFamily: FONTFAMILY.poppins_regular,
+        fontSize: FONTSIZE.size_16,
         paddingVertical: SPACING.space_12,
         paddingHorizontal: SPACING.space_15,
         marginVertical: SPACING.space_15,
-        color: COLORS.Black, // Text màu đen trên nền trắng
+        color: COLORS.Black,
     },
     button: {
-        backgroundColor: COLORS.Orange, // Nút màu cam
-        paddingVertical: SPACING.space_12, // Giảm kích thước nút
-        paddingHorizontal: SPACING.space_40, // Giảm kích thước chiều ngang nút
+        backgroundColor: COLORS.Orange,
+        paddingVertical: SPACING.space_12,
+        paddingHorizontal: SPACING.space_40,
         borderRadius: 8,
         alignItems: 'center',
-        alignSelf: 'center', // Căn giữa nút
+        alignSelf: 'center',
         marginTop: SPACING.space_20,
     },
     buttonTxt: {
-        color: COLORS.White, // Text màu trắng trên nút
+        color: COLORS.White,
         fontFamily: FONTFAMILY.poppins_medium,
-        fontSize: FONTSIZE.size_16, // Áp dụng kích thước và kiểu font giống InfoScreen
+        fontSize: FONTSIZE.size_16,
     }
 });
 

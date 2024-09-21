@@ -72,6 +72,7 @@ console.log("check user",user)
                     subtitle="Change Password"
                     onPress={() => navigation.navigate('InfoScreen', { user })} // Điều hướng đến InfoScreen với thông tin người dùng
                 />
+               
                 <SettingComponent
                     icon="dollar"
                     heading="Bank Account"
