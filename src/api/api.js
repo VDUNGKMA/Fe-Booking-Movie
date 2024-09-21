@@ -26,7 +26,7 @@ export const fetchUpcomingMovies = async () => {
     const response = await api.get('/api/movies/upcoming'); // Đổi đường dẫn nếu cần
     return response.data;
   } catch (error) {
-    console.error('Something went wrong in fetchUpcomingMovies:', error);
+    console.error('Something went wrong in fetchUpcomingMovies:', erronpmr);
     throw error; // Đảm bảo ném lỗi để có thể xử lý ở nơi gọi hàm
   }
 };
@@ -59,4 +59,19 @@ export const fetchUserInfo = async (userId) => {
   }
 };
 
+// Hàm gọi API để thay đổi mật khẩu người dùng
+export const changePassword = async (userId, currentPassword, newPassword) => {
+  console.log("m",userId);
+  try {
+    // Truyền userId vào API URL hoặc body nếu BE yêu cầu
+    const response = await api.post(`/api/customer/${userId}/change-password`, {
+      currentPassword,
+      newPassword,
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Something went wrong in changePassword:', error);
+    throw error; // Đảm bảo ném lỗi để có thể xử lý ở nơi gọi hàm
+  }
+};
 export default api;
