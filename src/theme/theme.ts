@@ -10,6 +10,7 @@ interface Spacing {
   space_20: number;
   space_24: number;
   space_28: number;
+  space_30: number; 
   space_32: number;
   space_36: number;
   space_40: number,
@@ -27,6 +28,7 @@ export const SPACING: Spacing = {
   space_20: 20,
   space_24: 24,
   space_28: 28,
+  space_30: 30,
   space_32: 32,
   space_36: 36,
   space_40: 40,
@@ -137,6 +139,7 @@ interface BorderRadius {
   radius_15: number;
   radius_20: number;
   radius_25: number;
+  radius_30: number;
 }
 
 export const BORDERRADIUS: BorderRadius = {
@@ -146,6 +149,7 @@ export const BORDERRADIUS: BorderRadius = {
   radius_15: 15,
   radius_20: 20,
   radius_25: 25,
+  radius_30: 30
 };
 
 import { Dimensions } from 'react-native';

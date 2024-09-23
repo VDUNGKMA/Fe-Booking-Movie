@@ -25,17 +25,7 @@ import CustomIcon from '../components/CustomIcon';
 import CategoryHeader from '../components/CategoryHeader';
 import CastCard from '../components/CastCard';
 import { fetchMovieDetails } from '../api/api';
-
-// const getMovieDetails = async (movieid: number) => {
-//   try {
-//     let response = await fetch(MovieDetails(movieid));
-//     console.log("check log resonse: detail", response)
-//     let json = await response.json();
-//     return json;
-//   } catch (error) {
-//     console.error('Something Went wrong in getMoviesDetails Function', error);
-//   }
-// };
+import Video from 'react-native-video';
 
 const getMovieCastDetails = async (movieid: number) => {
   try {
@@ -117,6 +107,8 @@ const MovieDetailsScreen = ({navigation, route}: any) => {
             </View>
           </LinearGradient>
         </ImageBackground>
+        {/* Phần video */}
+       
         <View style={styles.imageBG}></View>
         <Image
           source={{uri: movieData.poster_url}}
@@ -127,8 +119,8 @@ const MovieDetailsScreen = ({navigation, route}: any) => {
       <View style={styles.timeContainer}>
         <CustomIcon name="clock" style={styles.clockIcon} />
         <Text style={styles.runtimeText}>
-          {Math.floor(movieData?.release_date / 60)}h{' '}
-          {Math.floor(movieData?.release_date % 60)}m
+          {Math.floor(movieData?.duration / 60)}h{' '}
+          {Math.floor(movieData?.duration % 60)}m
         </Text>
       </View>
 
@@ -162,7 +154,15 @@ const MovieDetailsScreen = ({navigation, route}: any) => {
         </View>
         <Text style={styles.descriptionText}>{movieData?.description}</Text>
       </View>
-
+      {movieData?.trailer_url && (
+        <Video
+          source={{ uri: movieData.trailer_url }} // URL video của bạn
+          style={styles.video}
+          controls={true} // Hiện các điều khiển
+          resizeMode="contain"
+          paused={false} // Có thể điều chỉnh để phát hoặc tạm dừng
+        />
+      )}
       <View>
         <CategoryHeader title="Top Cast" />
         <FlatList
@@ -317,6 +317,10 @@ const styles = StyleSheet.create({
     fontFamily: FONTFAMILY.poppins_medium,
     fontSize: FONTSIZE.size_14,
     color: COLORS.White,
+  },
+  video: {
+    width: '100%',
+    height: 200, // Có thể điều chỉnh theo nhu cầu
   },
 });
 
