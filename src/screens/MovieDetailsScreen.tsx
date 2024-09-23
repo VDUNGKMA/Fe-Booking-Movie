@@ -24,16 +24,18 @@ import LinearGradient from 'react-native-linear-gradient';
 import CustomIcon from '../components/CustomIcon';
 import CategoryHeader from '../components/CategoryHeader';
 import CastCard from '../components/CastCard';
+import { fetchMovieDetails } from '../api/api';
 
-const getMovieDetails = async (movieid: number) => {
-  try {
-    let response = await fetch(movieDetails(movieid));
-    let json = await response.json();
-    return json;
-  } catch (error) {
-    console.error('Something Went wrong in getMoviesDetails Function', error);
-  }
-};
+// const getMovieDetails = async (movieid: number) => {
+//   try {
+//     let response = await fetch(MovieDetails(movieid));
+//     console.log("check log resonse: detail", response)
+//     let json = await response.json();
+//     return json;
+//   } catch (error) {
+//     console.error('Something Went wrong in getMoviesDetails Function', error);
+//   }
+// };
 
 const getMovieCastDetails = async (movieid: number) => {
   try {
@@ -54,7 +56,8 @@ const MovieDetailsScreen = ({navigation, route}: any) => {
 
   useEffect(() => {
     (async () => {
-      const tempMovieData = await getMovieDetails(route.params.movieid);
+      console.log("check movieid", route.params.movieid)
+      const tempMovieData = await fetchMovieDetails(route.params.movieid);
       setMovieData(tempMovieData);
     })();
 
@@ -99,7 +102,7 @@ const MovieDetailsScreen = ({navigation, route}: any) => {
       <View>
         <ImageBackground
           source={{
-            uri: baseImagePath('w780', movieData?.backdrop_path),
+            uri: movieData.poster_url,
           }}
           style={styles.imageBG}>
           <LinearGradient
@@ -116,7 +119,7 @@ const MovieDetailsScreen = ({navigation, route}: any) => {
         </ImageBackground>
         <View style={styles.imageBG}></View>
         <Image
-          source={{uri: baseImagePath('w342', movieData?.poster_path)}}
+          source={{uri: movieData.poster_url}}
           style={styles.cardImage}
         />
       </View>
@@ -124,18 +127,18 @@ const MovieDetailsScreen = ({navigation, route}: any) => {
       <View style={styles.timeContainer}>
         <CustomIcon name="clock" style={styles.clockIcon} />
         <Text style={styles.runtimeText}>
-          {Math.floor(movieData?.runtime / 60)}h{' '}
-          {Math.floor(movieData?.runtime % 60)}m
+          {Math.floor(movieData?.release_date / 60)}h{' '}
+          {Math.floor(movieData?.release_date % 60)}m
         </Text>
       </View>
 
       <View>
-        <Text style={styles.title}>{movieData?.original_title}</Text>
+        <Text style={styles.title}>{movieData?.title}</Text>
         <View style={styles.genreContainer}>
           {movieData?.genres.map((item: any) => {
             return (
               <View style={styles.genreBox} key={item.id}>
-                <Text style={styles.genreText}>{item.name}</Text>
+                <Text style={styles.genreText}>{item.genre_name}</Text>
               </View>
             );
           })}
@@ -147,7 +150,7 @@ const MovieDetailsScreen = ({navigation, route}: any) => {
         <View style={styles.rateContainer}>
           <CustomIcon name="star" style={styles.starIcon} />
           <Text style={styles.runtimeText}>
-            {movieData?.vote_average.toFixed(1)} ({movieData?.vote_count})
+            {movieData?.rating}
           </Text>
           <Text style={styles.runtimeText}>
             {movieData?.release_date.substring(8, 10)}{' '}
@@ -157,7 +160,7 @@ const MovieDetailsScreen = ({navigation, route}: any) => {
             {movieData?.release_date.substring(0, 4)}
           </Text>
         </View>
-        <Text style={styles.descriptionText}>{movieData?.overview}</Text>
+        <Text style={styles.descriptionText}>{movieData?.description}</Text>
       </View>
 
       <View>
