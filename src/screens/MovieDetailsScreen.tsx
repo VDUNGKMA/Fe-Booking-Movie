@@ -160,7 +160,7 @@ const MovieDetailsScreen = ({navigation, route}: any) => {
           style={styles.video}
           controls={true} // Hiện các điều khiển
           resizeMode="contain"
-          paused={false} // Có thể điều chỉnh để phát hoặc tạm dừng
+          paused={true} // Có thể điều chỉnh để phát hoặc tạm dừng
         />
       )}
       <View>
