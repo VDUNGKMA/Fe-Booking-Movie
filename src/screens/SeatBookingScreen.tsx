@@ -78,12 +78,14 @@ const generateSeats = () => {
 };
 
 const SeatBookingScreen = ({navigation, route}: any) => {
-  const [dateArray, setDateArray] = useState<any[]>(generateDate());
+  // const [dateArray, setDateArray] = useState<any[]>(generateDate());
   const [selectedDateIndex, setSelectedDateIndex] = useState<any>();
   const [price, setPrice] = useState<number>(0);
   const [twoDSeatArray, setTwoDSeatArray] = useState<any[][]>(generateSeats());
   const [selectedSeatArray, setSelectedSeatArray] = useState([]);
-  const [selectedTimeIndex, setSelectedTimeIndex] = useState<any>();
+  // const [selectedTimeIndex, setSelectedTimeIndex] = useState<any>();
+  const { selectedDate, selectedTime } = route.params;
+
 
   const selectSeat = (index: number, subindex: number, num: number) => {
     if (!twoDSeatArray[index][subindex].taken) {
@@ -106,20 +108,16 @@ const SeatBookingScreen = ({navigation, route}: any) => {
   };
 
   const BookSeats = async () => {
-    if (
-      selectedSeatArray.length !== 0 &&
-      timeArray[selectedTimeIndex] !== undefined &&
-      dateArray[selectedDateIndex] !== undefined
-    ) {
+    if (selectedSeatArray.length !== 0) { // Kiểm tra chỉ ghế đã chọn
       try {
         await EncryptedStorage.setItem(
           'ticket',
           JSON.stringify({
             seatArray: selectedSeatArray,
-            time: timeArray[selectedTimeIndex],
-            date: dateArray[selectedDateIndex],
             ticketImage: route.params.PosterImage,
             price: price, // Thêm giá vào đây
+            selectedDate: selectedDate,  // Thêm date
+            selectedTime: selectedTime,    // Thêm time
           }),
         );
       } catch (error) {
@@ -128,17 +126,18 @@ const SeatBookingScreen = ({navigation, route}: any) => {
           error,
         );
       }
+  
       navigation.navigate('PaymentConfirmationScreen', {
         seatArray: selectedSeatArray,
-        time: timeArray[selectedTimeIndex],
-        date: dateArray[selectedDateIndex],
         ticketImage: route.params.PosterImage,
         amount: price, // Thêm số tiền vào đây
+        selectedDate: selectedDate,  // Thêm date
+        selectedTime: selectedTime,    // Thêm time
       });
       
     } else {
       ToastAndroid.showWithGravity(
-        'Please Select Seats, Date and Time of the Show',
+        'Please Select Seats',
         ToastAndroid.SHORT,
         ToastAndroid.BOTTOM,
       );
@@ -219,7 +218,7 @@ const SeatBookingScreen = ({navigation, route}: any) => {
         </View>
       </View>
 
-      <View>
+      {/* <View>
         <FlatList
           data={dateArray}
           keyExtractor={item => item.date}
@@ -278,6 +277,12 @@ const SeatBookingScreen = ({navigation, route}: any) => {
             );
           }}
         />
+      </View> */}
+
+        {/* Hiển thị ngày và giờ đã chọn */}
+        <View style={styles.selectedInfoContainer}>
+        <Text style={styles.selectedInfoText}>Date: {selectedDate}</Text>
+        <Text style={styles.selectedInfoText}>Time: {selectedTime}</Text>
       </View>
 
       <View style={styles.buttonPriceContainer}>
@@ -419,6 +424,20 @@ const styles = StyleSheet.create({
     fontSize: FONTSIZE.size_16,
     color: COLORS.White,
     backgroundColor: COLORS.Orange,
+  },
+
+  selectedInfoContainer: {
+    position: 'absolute',
+    top: SPACING.space_20,
+    right: SPACING.space_20,
+    backgroundColor: COLORS.Black,
+    padding: SPACING.space_10,
+    borderRadius: BORDERRADIUS.radius_10,
+  },
+  selectedInfoText: {
+    fontFamily: FONTFAMILY.poppins_regular,
+    fontSize: FONTSIZE.size_14,
+    color: COLORS.White,
   },
 });
 

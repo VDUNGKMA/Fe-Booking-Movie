@@ -16,6 +16,8 @@ import FailScreen from '../screens/FailScreen';
 
 import ChangePwdScreen from '../screens/ChangePwdScreen';
 
+// import CinemaSelectionScreen from '../screens/CinemaSelectionScreen';
+
 
 const Stack = createStackNavigator();
 
@@ -38,6 +40,8 @@ const AppNavigator = () => {
       <Stack.Screen name="FailScreen" component={FailScreen} />
 
       <Stack.Screen name="ChangePwdScreen" component={ChangePwdScreen} />
+
+      {/* <Stack.Screen name="CinemaSelection" component={CinemaSelectionScreen} /> */}
      
     </Stack.Navigator>
   );

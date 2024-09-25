@@ -5,14 +5,15 @@ import { COLORS, FONTFAMILY, FONTSIZE, SPACING } from '../theme/theme'; // Kiể
 const PaymentConfirmationScreen = ({ navigation, route }: any) => {
   const {
     seatArray = [],
-    time = '',
-    date = '',
+    // time = '',
+    // date = '',
     ticketImage = '',
-    amount = 0 // Đảm bảo số tiền được gán giá trị mặc định
+    amount = 0 ,// Đảm bảo số tiền được gán giá trị mặc định
+    selectedDate, selectedTime 
   } = route.params || {};
 
   const seatList = Array.isArray(seatArray) ? seatArray.join(', ') : '';
-  const dateString = typeof date === 'object' ? date.date : date;
+  // const dateString = typeof date === 'object' ? date.date : date;
 
   const handlePayment = () => {
     navigation.navigate('SuccessScreen', { amount }); // Truyền số tiền tới SuccessScreen
@@ -31,9 +32,9 @@ const PaymentConfirmationScreen = ({ navigation, route }: any) => {
         <Text style={styles.label}>Seats:</Text>
         <Text style={styles.value}>{seatList}</Text>
         <Text style={styles.label}>Time:</Text>
-        <Text style={styles.value}>{time}</Text>
+        <Text style={styles.value}>{selectedTime}</Text>
         <Text style={styles.label}>Date:</Text>
-        <Text style={styles.value}>{dateString}</Text>
+        <Text style={styles.value}>{selectedDate}</Text>
         <Text style={styles.label}>Total Amount:</Text>
         <Text style={styles.value}>${amount.toFixed(2)}</Text>
       </View>

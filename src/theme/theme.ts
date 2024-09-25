@@ -57,6 +57,8 @@ interface Color {
   Background: string; // Thêm thuộc tính Background
   Red: string;
   BackgroundGray: string, 
+  Green: string,
+  Gray: string,
 }
 
 export const COLORS: Color = {
@@ -82,6 +84,8 @@ export const COLORS: Color = {
   Background: '#F5F5F5',
   Red: '#FF0000',
   BackgroundGray: '#F0F0F0', 
+  Green: '#00FF00',
+  Gray: '',
 };
 
 interface FontFamily {
@@ -118,6 +122,7 @@ interface FontSize {
   size_20: number;
   size_24: number;
   size_30: number;
+  size_32: number;
 }
 
 export const FONTSIZE: FontSize = {
@@ -130,26 +135,31 @@ export const FONTSIZE: FontSize = {
   size_20: 20,
   size_24: 24,
   size_30: 30,
+  size_32: 32,
 };
 
 interface BorderRadius {
   radius_4: number;
+  radius_5: number;
   radius_8: number;
   radius_10: number;
   radius_15: number;
   radius_20: number;
   radius_25: number;
   radius_30: number;
+  radius_16: number;
 }
 
 export const BORDERRADIUS: BorderRadius = {
   radius_4: 4,
+  radius_5: 5,
   radius_8: 8,
   radius_10: 10,
   radius_15: 15,
   radius_20: 20,
   radius_25: 25,
-  radius_30: 30
+  radius_30: 30,
+  radius_16:16
 };
 
 import { Dimensions } from 'react-native';

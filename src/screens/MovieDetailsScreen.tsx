@@ -26,7 +26,7 @@ import CategoryHeader from '../components/CategoryHeader';
 import CastCard from '../components/CastCard';
 import { fetchMovieDetails } from '../api/api';
 import Video from 'react-native-video';
-
+ 
 const getMovieCastDetails = async (movieid: number) => {
   try {
     let response = await fetch(movieCastDetails(movieid));
@@ -39,24 +39,24 @@ const getMovieCastDetails = async (movieid: number) => {
     );
   }
 };
-
+ 
 const MovieDetailsScreen = ({navigation, route}: any) => {
   const [movieData, setMovieData] = useState<any>(undefined);
   const [movieCastData, setmovieCastData] = useState<any>(undefined);
-
+ 
   useEffect(() => {
     (async () => {
       console.log("check movieid", route.params.movieid)
       const tempMovieData = await fetchMovieDetails(route.params.movieid);
       setMovieData(tempMovieData);
     })();
-
+ 
     (async () => {
       const tempMovieCastData = await getMovieCastDetails(route.params.movieid);
       setmovieCastData(tempMovieCastData.cast);
     })();
   }, []);
-
+ 
   if (
     movieData == undefined &&
     movieData == null &&
@@ -88,7 +88,7 @@ const MovieDetailsScreen = ({navigation, route}: any) => {
       bounces={false}
       showsVerticalScrollIndicator={false}>
       <StatusBar hidden />
-
+ 
       <View>
         <ImageBackground
           source={{
@@ -115,7 +115,7 @@ const MovieDetailsScreen = ({navigation, route}: any) => {
           style={styles.cardImage}
         />
       </View>
-
+ 
       <View style={styles.timeContainer}>
         <CustomIcon name="clock" style={styles.clockIcon} />
         <Text style={styles.runtimeText}>
@@ -123,7 +123,7 @@ const MovieDetailsScreen = ({navigation, route}: any) => {
           {Math.floor(movieData?.duration % 60)}m
         </Text>
       </View>
-
+ 
       <View>
         <Text style={styles.title}>{movieData?.title}</Text>
         <View style={styles.genreContainer}>
@@ -137,7 +137,7 @@ const MovieDetailsScreen = ({navigation, route}: any) => {
         </View>
         <Text style={styles.tagline}>{movieData?.tagline}</Text>
       </View>
-
+ 
       <View style={styles.infoContainer}>
         <View style={styles.rateContainer}>
           <CustomIcon name="star" style={styles.starIcon} />
@@ -164,7 +164,7 @@ const MovieDetailsScreen = ({navigation, route}: any) => {
         />
       )}
       <View>
-        <CategoryHeader title="Top Cast" />
+        {/* <CategoryHeader title="Top Cast" />
         <FlatList
           data={movieCastData}
           keyExtractor={(item: any) => item.id}
@@ -181,25 +181,25 @@ const MovieDetailsScreen = ({navigation, route}: any) => {
               subtitle={item.character}
             />
           )}
-        />
-
+        /> */}
+ 
         <View>
           <TouchableOpacity
             style={styles.buttonBG}
             onPress={() => {
-              navigation.push('SeatBooking', {
+              navigation.push('CinemaSelection', {
                 BgImage: baseImagePath('w780', movieData.backdrop_path),
                 PosterImage: baseImagePath('original', movieData.poster_path),
               });
             }}>
-            <Text style={styles.buttonText}>Select Seats</Text>
+            <Text style={styles.buttonText}>Booking Now</Text>
           </TouchableOpacity>
         </View>
       </View>
     </ScrollView>
   );
 };
-
+ 
 const styles = StyleSheet.create({
   container: {
     display: 'flex',
@@ -323,5 +323,5 @@ const styles = StyleSheet.create({
     height: 200, // Có thể điều chỉnh theo nhu cầu
   },
 });
-
+ 
 export default MovieDetailsScreen;

@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // Tạo instance axios với cấu hình mặc định
 const api = axios.create({
-  baseURL: 'http://192.168.1.119:5000', // Thay thế bằng URL của BE
+  baseURL: 'http://192.168.1.213:5000', // Thay thế bằng URL của BE
   headers: {
     'Content-Type': 'application/json',
   },
@@ -50,18 +50,37 @@ export const fetchPopularMovies = async () => {
     return [];
   }
 };
+// export const fetchMovieDetails = async (id) => {
+//   try {
+//     const response = await api.get(`/api/customer/movies/${id}`);
+//     if (response.data.status === 'success') {
+//       console.log("check fetchMovies", response.data.data)
+//       return response.data.data; // Trả về danh sách phim
+//     }
+//   } catch (error) {
+//     console.error('Error fetching movies:', error);
+//     return [];
+//   }
+// };
+
+// phim
 export const fetchMovieDetails = async (id) => {
   try {
     const response = await api.get(`/api/customer/movies/${id}`);
     if (response.data.status === 'success') {
-      console.log("check fetchMovies", response.data.data)
-      return response.data.data; // Trả về danh sách phim
+      console.log("check fetchMovies", response.data.data);
+      return {
+        ...response.data.data,
+        trailer_url: response.data.data.trailer_url || null, // Đảm bảo có URL trailer nếu có
+      };
     }
   } catch (error) {
     console.error('Error fetching movies:', error);
-    return [];
+    return null; // Trả về null nếu có lỗi
   }
 };
+
+
 
 
 // Hàm gọi API để lấy thông tin người dùng

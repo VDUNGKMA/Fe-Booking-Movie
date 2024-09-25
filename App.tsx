@@ -8,6 +8,7 @@ import PaymentConfirmationScreen from './src/screens/PaymentConfirmationScreen';
 import SuccessScreen from './src/screens/SuccessScreen';  // Import SuccessScreen
 import FailScreen from './src/screens/FailScreen';  // Import FailScreen
 import AppNavigator from './src/navigators/AppNavigator';
+import CinemaSelectionScreen from './src/screens/CinemaSelectionScreen';
 
 
 const Stack = createNativeStackNavigator();
@@ -24,6 +25,11 @@ const App = () => {
         <Stack.Screen
           name="MovieDetails"
           component={MovieDetailsScreen}
+          options={{animation: 'slide_from_right'}}
+        />
+        <Stack.Screen
+          name="CinemaSelection"
+          component={CinemaSelectionScreen}
           options={{animation: 'slide_from_right'}}
         />
         <Stack.Screen
