@@ -1,3 +1,4 @@
+//MovieDetailScreen 
 import React, {useEffect, useState} from 'react';
 import {
   Text,
@@ -27,18 +28,18 @@ import CastCard from '../components/CastCard';
 import { fetchMovieDetails } from '../api/api';
 import Video from 'react-native-video';
  
-const getMovieCastDetails = async (movieid: number) => {
-  try {
-    let response = await fetch(movieCastDetails(movieid));
-    let json = await response.json();
-    return json;
-  } catch (error) {
-    console.error(
-      'Something Went wrong in getMovieCastDetails Function',
-      error,
-    );
-  }
-};
+// const getMovieCastDetails = async (movieid: number) => {
+//   try {
+//     let response = await fetch(movieCastDetails(movieid));
+//     let json = await response.json();
+//     return json;
+//   } catch (error) {
+//     console.error(
+//       'Something Went wrong in getMovieCastDetails Function',
+//       error,
+//     );
+//   }
+// };
  
 const MovieDetailsScreen = ({navigation, route}: any) => {
   const [movieData, setMovieData] = useState<any>(undefined);
@@ -46,15 +47,15 @@ const MovieDetailsScreen = ({navigation, route}: any) => {
  
   useEffect(() => {
     (async () => {
-      console.log("check movieid", route.params.movieid)
-      const tempMovieData = await fetchMovieDetails(route.params.movieid);
+      console.log("check movieid", route.params.movieId)
+      const tempMovieData = await fetchMovieDetails(route.params.movieId);
       setMovieData(tempMovieData);
     })();
  
-    (async () => {
-      const tempMovieCastData = await getMovieCastDetails(route.params.movieid);
-      setmovieCastData(tempMovieCastData.cast);
-    })();
+    // (async () => {
+    //   const tempMovieCastData = await getMovieCastDetails(route.params.movieid);
+    //   setmovieCastData(tempMovieCastData.cast);
+    // })();
   }, []);
  
   if (
@@ -164,32 +165,15 @@ const MovieDetailsScreen = ({navigation, route}: any) => {
         />
       )}
       <View>
-        {/* <CategoryHeader title="Top Cast" />
-        <FlatList
-          data={movieCastData}
-          keyExtractor={(item: any) => item.id}
-          horizontal
-          contentContainerStyle={styles.containerGap24}
-          renderItem={({item, index}) => (
-            <CastCard
-              shouldMarginatedAtEnd={true}
-              cardWidth={80}
-              isFirst={index == 0 ? true : false}
-              isLast={index == movieCastData?.length - 1 ? true : false}
-              imagePath={baseImagePath('w185', item.profile_path)}
-              title={item.original_name}
-              subtitle={item.character}
-            />
-          )}
-        /> */}
  
         <View>
           <TouchableOpacity
             style={styles.buttonBG}
             onPress={() => {
               navigation.push('CinemaSelection', {
-                BgImage: baseImagePath('w780', movieData.backdrop_path),
-                PosterImage: baseImagePath('original', movieData.poster_path),
+                movieId: route.params.movieId, 
+                // BgImage: baseImagePath('w780', movieData.backdrop_path),
+                // PosterImage: baseImagePath('original', movieData.poster_path),
               });
             }}>
             <Text style={styles.buttonText}>Booking Now</Text>

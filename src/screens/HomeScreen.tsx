@@ -1,3 +1,4 @@
+//HomeScreen.tsx
 import React, { useEffect, useState } from 'react';
 import {
   Text,
@@ -86,7 +87,7 @@ const HomeScreen = ({ navigation }: any) => {
         renderItem={({ item, index }) => (
           <MovieCard
             shoudlMarginatedAtEnd={true}
-            cardFunction={() => navigation.push('MovieDetails', { movieid: item.id })}
+            cardFunction={() => navigation.push('MovieDetails', { movieId: item.id })}
             cardWidth={width * 0.7}
             isFirst={index === 0}
             isLast={index === nowPlayingMoviesList.length - 1}

@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // Tạo instance axios với cấu hình mặc định
 const api = axios.create({
-  baseURL: 'http://192.168.1.213:5000', // Thay thế bằng URL của BE
+  baseURL: 'http://192.168.1.14:5000', // Thay thế bằng URL của BE
   headers: {
     'Content-Type': 'application/json',
   },
@@ -109,4 +109,42 @@ export const changePassword = async (userId, currentPassword, newPassword) => {
     throw error; // Đảm bảo ném lỗi để có thể xử lý ở nơi gọi hàm
   }
 };
+// export const fetchShowtimesByMovie = async (movieId) => {
+//   try {
+//     const response = await axios.get(`/api/customer/movie/${movieId}/showtimes`);
+//     return response.data;
+//   } catch (error) {
+//     console.error('Error fetching showtimes: ', error);
+//     throw error;
+//   }
+// };
+export const fetchShowtimesByMovie = async (movieId, date) => {
+  try {
+    const response = await api.get(`/api/customer/movie/${movieId}/showtimes`, {
+      params: {
+        date: date,
+      },
+    });
+    console.log("check res ", response)
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching showtimes: ', error);
+    throw error;
+  }
+};
+export const fetchSeatsByShowtime = async (showtimeId) => {
+  try {
+    const response = await api.get(`/api/customer/showtimes/${showtimeId}/seats`);
+    console.log("check response fetchseatbyshowtime", response)
+    if (response.data.status === 'success') {
+      return response.data.data.seats;
+    } else {
+      throw new Error('Failed to fetch seats');
+    }
+  } catch (error) {
+    console.error('Error fetching seats:', error);
+    throw error;
+  }
+};
+
 export default api;
