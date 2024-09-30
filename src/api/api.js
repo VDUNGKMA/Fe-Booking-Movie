@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // Tạo instance axios với cấu hình mặc định
 const api = axios.create({
-  baseURL: 'http://192.168.1.14:5000', // Thay thế bằng URL của BE
+  baseURL: 'http://192.168.1.12:5000', // Thay thế bằng URL của BE
   headers: {
     'Content-Type': 'application/json',
   },
@@ -135,7 +135,7 @@ export const fetchShowtimesByMovie = async (movieId, date) => {
 export const fetchSeatsByShowtime = async (showtimeId) => {
   try {
     const response = await api.get(`/api/customer/showtimes/${showtimeId}/seats`);
-    console.log("check response fetchseatbyshowtime", response)
+    // console.log("check response fetchseatbyshowtime", response)
     if (response.data.status === 'success') {
       return response.data.data.seats;
     } else {
@@ -145,6 +145,29 @@ export const fetchSeatsByShowtime = async (showtimeId) => {
     console.error('Error fetching seats:', error);
     throw error;
   }
+};
+// Tạo ticket
+export const createTicket = async (showtimeId, seatIds, paymentMethod, userId) => {
+  try {
+    const response = await api.post(`/api/customer/tickets`, {
+      showtimeId,
+      seatIds,
+      paymentMethod,
+      userId,
+    });
+    console.log("check ress", response.data)
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+// Các hàm gọi API
+export const createPayment = (userId, ticketId) => {
+  return api.post('/api/customer/create-payment', { userId, ticketId, });
+};
+
+export const executePayment = (token) => {
+  return api.get(`/api/customer/payment/success?token=${token}`);
 };
 
 export default api;

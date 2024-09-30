@@ -1,39 +1,25 @@
+// src/screens/SuccessScreen.tsx
+
 import React from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
-import { COLORS, FONTFAMILY, FONTSIZE, SPACING } from '../theme/theme'; 
+import { View, Text, StyleSheet, Image, Button } from 'react-native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
-interface RouteParams {
-  amount?: number; // Hoặc `string` nếu số tiền là chuỗi
-}
-
-const SuccessScreen = () => {
-  const route = useRoute();
-  const navigation = useNavigation<any>();
-
-  // Lấy số tiền từ params nếu có
-  const { amount } = route.params as RouteParams;
-
-  // Kiểm tra số tiền và điều hướng nếu không có số tiền
-  if (amount === undefined) {
-    console.error('No amount provided');
-    return null;
-  }
+const SuccessScreen = ({ navigation, route }: any) => {
+  // const navigation = useNavigation();
+  // const route = useRoute();
+  const { qrCode } = route.params as { qrCode: string };
 
   return (
     <View style={styles.container}>
-      <Image source={require('../assets/image/img15.png')} style={styles.icon} />
-      <Text style={styles.title}>Your Tickets</Text>
-      <Text style={styles.message}>Congratulations! Your payment of ${amount} was successful.</Text>
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => {
-          console.log('Navigating to TicketScreen'); // Thêm thông báo debug
-          navigation.navigate('Ticket');
-        }}
-      >
-        <Text style={styles.buttonText}>Done</Text>
-      </TouchableOpacity>
+      <Text style={styles.title}>Thanh Toán Thành Công!</Text>
+      <Image
+        source={{ uri: qrCode }}
+        style={styles.qrCode}
+      />
+      <Button
+        title="Quay Lại Trang Chủ"
+        onPress={() => navigation.navigate('Tab')}
+      />
     </View>
   );
 };
@@ -43,37 +29,19 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.Black,
-    padding: SPACING.space_24,
-  },
-  icon: {
-    width: 100,
-    height: 100,
-    marginBottom: SPACING.space_24,
+    padding: 20,
+    backgroundColor: '#E6FFE6',
   },
   title: {
-    fontFamily: FONTFAMILY.poppins_semibold,
-    fontSize: FONTSIZE.size_24,
-    color: COLORS.Red,
-    marginBottom: SPACING.space_10,
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    color: '#008000',
   },
-  message: {
-    fontFamily: FONTFAMILY.poppins_regular,
-    fontSize: FONTSIZE.size_18,
-    color: COLORS.White,
-    textAlign: 'center',
-    marginBottom: SPACING.space_20,
-  },
-  button: {
-    backgroundColor: COLORS.Orange,
-    paddingHorizontal: SPACING.space_24,
-    paddingVertical: SPACING.space_12,
-    borderRadius: 25,
-  },
-  buttonText: {
-    fontFamily: FONTFAMILY.poppins_semibold,
-    fontSize: FONTSIZE.size_16,
-    color: COLORS.White,
+  qrCode: {
+    width: 200,
+    height: 200,
+    marginBottom: 30,
   },
 });
 

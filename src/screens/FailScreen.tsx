@@ -1,25 +1,20 @@
-// FailScreen.tsx
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image, ScrollView } from 'react-native';
-import { COLORS, FONTFAMILY, FONTSIZE, SPACING } from '../theme/theme';
+// src/screens/FailScreen.tsx
 
-const FailScreen = ({ navigation }: any) => {
+import React from 'react';
+import { View, Text, StyleSheet, Button } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+
+const FailScreen = ({ navigation, route }: any) => {
+  // const navigation = useNavigation();
+
   return (
     <View style={styles.container}>
-      <Image
-        source={require('../assets/image/img14.png')} 
-        style={styles.icon}
+      <Text style={styles.title}>Thanh Toán Thất Bại!</Text>
+      <Text style={styles.message}>Vui lòng thử lại hoặc liên hệ hỗ trợ.</Text>
+      <Button
+        title="Quay Lại Trang Chủ"
+        onPress={() => navigation.navigate('Tab')}
       />
-      <Text style={styles.title}>Fail</Text>
-      <Text style={styles.message}>
-        Sorry, your payment could not be processed. Please try again.
-      </Text>
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => navigation.navigate('PaymentConfirmationScreen')}
-      >
-        <Text style={styles.buttonText}>Go Back</Text>
-      </TouchableOpacity>
     </View>
   );
 };
@@ -29,37 +24,19 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.Black,
-    padding: SPACING.space_24,
-  },
-  icon: {
-    width: 100,
-    height: 100,
-    marginBottom: SPACING.space_24,
+    padding: 20,
+    backgroundColor: '#FFE6E6',
   },
   title: {
-    fontFamily: FONTFAMILY.poppins_semibold,
-    fontSize: FONTSIZE.size_24,
-    color: COLORS.Red,
-    marginBottom: SPACING.space_10,
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 20,
+    color: '#FF0000',
   },
   message: {
-    fontFamily: FONTFAMILY.poppins_regular,
-    fontSize: FONTSIZE.size_18,
-    color: COLORS.White,
+    fontSize: 16,
+    marginBottom: 30,
     textAlign: 'center',
-    marginBottom: SPACING.space_20,
-  },
-  button: {
-    backgroundColor: COLORS.Orange,
-    paddingHorizontal: SPACING.space_24,
-    paddingVertical: SPACING.space_12,
-    borderRadius: 25,
-  },
-  buttonText: {
-    fontFamily: FONTFAMILY.poppins_semibold,
-    fontSize: FONTSIZE.size_16,
-    color: COLORS.White,
   },
 });
 

@@ -1,80 +1,84 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { View, Text, ImageBackground, ScrollView, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { COLORS, SIZES } from '../theme/theme';
 import api from '../api/api'; // Import API
 import { AxiosError } from 'axios';
-import axios from 'axios';
-
+import { AuthContext } from '../context/AuthContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const SignInScreen = ({ navigation }: any) => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState(''); // Biến để lưu thông báo lỗi
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState(''); // Biến để lưu thông báo lỗi
+  // const [isLoggedIn, setIsLoggedIn] = useState(false); // Trạng thái để quản lý đăng nhập
+  const { setIsLoggedIn } = useContext(AuthContext);
+  const handleSignIn = async () => {
+    try {
+      const response = await api.post('/api/auth/login', { email, password }); // Gọi API đăng nhập
+      const userId = response.data.data.user.id;
 
-    const handleSignIn = async () => {
-        try {
-            const response = await api.post('/api/auth/login', { email, password }); // Gọi API đăng nhập
-            const userId = response.data.data.user.id;
-            
-            //console.log("cmt",userId.user);
-            
-            // Nếu đăng nhập thành công, điều hướng tới UserAccountScreen
-            navigation.navigate('UserAccountScreen', { userId: userId });
-        } catch (error: any) {
-            console.error(error);
-            // Hiển thị thông báo lỗi nếu đăng nhập thất bại
-            setError('Invalid email or password');
-        }
-    };
+      // Lưu userId vào AsyncStorage
+      await AsyncStorage.setItem('userId', userId.toString());
+      setIsLoggedIn(true); // Đặt trạng thái đăng nhập thành true
+      // Nếu đăng nhập thành công, điều hướng tới UserAccountScreen
+      // navigation.navigate('UserAccountScreen', { userId: userId });
+      // navigation.navigate('Home');
+      navigation.navigate('Home', { isLoggedIn: true });
+    } catch (error: any) {
+      console.error(error);
+      // Hiển thị thông báo lỗi nếu đăng nhập thất bại
+      setError('Invalid email or password');
+    }
+  };
 
-    return (
-        <View style={styles.container}>
-            <ImageBackground
-                source={require('../assets/image/img8.png')}
-                style={{ flex: 1 }}
-                resizeMode="cover"
-            >
-                <ScrollView>
-                    <View style={styles.topContainer}>
-                        <Text style={styles.title}>Welcome Back</Text>
-                        <Text style={styles.subtitle}>Sign in to continue</Text>
-                    </View>
-                    <View style={styles.dataContainer}>
-                        <TextInput
-                            placeholder='Email'
-                            value={email}
-                            onChangeText={setEmail}
-                            style={styles.textInput}
-                            placeholderTextColor={COLORS.white}
-                        />
-                        <TextInput
-                            placeholder='Password'
-                            value={password}
-                            onChangeText={setPassword}
-                            style={styles.textInput}
-                            placeholderTextColor={COLORS.white}
-                            secureTextEntry
-                        />
-                        {error ? <Text style={styles.errorText}>{error}</Text> : null}
-                    </View>
-                    <View style={styles.btnContainer}>
-                        <TouchableOpacity onPress={handleSignIn}>
-                            <View style={styles.button}>
-                                <Text style={styles.btnText}>SIGN IN</Text>
-                            </View>
-                        </TouchableOpacity>
-                        <TouchableOpacity onPress={() => navigation.navigate('ForgetPwdScreen')}>
-                            <Text style={styles.text}>Forgot your password? | Click here</Text>
-                        </TouchableOpacity>
-                    </View>
-                    <View style={styles.bottomContainer}>
-                        <TouchableOpacity onPress={() => navigation.navigate('SignUpScreen')}>
-                            <Text style={styles.text}>Don't have an account? | Sign Up</Text>
-                        </TouchableOpacity>
-                    </View>
-                </ScrollView>
-            </ImageBackground>
-        </View>
-    );
+  return (
+    <View style={styles.container}>
+      <ImageBackground
+        source={require('../assets/image/img8.png')}
+        style={{ flex: 1 }}
+        resizeMode="cover"
+      >
+        <ScrollView>
+          <View style={styles.topContainer}>
+            <Text style={styles.title}>Welcome Back</Text>
+            <Text style={styles.subtitle}>Sign in to continue</Text>
+          </View>
+          <View style={styles.dataContainer}>
+            <TextInput
+              placeholder='Email'
+              value={email}
+              onChangeText={setEmail}
+              style={styles.textInput}
+              placeholderTextColor={COLORS.white}
+            />
+            <TextInput
+              placeholder='Password'
+              value={password}
+              onChangeText={setPassword}
+              style={styles.textInput}
+              placeholderTextColor={COLORS.white}
+              secureTextEntry
+            />
+            {error ? <Text style={styles.errorText}>{error}</Text> : null}
+          </View>
+          <View style={styles.btnContainer}>
+            <TouchableOpacity onPress={handleSignIn}>
+              <View style={styles.button}>
+                <Text style={styles.btnText}>SIGN IN</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('ForgetPwdScreen')}>
+              <Text style={styles.text}>Forgot your password? | Click here</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.bottomContainer}>
+            <TouchableOpacity onPress={() => navigation.navigate('SignUpScreen')}>
+              <Text style={styles.text}>Don't have an account? | Sign Up</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      </ImageBackground>
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
