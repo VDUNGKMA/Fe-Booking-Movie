@@ -169,5 +169,7 @@ export const createPayment = (userId, ticketId) => {
 export const executePayment = (token) => {
   return api.get(`/api/customer/payment/success?token=${token}`);
 };
-
+export const cancelPaymentApi = (token) => {
+  return api.get(`/api/customer/cancel-payment?token=${token}`);
+};
 export default api;

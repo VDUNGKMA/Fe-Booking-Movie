@@ -27,7 +27,12 @@
             <action android:name="android.intent.action.VIEW" />
             <category android:name="android.intent.category.DEFAULT" />
             <category android:name="android.intent.category.BROWSABLE" />
-            <data android:scheme="movieapp" android:host="payment/success" />
+            <!-- <data android:scheme="movieapp" android:host="payment/success" /> -->
+            <data
+            android:scheme="movieapp"
+            android:host="payment"
+            android:pathPrefix="/success" />
+          
           </intent-filter>
   
   <!-- Intent filter cho payment/cancel -->
@@ -35,8 +40,13 @@
           <action android:name="android.intent.action.VIEW" />
           <category android:name="android.intent.category.DEFAULT" />
           <category android:name="android.intent.category.BROWSABLE" />
-          <data android:scheme="movieapp" android:host="payment/cancel" />
-        </intent-filter>
+          <!-- <data android:scheme="movieapp" android:host="payment/cancel" /> -->
+          <data
+            android:scheme="movieapp"
+            android:host="payment"
+            android:pathPrefix="/cancel" />
+          </intent-filter>
+        
       </activity>
     </application>
 </manifest>

@@ -167,56 +167,70 @@ import AppNavigator from './src/navigators/AppNavigator';
 import { AuthProvider } from './src/context/AuthContext'; // Import AuthProvider
 import { RootStackParamList } from './src/types/navigationTypes';
 import linkingConfig from './src/utils/linkingConfig';
-
+import { enableScreens } from 'react-native-screens';
+import InfoScreen from './src/screens/InfoScreen';
+import ChangePwdScreen from './src/screens/ChangePwdScreen';
+import SignInScreen from './src/screens/SignInScreen';
+enableScreens();
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const App = () => {
   return (
     <AuthProvider>
-    <NavigationContainer linking={linkingConfig}>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen
-          name="Tab"
-          component={TabNavigator}
-          options={{ animation: 'default' }}
-        />
-        <Stack.Screen
-          name="MovieDetails"
-          component={MovieDetailsScreen}
-          options={{ animation: 'slide_from_right' }}
-        />
-        <Stack.Screen
-          name="CinemaSelection"
-          component={CinemaSelectionScreen}
-          options={{ animation: 'slide_from_right' }}
-        />
-        <Stack.Screen
-          name="SeatBooking"
-          component={SeatBookingScreen}
-          options={{ animation: 'slide_from_bottom' }}
-        />
-        <Stack.Screen
-          name="PayPalPayment"
-          component={PayPalPaymentScreen}
-          options={{ animation: 'slide_from_bottom' }}
-        />
-        <Stack.Screen
-          name="SuccessScreen"
-          component={SuccessScreen}
-          options={{ animation: 'slide_from_bottom' }}
-        />
-        <Stack.Screen
-          name="FailScreen"
-          component={FailScreen}
-          options={{ animation: 'slide_from_bottom' }}
-        />
-        <Stack.Screen
-          name="Auth"
-          component={AppNavigator}
-          options={{ animation: 'slide_from_bottom' }}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+      <NavigationContainer linking={linkingConfig}>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen
+            name="Tab"
+            component={TabNavigator}
+            options={{ animation: 'default' }}
+          />
+          <Stack.Screen
+            name="MovieDetails"
+            component={MovieDetailsScreen}
+            options={{ animation: 'slide_from_right' }}
+          />
+          <Stack.Screen
+            name="CinemaSelection"
+            component={CinemaSelectionScreen}
+            options={{ animation: 'slide_from_right' }}
+          />
+          <Stack.Screen
+            name="SeatBooking"
+            component={SeatBookingScreen}
+            options={{ animation: 'slide_from_bottom' }}
+          />
+          <Stack.Screen
+            name="PayPalPayment"
+            component={PayPalPaymentScreen}
+            options={{ animation: 'slide_from_bottom' }}
+          />
+          <Stack.Screen
+            name="SuccessScreen"
+            component={SuccessScreen}
+            options={{ animation: 'slide_from_bottom' }}
+          />
+          <Stack.Screen
+            name="FailScreen"
+            component={FailScreen}
+            options={{ animation: 'slide_from_bottom' }}
+          />
+          <Stack.Screen
+            name="Auth"
+            component={AppNavigator}
+            options={{ animation: 'slide_from_bottom' }}
+          />
+          <Stack.Screen name="InfoScreen"
+            component={InfoScreen}
+            options={{ animation: 'slide_from_bottom' }} />
+          <Stack.Screen name="ChangePwdScreen"
+            component={ChangePwdScreen}
+            options={{ animation: 'slide_from_bottom' }} />
+          <Stack.Screen name="SignInScreen"
+            component={SignInScreen}
+            options={{ animation: 'slide_from_bottom' }} />
+
+        </Stack.Navigator>
+      </NavigationContainer>
     </AuthProvider>
   );
 };

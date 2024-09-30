@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Text, View, StyleSheet, StatusBar, Image, ActivityIndicator } from 'react-native';
+import { Text, View, StyleSheet, StatusBar, Image, ActivityIndicator, Alert } from 'react-native';
 import axios from 'axios';
 import { COLORS, FONTFAMILY, FONTSIZE, SPACING } from '../theme/theme';
 import AppHeader from '../components/AppHeader';
@@ -45,7 +45,27 @@ const UserAccountScreen = ({ route, navigation }: any) => {
             </View>
         );
     }
-
+    const handleLogoutPress = () => {
+        Alert.alert(
+            'Confirm Logout',
+            'Are you sure you want to logout?',
+            [
+                {
+                    text: 'No', // Nếu nhấn "No" sẽ đóng popup
+                    style: 'cancel',
+                },
+                {
+                    text: 'Yes', // Nếu nhấn "Yes" sẽ chuyển đến màn hình đăng nhập
+                    onPress: async () => {
+                        // Xóa thông tin người dùng khỏi AsyncStorage (nếu cần)
+                        await AsyncStorage.removeItem('userId');
+                        navigation.navigate('SignInScreen');
+                    },
+                },
+            ],
+            { cancelable: true } // Cho phép đóng popup bằng cách nhấn ra ngoài
+        );
+    };
     return (
 
         <View style={styles.container}>
@@ -77,23 +97,17 @@ const UserAccountScreen = ({ route, navigation }: any) => {
                 />
 
                 <SettingComponent
-                    icon="dollar"
-                    heading="Bank Account"
-                    subheading="View Bank Details"
-                    subtitle="Add or Update Bank Account"
-                    onPress={handleBankAccountPress}
-                />
-                <SettingComponent
                     icon="setting"
                     heading="Settings"
                     subheading="Theme"
                     subtitle="Permissions"
                 />
                 <SettingComponent
-                    icon="info"
-                    heading="About"
-                    subheading="About Movies"
-                    subtitle="more"
+                    icon="close"
+                    heading="Logout"
+                    subheading="Logout from your account"
+                    subtitle="Confirm Logout"
+                    onPress={handleLogoutPress}
                 />
             </View>
         </View>

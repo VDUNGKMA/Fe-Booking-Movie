@@ -80,7 +80,7 @@ const AppNavigator = () => {
       <Stack.Screen name="UserAccountScreen" component={UserAccountScreen} />
       <Stack.Screen name="VerificationScreen" component={VerificationScreen} />
       <Stack.Screen name="ResetPwdScreen" component={ResetPwdScreen} />
-      <Stack.Screen name="InfoScreen" component={InfoScreen} />
+      <Stack.Screen name="InfoScreen" component={InfoScreen}   />
       <Stack.Screen name="CardScreen" component={CardScreen} />
       <Stack.Screen name="InfoCardScreen" component={InfoCardScreen} />
       <Stack.Screen name="PaymentConfirmationScreen" component={PaymentConfirmationScreen} />

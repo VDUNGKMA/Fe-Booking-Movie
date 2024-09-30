@@ -37,4 +37,7 @@ export type RootStackParamList = {
     SuccessScreen: { qrCode: string };
     FailScreen: undefined;
     Auth: NavigatorScreenParams<AuthStackParamList>;
+    InfoScreen: undefined;
+    ChangePwdScreen: undefined;
+    SignInScreen: undefined;
 };
