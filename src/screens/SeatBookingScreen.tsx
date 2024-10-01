@@ -942,7 +942,7 @@ import { createTicket, fetchSeatsByShowtime } from '../api/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SeatBookingScreen = ({ navigation, route }: any) => {
-  const { showtimeId } = route.params;
+  const { showtimeId, showtimePrice } = route.params;
   const [seatsData, setSeatsData] = useState<any[]>([]);
   const [seatRows, setSeatRows] = useState<any[][]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -981,10 +981,10 @@ const SeatBookingScreen = ({ navigation, route }: any) => {
   const selectSeat = (seatId: number, seatPrice: number) => {
     if (selectedSeats.includes(seatId)) {
       setSelectedSeats(selectedSeats.filter(id => id !== seatId));
-      setPrice(price - seatPrice);
+      setPrice(price - seatPrice - parseFloat(showtimePrice));
     } else {
       setSelectedSeats([...selectedSeats, seatId]);
-      setPrice(price + seatPrice);
+      setPrice(price + seatPrice + parseFloat(showtimePrice));
     }
   };
 
@@ -1134,7 +1134,7 @@ const SeatBookingScreen = ({ navigation, route }: any) => {
       <View style={styles.buttonPriceContainer}>
         <View style={styles.priceContainer}>
           <Text style={styles.totalPriceText}>Tổng giá</Text>
-          <Text style={styles.price}>{price} VND</Text>
+          <Text style={styles.price}>{(price).toLocaleString('vi-VN')} VND</Text>
         </View>
         <TouchableOpacity onPress={BookSeats}>
           <Text style={styles.buttonText}>Mua vé</Text>

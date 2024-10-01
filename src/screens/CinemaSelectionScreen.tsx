@@ -269,6 +269,8 @@ const CinemaSelectionScreen = ({ navigation, route }: any) => {
   const { movieId } = route.params; // Nhận movieId từ tham số truyền vào
   const [selectedDate, setSelectedDate] = useState<string>(dates[0].fullDate);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [selectedPrice, setSelectedPrice] = useState<string | null>(null);
+
   const [expandedCinema, setExpandedCinema] = useState<number | null>(null);
   const [showtimesData, setShowtimesData] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -279,6 +281,7 @@ const CinemaSelectionScreen = ({ navigation, route }: any) => {
         setLoading(true);
         console.log("moiveid", movieId, selectedDate)
         const data = await fetchShowtimesByMovie(movieId, selectedDate);
+        console.log("check showtime abc", data)
         setShowtimesData(data);
         setSelectedTime(null); // Reset selectedTime khi dữ liệu thay đổi
       } catch (error) {
@@ -295,16 +298,7 @@ const CinemaSelectionScreen = ({ navigation, route }: any) => {
     setExpandedCinema(expandedCinema === cinemaId ? null : cinemaId);
   };
 
-  // // Lọc suất chiếu theo ngày đã chọn
-  // const filteredShowtimes = showtimesData.filter((showtime) => {
-  //   return showtime.start_time.startsWith(selectedDate);
-  // });
-
-  // Nhóm suất chiếu theo rạp
-  // const cinemas = filteredShowtimes.reduce((accumulator, showtime) => {
-  //   const cinemaId = showtime.theater.cinema.id;
-  //   const cinemaName = showtime.theater.cinema.name;
-  //   const theaterName = showtime.theater.name;
+ 
   const cinemas = showtimesData.reduce((accumulator, showtime) => {
     const cinemaId = showtime.theater.cinema.id;
     const cinemaName = showtime.theater.cinema.name;
@@ -388,6 +382,7 @@ const CinemaSelectionScreen = ({ navigation, route }: any) => {
                       <View style={styles.timeContainer}>
                         {theater.showtimes.map((showtime: any) => {
                           const time = showtime.start_time.substring(11, 16); // Lấy giờ và phút
+                          const price = showtime.price; 
                           return (
                             <TouchableOpacity
                               key={showtime.id}
@@ -397,7 +392,10 @@ const CinemaSelectionScreen = ({ navigation, route }: any) => {
                                   ? styles.selectedTime
                                   : styles.defaultTime,
                               ]}
-                              onPress={() => setSelectedTime(showtime.id)}
+                              onPress={() => {setSelectedTime(showtime.id)
+                                setSelectedPrice(price); // Lưu selectedPrice
+                              }
+                              }
                             >
                               <Text style={styles.timeText}>{time}</Text>
                             </TouchableOpacity>
@@ -423,6 +421,7 @@ const CinemaSelectionScreen = ({ navigation, route }: any) => {
             navigation.navigate('SeatBooking', {
               showtimeId: selectedTime,
               movieId: movieId,
+              showtimePrice: selectedPrice,
             });
           } else {
             // Nếu chưa chọn, hiển thị thông báo hoặc xử lý lỗi ở đây
