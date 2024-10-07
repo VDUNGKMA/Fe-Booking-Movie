@@ -3,52 +3,119 @@ import axios from 'axios';
 
 // Tạo instance axios với cấu hình mặc định
 const api = axios.create({
-  baseURL: 'http://192.168.1.12:5000', // Thay thế bằng URL của BE
+  baseURL: 'http://192.168.1.14:5000', // Thay thế bằng URL của BE
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
 // Hàm gọi API để lấy danh sách phim đang chiếu
+// export const fetchNowPlayingMovies = async () => {
+//   try {
+//     const response = await api.get(`/api/customer/movies`);
+//     if (response.data.status === 'success') {
+//       // console.log("check fetchMovies", response.data.data.movies)
+//       return response.data.data.movies; // Trả về danh sách phim
+//     }
+//   } catch (error) {
+//     console.error('Error fetching movies:', error);
+//     return [];
+//   }
+// };
+
+// // Hàm gọi API để lấy danh sách phim sắp chiếu
+// export const fetchUpcomingMovies = async () => {
+//   try {
+//     const response = await api.get(`/api/customer/movies`);
+//     if (response.data.status === 'success') {
+//       // console.log("check fetchMovies", response.data.data.movies)
+//       return response.data.data.movies; // Trả về danh sách phim
+//     }
+//   } catch (error) {
+//     console.error('Error fetching movies:', error);
+//     return [];
+//   }
+// };
+
+// // Hàm gọi API để lấy danh sách phim phổ biến
+// export const fetchPopularMovies = async () => {
+//   try {
+//     const response = await api.get(`/api/customer/movies`);
+//     if (response.data.status === 'success') {
+//       // console.log("check fetchMovies", response.data.data.movies)
+//       return response.data.data.movies; // Trả về danh sách phim
+//     }
+//   } catch (error) {
+//     console.error('Error fetching movies:', error);
+//     return [];
+//   }
+// };
+// Hàm gọi API để lấy danh sách phim đang chiếu
+
 export const fetchNowPlayingMovies = async () => {
+
   try {
-    const response = await api.get(`/api/customer/movies`);
-    if (response.data.status === 'success') {
-      // console.log("check fetchMovies", response.data.data.movies)
-      return response.data.data.movies; // Trả về danh sách phim
-    }
+
+    const response = await api.get(`/api/customer/currentMovies`); // Đảm bảo endpoint đúng
+
+    return response.data; // Trả về dữ liệu
+
   } catch (error) {
-    console.error('Error fetching movies:', error);
-    return [];
+
+    console.error('Error fetching now playing movies:', error);
+
+    throw error; // Ném lỗi để xử lý ở nơi gọi
+
   }
+
 };
+
+
 
 // Hàm gọi API để lấy danh sách phim sắp chiếu
+
 export const fetchUpcomingMovies = async () => {
+
   try {
-    const response = await api.get(`/api/customer/movies`);
-    if (response.data.status === 'success') {
-      // console.log("check fetchMovies", response.data.data.movies)
-      return response.data.data.movies; // Trả về danh sách phim
-    }
+
+    const response = await api.get(`/api/customer/upComingMovies`); // Đảm bảo endpoint đúng
+
+    return response.data; // Trả về dữ liệu
+
   } catch (error) {
-    console.error('Error fetching movies:', error);
-    return [];
+
+    console.error('Error fetching upcoming movies:', error);
+
+    throw error; // Ném lỗi để xử lý ở nơi gọi
+
   }
+
 };
 
-// Hàm gọi API để lấy danh sách phim phổ biến
-export const fetchPopularMovies = async () => {
+
+
+// Gọi API tìm kiếm phim từ BE
+
+export const searchMovies = async (title) => {
+
   try {
-    const response = await api.get(`/api/customer/movies`);
-    if (response.data.status === 'success') {
-      // console.log("check fetchMovies", response.data.data.movies)
-      return response.data.data.movies; // Trả về danh sách phim
-    }
+
+    const response = await api.get(`/api/customer/movie/search`, {
+
+      params: { title }, // Gửi tham số title để tìm kiếm
+
+    });
+
+    return response;
+
   } catch (error) {
-    console.error('Error fetching movies:', error);
-    return [];
+
+    console.error('Error fetching search results: ', error);
+
+    throw error;
+
   }
+
 };
 // export const fetchMovieDetails = async (id) => {
 //   try {

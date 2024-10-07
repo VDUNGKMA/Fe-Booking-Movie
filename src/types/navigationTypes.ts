@@ -40,4 +40,5 @@ export type RootStackParamList = {
     InfoScreen: undefined;
     ChangePwdScreen: undefined;
     SignInScreen: undefined;
+    MovieDetailsScreen: undefined;
 };
