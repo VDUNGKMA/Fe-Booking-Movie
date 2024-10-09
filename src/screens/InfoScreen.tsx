@@ -1,35 +1,92 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, Image } from 'react-native';
-import { COLORS, FONTSIZE, SPACING, FONTFAMILY } from '../theme/theme'; // Đường dẫn đến theme của bạn
+import { View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, Image, Alert } from 'react-native';
+import { COLORS, FONTSIZE, SPACING, FONTFAMILY } from '../theme/theme';
+import { updateUsername } from '../api/api'; // Import hàm API
 
 const InfoScreen = ({ route, navigation }: any) => {
     const { user } = route.params; // Lấy thông tin người dùng từ route.params
     const [isModalVisible, setModalVisible] = useState(false);
     const [newUsername, setNewUsername] = useState(user.username); // Khởi tạo giá trị mới cho username
+    const [loading, setLoading] = useState(false); // State cho việc loading
 
     const handleChangePasswordPress = () => {
-        navigation.navigate('ChangePwdScreen',{userId:user.id});
+        navigation.navigate('ChangePwdScreen', { userId: user.id });
     };
 
-    const handleSaveUsername = () => {
-        if (newUsername) {
-            // Lưu username mới (giả sử)
-            setModalVisible(false);
-            // Thêm logic để lưu lại username mới vào dữ liệu người dùng (có thể sử dụng API hoặc context)
+    // const handleSaveUsername = async () => {
+    //     if (newUsername && newUsername !== user.username) {
+    //         setLoading(true); // Bắt đầu trạng thái loading
+    //         try {
+    //             // Gọi API để cập nhật username
+    //             const response = await updateUsername(user.id, newUsername);
+    //             console.log('Response from server:', response); // Log phản hồi từ server
+
+    //             // Kiểm tra phản hồi từ server
+    //             if (response && response.status === "success") { // Sửa điều kiện ở đây
+    //                 Alert.alert('Thành công', 'Tên người dùng đã được cập nhật.');
+    //                 setModalVisible(false);
+    //                 setNewUsername(response.data.user.username); // Cập nhật tên người dùng từ phản hồi
+    //             } else {
+    //                 // Nếu không thành công
+    //                 Alert.alert('Lỗi', response.message || 'Cập nhật tên người dùng thất bại.');
+    //             }
+    //         } catch (error) {
+    //             // Nếu có lỗi, hiển thị thông báo lỗi
+    //             console.error('Error updating username:', error); // Log lỗi để kiểm tra
+    //             Alert.alert('Lỗi', 'Cập nhật tên người dùng thất bại.');
+    //         } finally {
+    //             setLoading(false); // Kết thúc trạng thái loading
+    //         }
+    //     } else {
+    //         Alert.alert('Thông báo', 'Tên người dùng không được để trống hoặc trùng với tên hiện tại.');
+    //     }
+    // };
+
+    const handleSaveUsername = async () => {
+        if (newUsername && newUsername !== user.username) {
+            setLoading(true); // Bắt đầu trạng thái loading
+            try {
+                // Gọi API để cập nhật username
+                const response = await updateUsername(user.id, newUsername);
+                console.log('Response from server:', response); // Log phản hồi từ server
+
+                // Kiểm tra phản hồi từ server
+                if (response && response.status === "success") { // Sửa điều kiện ở đây
+                    Alert.alert('Thành công', 'Tên người dùng đã được cập nhật.');
+                    setModalVisible(false);
+                    setNewUsername(response.data.user.username); // Cập nhật tên người dùng từ phản hồi
+
+                    // Cập nhật thông tin người dùng trong UserAccountScreen
+                    navigation.setParams({ user: { ...user, username: response.data.user.username } });
+                } else {
+                    // Nếu không thành công
+                    Alert.alert('Lỗi', response.message || 'Cập nhật tên người dùng thất bại.');
+                }
+            } catch (error) {
+                // Nếu có lỗi, hiển thị thông báo lỗi
+                console.error('Error updating username:', error); // Log lỗi để kiểm tra
+                Alert.alert('Lỗi', 'Cập nhật tên người dùng thất bại.');
+            } finally {
+                setLoading(false); // Kết thúc trạng thái loading
+            }
+        } else {
+            Alert.alert('Thông báo', 'Tên người dùng không được để trống hoặc trùng với tên hiện tại.');
         }
     };
 
+
+
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>User Information</Text>
+            <Text style={styles.title}>Thông tin người dùng</Text>
 
             {/* Username */}
             <View style={styles.textBox}>
-                <Text style={styles.infoLabel}>Username: {newUsername}</Text>
+                <Text style={styles.infoLabel}>Tên người dùng: {newUsername}</Text>
                 <TouchableOpacity onPress={() => setModalVisible(true)} style={styles.editIcon}>
                     <Image
-                        source={require('../assets/image/pencil-square.png')} // Đường dẫn đến ảnh icon
-                        style={styles.icon} // Định dạng style cho icon
+                        source={require('../assets/image/pencil-square.png')}
+                        style={styles.icon}
                     />
                 </TouchableOpacity>
             </View>
@@ -41,30 +98,36 @@ const InfoScreen = ({ route, navigation }: any) => {
 
             {/* Contact Number */}
             <View style={styles.textBox}>
-                <Text style={styles.infoLabel}>Contact Number: {user.phone_number}</Text>
+                <Text style={styles.infoLabel}>Số điện thoại: {user.phone_number}</Text>
             </View>
 
             {/* Change Password Button */}
             <TouchableOpacity style={styles.button} onPress={handleChangePasswordPress}>
-                <Text style={styles.buttonText}>Change Password</Text>
+                <Text style={styles.buttonText}>Thay đổi mật khẩu</Text>
             </TouchableOpacity>
 
             {/* Modal để thay đổi Username */}
             <Modal visible={isModalVisible} animationType="slide" transparent={true}>
                 <View style={styles.modalContainer}>
                     <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>Change Username</Text>
+                        <Text style={styles.modalTitle}>Thay đổi Username</Text>
                         <TextInput
                             style={styles.input}
                             value={newUsername}
                             onChangeText={setNewUsername}
-                            placeholder="Enter new username"
+                            placeholder="Nhập username mới"
                         />
-                        <TouchableOpacity style={styles.saveButton} onPress={handleSaveUsername}>
-                            <Text style={styles.saveButtonText}>Save</Text>
+                        <TouchableOpacity
+                            style={styles.saveButton}
+                            onPress={handleSaveUsername}
+                            disabled={loading} // Vô hiệu hóa khi đang loading
+                        >
+                            <Text style={styles.saveButtonText}>
+                                {loading ? 'Đang lưu...' : 'Lưu'}
+                            </Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.cancelButton} onPress={() => setModalVisible(false)}>
-                            <Text style={styles.cancelButtonText}>Cancel</Text>
+                            <Text style={styles.cancelButtonText}>Hủy</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -77,24 +140,24 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: SPACING.space_20,
-        backgroundColor: COLORS.Black, // Nền màu đen
+        backgroundColor: COLORS.Black,
     },
     title: {
         fontFamily: FONTFAMILY.poppins_medium,
         fontSize: FONTSIZE.size_24,
         marginBottom: SPACING.space_20,
-        color: COLORS.White, // Text màu trắng để dễ đọc trên nền đen
+        color: COLORS.White,
     },
     textBox: {
-        backgroundColor: COLORS.White, // Text box màu trắng
+        backgroundColor: COLORS.White,
         padding: SPACING.space_12,
         borderRadius: 8,
         marginBottom: SPACING.space_15,
-        shadowColor: 'rgba(0, 0, 0, 0.4)', // Đổ bóng với màu mờ hơn để tạo sự mềm mại
-        shadowOffset: { width: 0, height: 6 }, // Vị trí đổ bóng
-        shadowOpacity: 0.3, // Độ mờ của bóng để tạo hiệu ứng nhẹ hơn
-        shadowRadius: 10, // Bán kính đổ bóng lớn hơn
-        elevation: 12, // Đổ bóng cho Android
+        shadowColor: 'rgba(0, 0, 0, 0.4)',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.3,
+        shadowRadius: 10,
+        elevation: 12,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -102,24 +165,24 @@ const styles = StyleSheet.create({
     infoLabel: {
         fontFamily: FONTFAMILY.poppins_regular,
         fontSize: FONTSIZE.size_16,
-        color: COLORS.Black, // Text màu đen trên nền trắng của text box
+        color: COLORS.Black,
     },
     editIcon: {
         marginLeft: 10,
     },
     icon: {
-        width: 24,  // Chiều rộng icon
-        height: 24, // Chiều cao icon
+        width: 24,
+        height: 24,
     },
     button: {
         marginTop: SPACING.space_20,
-        backgroundColor: COLORS.Orange, // Nút màu cam
+        backgroundColor: COLORS.Orange,
         paddingVertical: SPACING.space_12,
         paddingHorizontal: SPACING.space_24,
         borderRadius: 5,
     },
     buttonText: {
-        color: COLORS.White, // Text màu trắng trên nút cam
+        color: COLORS.White,
         fontFamily: FONTFAMILY.poppins_medium,
         fontSize: FONTSIZE.size_16,
         textAlign: 'center',
@@ -128,10 +191,10 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.7)', // Nền trong suốt mờ
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
     },
     modalContent: {
-        backgroundColor: COLORS.White, // Nền trắng cho modal
+        backgroundColor: COLORS.White,
         padding: SPACING.space_20,
         borderRadius: 8,
         width: '80%',

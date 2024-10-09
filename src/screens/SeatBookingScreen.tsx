@@ -1031,13 +1031,13 @@ const SeatBookingScreen = ({ navigation, route }: any) => {
         console.log("check create ticket", response)
         if (response.status === 'success') {
           // Lấy totalPrice và ticketIds từ phản hồi API
-          const { totalPrice, ticketIds } = response.data;
+          const { totalPrice, ticketId } = response.data;
           
           // Chuyển đến màn hình thanh toán hoặc xác nhận
           navigation.navigate('PayPalPayment', {
             // totalPrice: response.data.totalPrice,
             userId,
-            ticketIds // Nếu API trả về danh sách ticketIds
+            ticketId // Nếu API trả về danh sách ticketIds
           });
         } else {
           // Hiển thị thông báo lỗi

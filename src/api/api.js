@@ -117,18 +117,7 @@ export const searchMovies = async (title) => {
   }
 
 };
-// export const fetchMovieDetails = async (id) => {
-//   try {
-//     const response = await api.get(`/api/customer/movies/${id}`);
-//     if (response.data.status === 'success') {
-//       console.log("check fetchMovies", response.data.data)
-//       return response.data.data; // Trả về danh sách phim
-//     }
-//   } catch (error) {
-//     console.error('Error fetching movies:', error);
-//     return [];
-//   }
-// };
+
 
 // phim
 export const fetchMovieDetails = async (id) => {
@@ -160,7 +149,29 @@ export const fetchUserInfo = async (userId) => {
     throw error; // Đảm bảo ném lỗi để có thể xử lý ở nơi gọi hàm
   }
 };
+// Hàm cập nhật username
+export const updateUsername = async (userId, newUsername) => {
+  try {
+    // Gửi yêu cầu POST đến API để cập nhật username
+    const response = await api.post(`/api/customer/changeUsername/${userId}`, {
+      newUsername, // Truyền username mới vào body
+    });
 
+    console.log('Response from server:', response.data); // Log phản hồi từ server
+
+    // Kiểm tra phản hồi từ server
+    if (response.data.status === "success") {
+      console.log('Username updated successfully:', response.data.data.user);
+      return response.data; // Trả về dữ liệu phản hồi từ server
+    } else {
+      console.error('Failed to update username:', response.data.message);
+      return response.data; // Trả về dữ liệu để biết lý do thất bại
+    }
+  } catch (error) {
+    console.error('Error updating username:', error);
+    throw error; // Quăng lỗi để xử lý ngoài hàm nếu cần
+  }
+};
 // Hàm gọi API để thay đổi mật khẩu người dùng
 export const changePassword = async (userId, currentPassword, newPassword) => {
   console.log("m", userId);

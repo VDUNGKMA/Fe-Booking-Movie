@@ -115,7 +115,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { cancelPaymentApi, createPayment, executePayment } from '../api/api';
 
 const PayPalPaymentScreen = ({ navigation, route }: any) => {
-  const { ticketIds, userId } = route.params as { ticketIds: number; userId: number };
+  const { ticketId, userId } = route.params as { ticketId: number; userId: number };
 
   const [loading, setLoading] = useState(true);
   const [approvalUrl, setApprovalUrl] = useState<string | null>(null);
@@ -124,7 +124,8 @@ const PayPalPaymentScreen = ({ navigation, route }: any) => {
     // Tạo đơn hàng PayPal khi component được mount
     const initiatePayment = async () => {
       try {
-        const response = await createPayment(userId, ticketIds);
+        console.log("check userId, ticketIds", userId, ticketId)
+        const response = await createPayment(userId, ticketId);
         setApprovalUrl(response.data.approvalUrl); // Đảm bảo backend trả về { approvalUrl, orderId }
       } catch (error) {
         console.error(error);
@@ -136,7 +137,7 @@ const PayPalPaymentScreen = ({ navigation, route }: any) => {
     };
 
     initiatePayment();
-  }, [ticketIds, userId, navigation]);
+  }, [ticketId, userId, navigation]);
 
   const handleShouldStartLoadWithRequest = (request: any) => {
     const { url } = request;

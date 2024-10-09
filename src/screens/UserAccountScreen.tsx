@@ -6,9 +6,8 @@ import AppHeader from '../components/AppHeader';
 import SettingComponent from '../components/SettingComponent';
 import api from '../api/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-const UserAccountScreen = ({ route, navigation }: any) => {
-    // const { userId } = route.params; // Lấy userId từ route.params
 
+const UserAccountScreen = ({ route, navigation }: any) => {
     const [user, setUser] = useState<any>(null); // State lưu thông tin người dùng
     const [loading, setLoading] = useState(true); // State để theo dõi trạng thái loading
 
@@ -18,7 +17,6 @@ const UserAccountScreen = ({ route, navigation }: any) => {
         try {
             const response = await api.get(`api/customer/user/${userId}`); // Sửa URL API ở đây
             setUser(response.data.data.user);
-
         } catch (error) {
             console.error('Error fetching user data:', error);
         } finally {
@@ -28,7 +26,14 @@ const UserAccountScreen = ({ route, navigation }: any) => {
 
     useEffect(() => {
         fetchUserData(); // Gọi API khi component được render
-    }, []);
+
+        // Lắng nghe sự kiện quay lại màn hình
+        const unsubscribe = navigation.addListener('focus', () => {
+            fetchUserData(); // Cập nhật dữ liệu người dùng mỗi khi màn hình được hiển thị lại
+        });
+
+        return unsubscribe; // Trả về hàm huỷ sự kiện khi component unmount
+    }, [navigation]);
 
     const handleBankAccountPress = () => {
         if (user?.hasBankAccount) {
@@ -45,6 +50,7 @@ const UserAccountScreen = ({ route, navigation }: any) => {
             </View>
         );
     }
+
     const handleLogoutPress = () => {
         Alert.alert(
             'Confirm Logout',
@@ -57,7 +63,6 @@ const UserAccountScreen = ({ route, navigation }: any) => {
                 {
                     text: 'Yes', // Nếu nhấn "Yes" sẽ chuyển đến màn hình đăng nhập
                     onPress: async () => {
-                        // Xóa thông tin người dùng khỏi AsyncStorage (nếu cần)
                         await AsyncStorage.removeItem('userId');
                         navigation.navigate('SignInScreen');
                     },
@@ -66,8 +71,8 @@ const UserAccountScreen = ({ route, navigation }: any) => {
             { cancelable: true } // Cho phép đóng popup bằng cách nhấn ra ngoài
         );
     };
-    return (
 
+    return (
         <View style={styles.container}>
             <StatusBar hidden />
             <View style={styles.appHeaderContainer}>
@@ -84,7 +89,6 @@ const UserAccountScreen = ({ route, navigation }: any) => {
                     style={styles.avatarImage}
                 />
                 <Text style={styles.avatarText}>{user?.username}</Text>
-
             </View>
 
             <View style={styles.profileContainer}>
@@ -148,4 +152,3 @@ const styles = StyleSheet.create({
 });
 
 export default UserAccountScreen;
-
