@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Text, View, StyleSheet, StatusBar, Image, ActivityIndicator, Alert } from 'react-native';
 import axios from 'axios';
 import { COLORS, FONTFAMILY, FONTSIZE, SPACING } from '../theme/theme';
@@ -6,11 +6,12 @@ import AppHeader from '../components/AppHeader';
 import SettingComponent from '../components/SettingComponent';
 import api from '../api/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { AuthContext } from '../context/AuthContext';
 
 const UserAccountScreen = ({ route, navigation }: any) => {
     const [user, setUser] = useState<any>(null); // State lưu thông tin người dùng
     const [loading, setLoading] = useState(true); // State để theo dõi trạng thái loading
-
+    const { setIsLoggedIn } = useContext(AuthContext);
     // Hàm gọi API để lấy thông tin người dùng
     const fetchUserData = async () => {
         const userId = await AsyncStorage.getItem('userId');
@@ -64,7 +65,14 @@ const UserAccountScreen = ({ route, navigation }: any) => {
                     text: 'Yes', // Nếu nhấn "Yes" sẽ chuyển đến màn hình đăng nhập
                     onPress: async () => {
                         await AsyncStorage.removeItem('userId');
-                        navigation.navigate('SignInScreen');
+                        await AsyncStorage.removeItem('jwtToken');
+                        setIsLoggedIn(false);
+                        // navigation.navigate('SignInScreen');
+                        navigation.replace('TabNavigator', {
+                            screen: 'Home',
+                            params: { isLoggedIn: true },
+                        });
+
                     },
                 },
             ],

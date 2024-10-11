@@ -1,5 +1,5 @@
-//MovieDetailScreen 
-import React, {useEffect, useState} from 'react';
+// MovieDetailsScreen.js
+import React, { useEffect, useState } from 'react';
 import {
   Text,
   View,
@@ -9,244 +9,218 @@ import {
   StatusBar,
   ImageBackground,
   Image,
-  FlatList,
   TouchableOpacity,
+  Dimensions,
 } from 'react-native';
-import {baseImagePath, movieCastDetails, movieDetails} from '../api/apicalls';
 import {
-  BORDERRADIUS,
   COLORS,
   FONTFAMILY,
   FONTSIZE,
   SPACING,
+  BORDERRADIUS,
 } from '../theme/theme';
 import AppHeader from '../components/AppHeader';
 import LinearGradient from 'react-native-linear-gradient';
 import CustomIcon from '../components/CustomIcon';
-import CategoryHeader from '../components/CategoryHeader';
-import CastCard from '../components/CastCard';
 import { fetchMovieDetails } from '../api/api';
 import Video from 'react-native-video';
- 
-// const getMovieCastDetails = async (movieid: number) => {
-//   try {
-//     let response = await fetch(movieCastDetails(movieid));
-//     let json = await response.json();
-//     return json;
-//   } catch (error) {
-//     console.error(
-//       'Something Went wrong in getMovieCastDetails Function',
-//       error,
-//     );
-//   }
-// };
- 
-const MovieDetailsScreen = ({navigation, route}: any) => {
+
+const { width, height } = Dimensions.get('window');
+
+const MovieDetailsScreen = ({ navigation, route }: any) => {
   const [movieData, setMovieData] = useState<any>(undefined);
-  const [movieCastData, setmovieCastData] = useState<any>(undefined);
- 
+
   useEffect(() => {
     (async () => {
-      console.log("check movieid", route.params.movieId)
       const tempMovieData = await fetchMovieDetails(route.params.movieId);
       setMovieData(tempMovieData);
     })();
- 
-    // (async () => {
-    //   const tempMovieCastData = await getMovieCastDetails(route.params.movieid);
-    //   setmovieCastData(tempMovieCastData.cast);
-    // })();
   }, []);
- 
-  if (
-    movieData == undefined &&
-    movieData == null &&
-    movieCastData == undefined &&
-    movieCastData == null
-  ) {
+
+  if (!movieData) {
     return (
-      <ScrollView
-        style={styles.container}
-        contentContainerStyle={styles.scrollViewContainer}
-        bounces={false}
-        showsVerticalScrollIndicator={false}>
-        <View style={styles.appHeaderContainer}>
-          <AppHeader
-            name="close"
-            header={''}
-            action={() => navigation.goBack()}
-          />
-        </View>
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size={'large'} color={COLORS.Orange} />
-        </View>
-      </ScrollView>
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size={'large'} color={COLORS.Orange} />
+      </View>
     );
   }
+
   return (
     <ScrollView
       style={styles.container}
-      bounces={false}
-      showsVerticalScrollIndicator={false}>
+      showsVerticalScrollIndicator={false}
+    >
       <StatusBar hidden />
- 
-      <View>
+
+      {/* Hình nền với hiệu ứng Gradient Overlay */}
+      <View style={styles.headerContainer}>
         <ImageBackground
-          source={{
-            uri: movieData.poster_url,
-          }}
-          style={styles.imageBG}>
+          source={{ uri: movieData.poster_url }}
+          style={styles.imageBG}
+        >
           <LinearGradient
-            colors={[COLORS.BlackRGB10, COLORS.Black]}
-            style={styles.linearGradient}>
+            colors={['rgba(0,0,0,0.8)', 'rgba(0,0,0,0.0)']}
+            style={styles.linearGradient}
+          >
             <View style={styles.appHeaderContainer}>
               <AppHeader
-                name="close"
-                header={''}
+                name="arrow-left"
+                header=""
                 action={() => navigation.goBack()}
               />
             </View>
           </LinearGradient>
         </ImageBackground>
-        {/* Phần video */}
-       
-        <View style={styles.imageBG}></View>
-        <Image
-          source={{uri: movieData.poster_url}}
-          style={styles.cardImage}
-        />
-      </View>
- 
-      <View style={styles.timeContainer}>
-        <CustomIcon name="clock" style={styles.clockIcon} />
-        <Text style={styles.runtimeText}>
-          {Math.floor(movieData?.duration / 60)}h{' '}
-          {Math.floor(movieData?.duration % 60)}m
-        </Text>
-      </View>
- 
-      <View>
-        <Text style={styles.title}>{movieData?.title}</Text>
-        <View style={styles.genreContainer}>
-          {movieData?.genres.map((item: any) => {
-            return (
-              <View style={styles.genreBox} key={item.id}>
-                <Text style={styles.genreText}>{item.genre_name}</Text>
-              </View>
-            );
-          })}
+        {/* Poster phim */}
+        <View style={styles.posterContainer}>
+          <Image
+            source={{ uri: movieData.poster_url }}
+            style={styles.posterImage}
+          />
         </View>
-        <Text style={styles.tagline}>{movieData?.tagline}</Text>
       </View>
- 
+
+      {/* Thông tin phim */}
       <View style={styles.infoContainer}>
-        <View style={styles.rateContainer}>
-          <CustomIcon name="star" style={styles.starIcon} />
-          <Text style={styles.runtimeText}>
-            {movieData?.rating}
-          </Text>
-          <Text style={styles.runtimeText}>
-            {movieData?.release_date.substring(8, 10)}{' '}
-            {new Date(movieData?.release_date).toLocaleString('default', {
-              month: 'long',
-            })}{' '}
-            {movieData?.release_date.substring(0, 4)}
-          </Text>
+        <Text style={styles.title}>{movieData.title}</Text>
+
+        {/* Thông tin bổ sung */}
+        <View style={styles.additionalInfo}>
+          <View style={styles.infoItem}>
+            <CustomIcon name="clock" style={styles.infoIcon} />
+            <Text style={styles.infoText}>
+              {Math.floor(movieData?.duration / 60)}h{' '}
+              {Math.floor(movieData?.duration % 60)}m
+            </Text>
+          </View>
+          <View style={styles.infoItem}>
+            <CustomIcon name="radio" style={styles.infoIcon} />
+            <Text style={styles.infoText}>
+              {new Date(movieData?.release_date).toLocaleDateString()}
+            </Text>
+          </View>
+          <View style={styles.infoItem}>
+            <CustomIcon name="star" style={styles.infoIcon} />
+            <Text style={styles.infoText}>{movieData?.rating}</Text>
+          </View>
         </View>
+
+        {/* Thể loại */}
+        <View style={styles.genreContainer}>
+          {movieData?.genres.map((item: any) => (
+            <View style={styles.genreBox} key={item.id}>
+              <Text style={styles.genreText}>{item.genre_name}</Text>
+            </View>
+          ))}
+        </View>
+
+        {/* Mô tả */}
         <Text style={styles.descriptionText}>{movieData?.description}</Text>
-      </View>
-      {movieData?.trailer_url && (
-        <Video
-          source={{ uri: movieData.trailer_url }} // URL video của bạn
-          style={styles.video}
-          controls={true} // Hiện các điều khiển
-          resizeMode="contain"
-          paused={true} // Có thể điều chỉnh để phát hoặc tạm dừng
-        />
-      )}
-      <View>
- 
-        <View>
-          <TouchableOpacity
-            style={styles.buttonBG}
-            onPress={() => {
-              navigation.push('CinemaSelection', {
-                movieId: route.params.movieId, 
-                // BgImage: baseImagePath('w780', movieData.backdrop_path),
-                // PosterImage: baseImagePath('original', movieData.poster_path),
-              });
-            }}>
-            <Text style={styles.buttonText}>Booking Now</Text>
-          </TouchableOpacity>
-        </View>
+
+        {/* Trailer */}
+        {movieData?.trailer_url && (
+          <View style={styles.trailerContainer}>
+            <Text style={styles.sectionTitle}>Trailer</Text>
+            <Video
+              source={{ uri: movieData.trailer_url }}
+              style={styles.video}
+              controls={true}
+              resizeMode="contain"
+              paused={true}
+            />
+          </View>
+        )}
+
+        {/* Nút đặt vé */}
+        <TouchableOpacity
+          style={styles.buttonBG}
+          onPress={() => {
+            navigation.push('CinemaSelection', {
+              movieId: route.params.movieId,
+            });
+          }}
+        >
+          <Text style={styles.buttonText}>Đặt vé ngay</Text>
+        </TouchableOpacity>
       </View>
     </ScrollView>
   );
 };
- 
+
 const styles = StyleSheet.create({
   container: {
-    display: 'flex',
-    flex: 1,
     backgroundColor: COLORS.Black,
+    flex: 1,
   },
   loadingContainer: {
     flex: 1,
-    alignSelf: 'center',
+    backgroundColor: COLORS.Black,
     justifyContent: 'center',
+    alignItems: 'center',
   },
-  scrollViewContainer: {
-    flex: 1,
-  },
-  appHeaderContainer: {
-    marginHorizontal: SPACING.space_36,
-    marginTop: SPACING.space_20 * 2,
+  headerContainer: {
+    position: 'relative',
   },
   imageBG: {
     width: '100%',
-    aspectRatio: 3072 / 1727,
+    height: height * 0.5,
   },
   linearGradient: {
-    height: '100%',
+    flex: 1,
   },
-  cardImage: {
-    width: '60%',
-    aspectRatio: 200 / 300,
+  appHeaderContainer: {
+    marginTop: SPACING.space_36,
+    marginLeft: SPACING.space_16,
+  },
+  posterContainer: {
     position: 'absolute',
-    bottom: 0,
+    bottom: -80,
     alignSelf: 'center',
+    shadowColor: COLORS.Black,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.8,
+    shadowRadius: 20,
+    elevation: 10,
   },
-  clockIcon: {
-    fontSize: FONTSIZE.size_20,
-    color: COLORS.WhiteRGBA50,
+  posterImage: {
+    width: 160,
+    height: 240,
+    borderRadius: 12,
+  },
+  infoContainer: {
+    marginTop: 100,
+    paddingHorizontal: SPACING.space_24,
+  },
+  title: {
+    fontFamily: FONTFAMILY.poppins_bold,
+    fontSize: FONTSIZE.size_24,
+    color: COLORS.White,
+    textAlign: 'center',
+  },
+  additionalInfo: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginVertical: SPACING.space_16,
+  },
+  infoItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  infoIcon: {
+    fontSize: FONTSIZE.size_16,
+    color: COLORS.White,
     marginRight: SPACING.space_8,
   },
-  timeContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingTop: SPACING.space_15,
-  },
-  runtimeText: {
-    fontFamily: FONTFAMILY.poppins_medium,
+  infoText: {
+    fontFamily: FONTFAMILY.poppins_regular,
     fontSize: FONTSIZE.size_14,
     color: COLORS.White,
   },
-  title: {
-    fontFamily: FONTFAMILY.poppins_regular,
-    fontSize: FONTSIZE.size_24,
-    color: COLORS.White,
-    marginHorizontal: SPACING.space_36,
-    marginVertical: SPACING.space_15,
-    textAlign: 'center',
-  },
   genreContainer: {
-    flex: 1,
     flexDirection: 'row',
-    gap: SPACING.space_20,
     flexWrap: 'wrap',
     justifyContent: 'center',
+    marginVertical: SPACING.space_8,
   },
   genreBox: {
     borderColor: COLORS.WhiteRGBA50,
@@ -254,58 +228,46 @@ const styles = StyleSheet.create({
     paddingHorizontal: SPACING.space_10,
     paddingVertical: SPACING.space_4,
     borderRadius: BORDERRADIUS.radius_25,
+    margin: SPACING.space_4,
   },
   genreText: {
     fontFamily: FONTFAMILY.poppins_regular,
-    fontSize: FONTSIZE.size_10,
-    color: COLORS.WhiteRGBA75,
-  },
-  tagline: {
-    fontFamily: FONTFAMILY.poppins_thin,
-    fontSize: FONTSIZE.size_14,
-    fontStyle: 'italic',
+    fontSize: FONTSIZE.size_12,
     color: COLORS.White,
-    marginHorizontal: SPACING.space_36,
-    marginVertical: SPACING.space_15,
-    textAlign: 'center',
-  },
-  infoContainer: {
-    marginHorizontal: SPACING.space_24,
-  },
-  rateContainer: {
-    flexDirection: 'row',
-    gap: SPACING.space_10,
-    alignItems: 'center',
-  },
-  starIcon: {
-    fontSize: FONTSIZE.size_20,
-    color: COLORS.Yellow,
   },
   descriptionText: {
     fontFamily: FONTFAMILY.poppins_light,
     fontSize: FONTSIZE.size_14,
-    color: COLORS.White,
+    color: COLORS.WhiteRGBA75,
+    textAlign: 'justify',
+    marginVertical: SPACING.space_16,
   },
-  containerGap24: {
-    gap: SPACING.space_24,
+  trailerContainer: {
+    marginVertical: SPACING.space_16,
+  },
+  sectionTitle: {
+    fontFamily: FONTFAMILY.poppins_medium,
+    fontSize: FONTSIZE.size_18,
+    color: COLORS.White,
+    marginBottom: SPACING.space_8,
+  },
+  video: {
+    width: '100%',
+    height: 200,
+    borderRadius: 12,
   },
   buttonBG: {
+    backgroundColor: COLORS.Orange,
+    paddingVertical: SPACING.space_12,
+    borderRadius: BORDERRADIUS.radius_25,
     alignItems: 'center',
     marginVertical: SPACING.space_24,
   },
   buttonText: {
-    borderRadius: BORDERRADIUS.radius_25 * 2,
-    paddingHorizontal: SPACING.space_24,
-    paddingVertical: SPACING.space_10,
-    backgroundColor: COLORS.Orange,
     fontFamily: FONTFAMILY.poppins_medium,
-    fontSize: FONTSIZE.size_14,
+    fontSize: FONTSIZE.size_16,
     color: COLORS.White,
   },
-  video: {
-    width: '100%',
-    height: 200, // Có thể điều chỉnh theo nhu cầu
-  },
 });
- 
+
 export default MovieDetailsScreen;

@@ -67,6 +67,7 @@ import ChangePwdScreen from '../screens/ChangePwdScreen';
 import { AuthStackParamList } from '../types/navigationTypes';
 import TabNavigator from './TabNavigator';
 import { AuthContext } from '../context/AuthContext'; // Import AuthContext
+import HomeScreen from '../screens/HomeScreen';
 const Stack = createStackNavigator<AuthStackParamList>();
 
 const AppNavigator = () => {
@@ -85,6 +86,7 @@ const AppNavigator = () => {
       <Stack.Screen name="InfoCardScreen" component={InfoCardScreen} />
       <Stack.Screen name="PaymentConfirmationScreen" component={PaymentConfirmationScreen} />
       <Stack.Screen name="ChangePwdScreen" component={ChangePwdScreen} />
+
       {/* Không định nghĩa SuccessScreen và FailScreen ở đây để tránh trùng lặp */}
     </Stack.Navigator>
   );

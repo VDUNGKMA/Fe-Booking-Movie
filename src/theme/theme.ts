@@ -1,4 +1,7 @@
 interface Spacing {
+  space_5: any | DimensionValue | undefined;
+  space_55: any | number | undefined;
+  space_6: any | DimensionValue | undefined;
   space_2: number;
   space_4: number;
   space_8: number;
@@ -20,6 +23,8 @@ interface Spacing {
 export const SPACING: Spacing = {
   space_2: 2,
   space_4: 4,
+  space_5: 5,
+  space_6: 6,
   space_8: 8,
   space_10: 10,
   space_12: 12,
@@ -33,11 +38,18 @@ export const SPACING: Spacing = {
   space_32: 32,
   space_36: 36,
   space_40: 40,
+  space_55: 55,
   space_80: 80,
+  
+
 
 };
 
 interface Color {
+  CineComfortColor: any | ColorValue | undefined;
+  NormalSeatColor: any | ColorValue | undefined;
+  CoupleSeatColor: any | ColorValue | undefined;
+  VIPSeatColor: any | ColorValue | undefined;
   Black: string;
   BlackRGB10: string;
   Orange: string;
@@ -65,6 +77,7 @@ interface Color {
 }
 
 export const COLORS: Color = {
+  CineComfortColor: '#2196F3',
   Black: '#000000',
   BlackRGB10: 'rgba(0,0,0,0.1)',
   Orange: '#FF5524',
@@ -89,6 +102,9 @@ export const COLORS: Color = {
   BackgroundGray: '#F0F0F0', 
   Green: '#00FF00',
   Gray: '',
+  VIPSeatColor: '#FF9800',
+  NormalSeatColor: '#B0BEC5',
+  CoupleSeatColor: '#FF69B4', // Màu hồng cho ghế Couple
 };
 
 interface FontFamily {
@@ -165,7 +181,7 @@ export const BORDERRADIUS: BorderRadius = {
   radius_16:16
 };
 
-import { Dimensions } from 'react-native';
+import { ColorValue, DimensionValue, Dimensions } from 'react-native';
 
 const { width, height } = Dimensions.get('window');
 

@@ -51,33 +51,34 @@ const ForgetPwdScreen = ({ navigation }: any) => {
     );
 };
 
+// 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: 'white',
+        backgroundColor: COLORS.Black, // Nền đen
         paddingHorizontal: 20,
         paddingTop: 20,
     },
     title: {
         fontWeight: 'bold',
-        color: 'black',
+        color: COLORS.white, // Chữ trắng
         fontSize: SIZES.h1,
         marginVertical: 10,
     },
     subtitle: {
         fontWeight: '500',
-        color: 'black',
+        color: COLORS.white, // Chữ trắng
     },
     textinput: {
-        borderBottomColor: 'black',
+        borderBottomColor: COLORS.white, // Viền trắng
         borderBottomWidth: 1,
         fontSize: SIZES.h4,
         paddingVertical: 10,
         marginVertical: 30,
-        color: 'black',
+        color: COLORS.white, // Chữ trắng
     },
     button: {
-        backgroundColor: COLORS.primary,
+        backgroundColor: COLORS.Orange, // Nút màu cam
         padding: 20,
         borderRadius: 10,
         marginHorizontal: 20,
@@ -85,7 +86,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     buttonTxt: {
-        color: COLORS.white,
+        color: COLORS.white, // Chữ trắng trên nút
         fontWeight: 'bold',
         fontSize: SIZES.h4,
     },
@@ -100,5 +101,4 @@ const styles = StyleSheet.create({
         marginTop: 10,
     },
 });
-
 export default ForgetPwdScreen;

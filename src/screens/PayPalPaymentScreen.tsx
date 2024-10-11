@@ -126,7 +126,9 @@ const PayPalPaymentScreen = ({ navigation, route }: any) => {
       try {
         console.log("check userId, ticketIds", userId, ticketId)
         const response = await createPayment(userId, ticketId);
-        setApprovalUrl(response.data.approvalUrl); // Đảm bảo backend trả về { approvalUrl, orderId }
+        const approvalUrl = `${response.data.approvalUrl}&locale.x=vi_VN`;
+        setApprovalUrl(approvalUrl);
+        // setApprovalUrl(response.data.approvalUrl); // Đảm bảo backend trả về { approvalUrl, orderId }
       } catch (error) {
         console.error(error);
         Alert.alert('Error', 'Unable to create PayPal order.');
@@ -206,14 +208,24 @@ const PayPalPaymentScreen = ({ navigation, route }: any) => {
   }
 
   return (
-    <WebView
-      source={{ uri: approvalUrl }}
-      onShouldStartLoadWithRequest={handleShouldStartLoadWithRequest}
-      startInLoadingState
-      renderLoading={() => (
-        <ActivityIndicator size="large" color="#FF5524" style={styles.loading} />
-      )}
-    />
+    <View style={{ flex: 1, justifyContent: 'flex-start', paddingTop: 50 }}>
+      <WebView
+        source={{ uri: approvalUrl }}
+        style={{ height: '90%' }} // Chỉ chiếm 90% chiều cao màn hình để tạo khoảng trống phía dưới
+        onShouldStartLoadWithRequest={handleShouldStartLoadWithRequest}
+        javaScriptEnabled={true}
+        injectedJavaScript={`const meta = document.createElement('meta'); 
+                        meta.setAttribute('name', 'viewport'); 
+                        meta.setAttribute('content', 'width=device-width, initial-scale=1.0'); 
+                        document.getElementsByTagName('head')[0].appendChild(meta);`}
+        startInLoadingState
+        renderLoading={() => (
+          <ActivityIndicator size="large" color="#FF5524" style={styles.loading} />
+        )}
+      />
+    </View>
+
+
   );
 };
 

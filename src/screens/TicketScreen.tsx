@@ -1,230 +1,205 @@
-import React, {useEffect, useState} from 'react';
-import {
-  Text,
-  View,
-  StyleSheet,
-  StatusBar,
-  ImageBackground,
-  Image,
-} from 'react-native';
-import EncryptedStorage from 'react-native-encrypted-storage';
-import AppHeader from '../components/AppHeader';
-import {
-  BORDERRADIUS,
-  COLORS,
-  FONTFAMILY,
-  FONTSIZE,
-  SPACING,
-} from '../theme/theme';
-import LinearGradient from 'react-native-linear-gradient';
-import CustomIcon from '../components/CustomIcon';
+import React, { useEffect, useState } from 'react';
+import { View, Text, FlatList, StyleSheet, ActivityIndicator, Image, Modal, TouchableOpacity } from 'react-native';
+import axios from 'axios';
+import moment from 'moment';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const TicketScreen = ({navigation, route}: any) => {
-  const [ticketData, setTicketData] = useState<any>(route.params);
+interface Ticket {
+  ticketId: number;
+  price: string;
+  bookingDate: string;
+  seats: string,
+  qrCode: string | null;
+  movie: string;
+  cinema: string;
+  theater: string;
+  startTime: string;
+  endTime: string;
+}
+
+const TicketScreen = () => {
+  const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedQrCode, setSelectedQrCode] = useState<string | null>(null);
 
   useEffect(() => {
-    (async () => {
+    const fetchBookingHistory = async () => {
       try {
-        const ticket = await EncryptedStorage.getItem('ticket');
-        if (ticket !== undefined && ticket !== null) {
-          setTicketData(JSON.parse(ticket));
-        }
+
+        const userId = await AsyncStorage.getItem('userId');
+        const response = await axios.get(`http://192.168.1.14:5000/api/customer/users/${userId}/booking-history`);
+        setTickets(response.data.data);
       } catch (error) {
-        console.error('Something went wrong while getting Data', error);
+        console.error('Error fetching booking history:', error);
+      } finally {
+        setLoading(false);
       }
-    })();
+    };
+
+    fetchBookingHistory();
   }, []);
 
-  if (ticketData !== route.params && route.params != undefined) {
-    setTicketData(route.params);
-  }
+  const handleQrCodePress = (qrCode: string) => {
+    setSelectedQrCode(qrCode);
+    setModalVisible(true);
+  };
 
-  if (ticketData == undefined || ticketData == null) {
-    return (
-      <View style={styles.container}>
-        <StatusBar hidden />
-        <View style={styles.appHeaderContainer}>
-          <AppHeader
-            name="close"
-            header={'My Tickets'}
-            action={() => navigation.goBack()}
-          />
-        </View>
-      </View>
-    );
-  }
+  const renderTicketItem = ({ item }: { item: Ticket }) => (
+    <View style={styles.ticketContainer}>
+      <Text style={styles.movieTitle}>{item.movie}</Text>
+      <Text style={styles.cinemaText}>Rạp: {item.cinema} - Phòng: {item.theater}</Text>
+      <Text style={styles.dateText}>
+        Thời gian: {moment(item.startTime).format('DD/MM/YYYY HH:mm')} - {moment(item.endTime).format('HH:mm')}
+      </Text>
+      <Text style={styles.seatsText}>Ghế ngồi: {item.seats} </Text>
+
+      <Text style={styles.priceText}>Giá vé: {item.price}VND</Text>
+      <Text style={styles.bookingDate}>Giờ đặt: {moment(item.bookingDate).format('DD/MM/YYYY HH:mm')}</Text>
+
+
+      {item.qrCode ? (
+        <TouchableOpacity onPress={() => item.qrCode && handleQrCodePress(item.qrCode)}>
+          <Image source={{ uri: item.qrCode }} style={styles.qrCode} />
+        </TouchableOpacity>
+
+      ) : (
+        <Text style={styles.noQrText}>Không có mã QR</Text>
+      )}
+    </View>
+  );
+
   return (
     <View style={styles.container}>
-      <StatusBar hidden />
-      <View style={styles.appHeaderContainer}>
-        <AppHeader
-          name="close"
-          header={'My Tickets'}
-          action={() => navigation.goBack()}
+      <Text style={styles.header}>Lịch sử đặt vé</Text>
+      {loading ? (
+        <ActivityIndicator size="large" color="#0000ff" />
+      ) : tickets.length > 0 ? (
+        <FlatList
+          data={tickets}
+          renderItem={renderTicketItem}
+          keyExtractor={(item) => item.ticketId.toString()}
         />
-      </View>
+      ) : (
+        <Text style={styles.noTicketsText}>Không có lịch sử vé.</Text>
+      )}
 
-      <View style={styles.ticketContainer}>
-        <ImageBackground
-          source={{uri: ticketData?.ticketImage}}
-          style={styles.ticketBGImage}>
-          <LinearGradient
-            colors={[COLORS.OrangeRGBA0, COLORS.Orange]}
-            style={styles.linearGradient}>
-            <View
-              style={[
-                styles.blackCircle,
-                {position: 'absolute', bottom: -40, left: -40},
-              ]}></View>
-            <View
-              style={[
-                styles.blackCircle,
-                {position: 'absolute', bottom: -40, right: -40},
-              ]}></View>
-          </LinearGradient>
-        </ImageBackground>
-        <View style={styles.linear}></View>
-
-        <View style={styles.ticketFooter}>
-          <View
-            style={[
-              styles.blackCircle,
-              {position: 'absolute', top: -40, left: -40},
-            ]}></View>
-          <View
-            style={[
-              styles.blackCircle,
-              {position: 'absolute', top: -40, right: -40},
-            ]}></View>
-          <View style={styles.ticketDateContainer}>
-            <View style={styles.subtitleContainer}>
-              <Text style={styles.dateTitle}>{ticketData?.date.date}</Text>
-              <Text style={styles.subtitle}>{ticketData?.date.day}</Text>
-            </View>
-            <View style={styles.subtitleContainer}>
-              <CustomIcon name="clock" style={styles.clockIcon} />
-              <Text style={styles.subtitle}>{ticketData?.time}</Text>
-            </View>
+      {/* QR Code Modal */}
+      <Modal
+        visible={modalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            {selectedQrCode && (
+              <Image source={{ uri: selectedQrCode }} style={styles.modalQrCode} />
+            )}
+            <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeButton}>
+              <Text style={styles.closeButtonText}>Đóng</Text>
+            </TouchableOpacity>
           </View>
-          <View style={styles.ticketSeatContainer}>
-            <View style={styles.subtitleContainer}>
-              <Text style={styles.subheading}>Hall</Text>
-              <Text style={styles.subtitle}>02</Text>
-            </View>
-            <View style={styles.subtitleContainer}>
-              <Text style={styles.subheading}>Row</Text>
-              <Text style={styles.subtitle}>04</Text>
-            </View>
-            <View style={styles.subtitleContainer}>
-              <Text style={styles.subheading}>Seats</Text>
-              <Text style={styles.subtitle}>
-                {ticketData?.seatArray
-                  .slice(0, 3)
-                  .map((item: any, index: number, arr: any) => {
-                    return item + (index == arr.length - 1 ? '' : ', ');
-                  })}
-              </Text>
-            </View>
-          </View>
-          <Image
-            source={require('../assets/image/barcode.png')}
-            style={styles.barcodeImage}
-          />
         </View>
-      </View>
+      </Modal>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    display: 'flex',
     flex: 1,
-    backgroundColor: COLORS.Black,
+    padding: 16,
+    backgroundColor: '#f5f5f5',
   },
-  appHeaderContainer: {
-    marginHorizontal: SPACING.space_36,
-    marginTop: SPACING.space_20 * 2,
+  header: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    marginBottom: 16,
+    textAlign: 'center',
+    color: '#333',
   },
   ticketContainer: {
+    backgroundColor: '#ffffff',
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 2 },
+  },
+  movieTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 8,
+  },
+  cinemaText: {
+    fontSize: 16,
+    color: '#666',
+    marginBottom: 4,
+  },
+  dateText: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 4,
+  },
+  priceText: {
+    fontSize: 16,
+    color: '#444',
+    marginBottom: 4,
+  },
+  seatsText: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 4,
+  },
+  bookingDate: {
+    fontSize: 14,
+    color: '#888',
+    marginBottom: 8,
+  },
+  noQrText: {
+    color: '#888',
+    fontStyle: 'italic',
+  },
+  noTicketsText: {
+    fontSize: 16,
+    textAlign: 'center',
+    color: '#666',
+  },
+  qrCode: {
+    width: 100,
+    height: 100,
+    marginBottom: 5,
+  },
+  modalContainer: {
     flex: 1,
-    justifyContent: 'center',
-  },
-  ticketBGImage: {
-    alignSelf: 'center',
-    width: 300,
-    aspectRatio: 200 / 300,
-    borderTopLeftRadius: BORDERRADIUS.radius_25,
-    borderTopRightRadius: BORDERRADIUS.radius_25,
-    overflow: 'hidden',
-    justifyContent: 'flex-end',
-  },
-  linearGradient: {
-    height: '70%',
-  },
-  linear: {
-    borderTopColor: COLORS.Black,
-    borderTopWidth: 3,
-    width: 300,
-    alignSelf: 'center',
-    backgroundColor: COLORS.Orange,
-    borderStyle: 'dashed',
-  },
-  ticketFooter: {
-    backgroundColor: COLORS.Orange,
-    width: 300,
-    alignItems: 'center',
-    paddingBottom: SPACING.space_36,
-    alignSelf: 'center',
-    borderBottomLeftRadius: BORDERRADIUS.radius_25,
-    borderBottomRightRadius: BORDERRADIUS.radius_25,
-  },
-  ticketDateContainer: {
-    flexDirection: 'row',
-    gap: SPACING.space_36,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginVertical: SPACING.space_10,
   },
-  ticketSeatContainer: {
-    flexDirection: 'row',
-    gap: SPACING.space_36,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: SPACING.space_10,
-  },
-  dateTitle: {
-    fontFamily: FONTFAMILY.poppins_medium,
-    fontSize: FONTSIZE.size_24,
-    color: COLORS.White,
-  },
-  subtitle: {
-    fontFamily: FONTFAMILY.poppins_regular,
-    fontSize: FONTSIZE.size_14,
-    color: COLORS.White,
-  },
-  subheading: {
-    fontFamily: FONTFAMILY.poppins_medium,
-    fontSize: FONTSIZE.size_18,
-    color: COLORS.White,
-  },
-  subtitleContainer: {
+  modalContent: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 8,
     alignItems: 'center',
   },
-  clockIcon: {
-    fontSize: FONTSIZE.size_24,
-    color: COLORS.White,
-    paddingBottom: SPACING.space_10,
+  modalQrCode: {
+    width: 200,
+    height: 200,
+    marginBottom: 16,
   },
-  barcodeImage: {
-    height: 50,
-    aspectRatio: 158 / 52,
+  closeButton: {
+    backgroundColor: '#007AFF',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 4,
   },
-  blackCircle: {
-    height: 80,
-    width: 80,
-    borderRadius: 80,
-    backgroundColor: COLORS.Black,
+  closeButtonText: {
+    color: '#fff',
+    fontSize: 16,
   },
 });
 

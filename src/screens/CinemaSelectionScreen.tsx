@@ -1,230 +1,3 @@
-// //CinemaSelectionScreen.tsx
-// import React, { useState } from 'react';
-// import {
-//   Text,
-//   View,
-//   StyleSheet,
-//   TouchableOpacity,
-//   FlatList,
-//   ScrollView,
-//   Alert,
-// } from 'react-native';
-
-// import {
-//     BORDERRADIUS,
-//     COLORS,
-//     FONTFAMILY,
-//     FONTSIZE,
-//     SPACING,
-// } from '../theme/theme';
-
-// // Dữ liệu giả cho rạp chiếu, giờ chiếu và định dạng phim
-// const cinemas = [
-//   {
-//     name: 'CGV Aeon Hà Đông',
-//     formats: [
-//       { type: '2D Phụ Đề Anh', times: ['17:00', '17:30', '18:00', '19:30'] },
-//       { type: '2D English Sub', times: ['16:30', '19:00', '21:30'] },
-//       { type: '2D English Sub | GOLD CLASS', times: ['16:00', '18:30', '21:00'] },
-//     ],
-//   },
-//   {
-//     name: 'CGV Aeon Long Biên',
-//     formats: [
-//       { type: '2D Phụ Đề Anh', times: ['16:00', '16:20', '16:40', '17:00'] },
-//       { type: '2D English Sub | SCREENX Cinema', times: ['18:00', '20:40'] },
-//     ],
-//   },
-//   // Thêm các rạp khác ở đây
-// ];
-
-// // Hàm sinh ngày
-// const generateDate = () => {
-//   const date = new Date();
-//   let weekday = ['CN', 'Th 2', 'Th 3', 'Th 4', 'Th 5', 'Th 6', 'Th 7'];
-//   let weekdays = [];
-//   for (let i = 0; i < 7; i++) {
-//     let tempDate = {
-//       date: new Date(date.getTime() + i * 24 * 60 * 60 * 1000).getDate(),
-//       day: weekday[new Date(date.getTime() + i * 24 * 60 * 60 * 1000).getDay()],
-//     };
-//     weekdays.push(tempDate);
-//   }
-//   return weekdays;
-// };
-
-// const dates = generateDate();
-
-// const CinemaSelectionScreen = ({ navigation, route }: any) => {
-//   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-//   const [selectedTime, setSelectedTime] = useState<string | null>(null);
-//   const [expandedCinema, setExpandedCinema] = useState<string | null>(null);
-
-//   const toggleCinema = (name: string) => {
-//     setExpandedCinema(expandedCinema === name ? null : name);
-//   };
-
-//   return (
-//     <View style={styles.container}>
-//       <ScrollView contentContainerStyle={styles.scrollContainer}>
-//         {/* Phần chọn ngày */}
-//         <FlatList
-//           data={dates}
-//           keyExtractor={(item, index) => index.toString()}
-//           horizontal
-//           showsHorizontalScrollIndicator={false}
-//           renderItem={({ item }) => (
-//             <TouchableOpacity
-//               style={[styles.dateItem, item.date.toString() === selectedDate && styles.selectedDate]}
-//               onPress={() => setSelectedDate(item.date.toString())}
-//             >
-//               <Text style={styles.dateText}>{item.day}</Text>
-//               <Text style={styles.dateText}>{item.date}</Text>
-//             </TouchableOpacity>
-//           )}
-//         />
-
-//         {/* Phần chọn rạp */}
-//         {cinemas.map((cinema, index) => (
-//           <View key={index}>
-//             <TouchableOpacity
-//               style={styles.cinemaItem}
-//               onPress={() => toggleCinema(cinema.name)}
-//             >
-//               <Text style={styles.cinemaText}>{cinema.name}</Text>
-//             </TouchableOpacity>
-
-//             {expandedCinema === cinema.name && (
-//               <View style={styles.formatContainer}>
-//                 {cinema.formats.map((format, formatIndex) => (
-//                   <View key={formatIndex} style={styles.formatItem}>
-//                     <Text style={styles.formatText}>{format.type}</Text>
-//                     <View style={styles.timeContainer}>
-//                       {format.times.map((time, timeIndex) => (
-//                         <TouchableOpacity
-//                           key={timeIndex}
-//                           style={[styles.timeItem, time === selectedTime ? styles.selectedTime : styles.defaultTime]}
-//                           onPress={() => setSelectedTime(time)}
-//                         >
-//                           <Text style={styles.timeText}>{time}</Text>
-//                         </TouchableOpacity>
-//                       ))}
-//                     </View>
-//                   </View>
-//                 ))}
-//               </View>
-//             )}
-//           </View>
-//         ))}
-//       </ScrollView>
-
-//       {/* Nút tiếp tục ở dưới chân trang */}
-//       <TouchableOpacity
-//         style={styles.continueButton}
-//         onPress={() => {
-//           // Kiểm tra xem người dùng đã chọn ngày và giờ hay chưa
-//           if (selectedDate && selectedTime) {
-//             // Điều hướng đến SeatBookingScreen với các thông tin đã chọn
-//             navigation.navigate('SeatBooking', {
-//               selectedDate,
-//               selectedTime,
-//             });
-//           } else {
-//             // Nếu chưa chọn, hiển thị thông báo hoặc xử lý lỗi ở đây
-//             Alert.alert('Please select a date and time before continuing!');
-//           }
-//         }}
-//       >
-//         <Text style={styles.continueButtonText}>Continue</Text>
-//       </TouchableOpacity>
-//     </View>
-//   );
-// };
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     backgroundColor: 'black', // Đổi màu nền thành đen
-//   },
-//   scrollContainer: {
-//     paddingBottom: 80, // Dưới cùng để tránh bị che khuất bởi nút
-//   },
-//   dateItem: {
-//     padding: 10,
-//     backgroundColor: '#555', // Đổi màu nền item ngày sang xám
-//     borderRadius: 10,
-//     marginHorizontal: 5,
-//     alignItems: 'center',
-//   },
-//   selectedDate: {
-//     backgroundColor: '#FF5524', // Màu xám nhạt cho ngày đã chọn
-//   },
-//   dateText: {
-//     color: 'white', // Đổi màu chữ thành trắng
-//   },
-//   cinemaItem: {
-//     flexDirection: 'row',
-//     justifyContent: 'space-between',
-//     padding: 15,
-//     backgroundColor: 'black', // Đổi màu nền item rạp sang xám
-//     borderBottomWidth: 1,
-//     borderBottomColor: '#e0e0e0',
-//   },
-//   cinemaText: {
-//     fontSize: 16,
-//     color: 'white', // Đổi màu chữ thành trắng
-//   },
-//   formatContainer: {
-//     padding: 10,
-//     backgroundColor: 'black', // Đổi màu nền cho định dạng sang xám
-//   },
-//   formatItem: {
-//     marginBottom: 10,
-//   },
-//   formatText: {
-//     fontWeight: 'bold',
-//     marginBottom: 5,
-//     color: 'white', // Đổi màu chữ thành trắng
-//   },
-//   timeContainer: {
-//     flexDirection: 'row',
-//     flexWrap: 'wrap',
-//   },
-//   timeItem: {
-//     padding: 10,
-//     backgroundColor: '#FF5524', // Đổi màu nút giờ mặc định sang xám
-//     borderRadius: 5,
-//     margin: 5,
-//   },
-//   selectedTime: {
-//     backgroundColor: '#FF5524', // Màu cam cho giờ đã chọn
-//   },
-//   defaultTime: {
-//     backgroundColor: '#555', // Màu xám cho giờ không được chọn
-//   },
-//   timeText: {
-//     color: 'white',
-//   },
-//   continueButton: {
-//     padding: 15,
-//     backgroundColor: '#FF5524', // Đổi màu nút thành xám nhạt
-//     borderRadius: 5,
-//     margin: 20,
-//     alignItems: 'center',
-//     position: 'absolute',
-//     bottom: 0,
-//     left: 0,
-//     right: 0,
-//   },
-//   continueButtonText: {
-//     color: '#ffffff', // Đổi màu chữ nút thành trắng
-//     fontWeight: 'bold',
-//   },
-
-
-// });
-
-// export default CinemaSelectionScreen;
 // CinemaSelectionScreen.tsx
 import React, { useState, useEffect } from 'react';
 import {
@@ -236,6 +9,7 @@ import {
   ScrollView,
   Alert,
   ActivityIndicator,
+  Dimensions,
 } from 'react-native';
 
 import {
@@ -247,18 +21,30 @@ import {
 } from '../theme/theme';
 
 import { fetchShowtimesByMovie } from '../api/api';
+import CustomIcon from '../components/CustomIcon';
+import Collapsible from 'react-native-collapsible';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+
+const { width } = Dimensions.get('window');
+
 
 const generateDate = () => {
   const date = new Date();
   let weekday = ['CN', 'Th 2', 'Th 3', 'Th 4', 'Th 5', 'Th 6', 'Th 7'];
   let weekdays = [];
   for (let i = 0; i < 7; i++) {
-    let tempDate = {
-      date: new Date(date.getTime() + i * 24 * 60 * 60 * 1000).getDate(),
-      day: weekday[new Date(date.getTime() + i * 24 * 60 * 60 * 1000).getDay()],
-      fullDate: new Date(date.getTime() + i * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // YYYY-MM-DD
-    };
-    weekdays.push(tempDate);
+    let tempDate = new Date(date.getTime() + i * 24 * 60 * 60 * 1000);
+
+    // Tạo ngày theo UTC để tránh lệch múi giờ
+    const day = tempDate.getUTCDate();
+    const fullDate = tempDate.toISOString().split('T')[0]; // YYYY-MM-DD
+    const dayName = weekday[tempDate.getUTCDay()]; // Lấy tên ngày theo UTC
+
+    weekdays.push({
+      date: day,
+      day: dayName,
+      fullDate: fullDate,
+    });
   }
   return weekdays;
 };
@@ -266,8 +52,8 @@ const generateDate = () => {
 const dates = generateDate();
 
 const CinemaSelectionScreen = ({ navigation, route }: any) => {
-  const { movieId } = route.params; // Nhận movieId từ tham số truyền vào
-  const [selectedDate, setSelectedDate] = useState<string>(dates[0].fullDate);
+  const { movieId } = route.params;
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [selectedPrice, setSelectedPrice] = useState<string | null>(null);
 
@@ -279,11 +65,15 @@ const CinemaSelectionScreen = ({ navigation, route }: any) => {
     const fetchShowtimes = async () => {
       try {
         setLoading(true);
-        console.log("moiveid", movieId, selectedDate)
-        const data = await fetchShowtimesByMovie(movieId, selectedDate);
-        console.log("check showtime abc", data)
-        setShowtimesData(data);
-        setSelectedTime(null); // Reset selectedTime khi dữ liệu thay đổi
+        if (selectedDate) {
+          console.log("chek selected date", selectedDate)
+          const data = await fetchShowtimesByMovie(movieId, selectedDate);
+          setShowtimesData(data);
+        } else {
+          // Nếu không có ngày nào được chọn, xóa dữ liệu suất chiếu
+          setShowtimesData([]);
+        }
+        setSelectedTime(null); // Reset selectedTime khi thay đổi ngày
       } catch (error) {
         console.error('Error fetching showtimes: ', error);
       } finally {
@@ -298,12 +88,11 @@ const CinemaSelectionScreen = ({ navigation, route }: any) => {
     setExpandedCinema(expandedCinema === cinemaId ? null : cinemaId);
   };
 
- 
   const cinemas = showtimesData.reduce((accumulator, showtime) => {
     const cinemaId = showtime.theater.cinema.id;
     const cinemaName = showtime.theater.cinema.name;
     const theaterName = showtime.theater.name;
-    // Tạo khóa duy nhất cho mỗi rạp
+
     if (!accumulator[cinemaId]) {
       accumulator[cinemaId] = {
         id: cinemaId,
@@ -312,7 +101,6 @@ const CinemaSelectionScreen = ({ navigation, route }: any) => {
       };
     }
 
-    // Tạo khóa duy nhất cho mỗi phòng chiếu
     if (!accumulator[cinemaId].theaters[showtime.theater_id]) {
       accumulator[cinemaId].theaters[showtime.theater_id] = {
         id: showtime.theater_id,
@@ -321,13 +109,11 @@ const CinemaSelectionScreen = ({ navigation, route }: any) => {
       };
     }
 
-    // Thêm suất chiếu vào phòng chiếu
     accumulator[cinemaId].theaters[showtime.theater_id].showtimes.push(showtime);
 
     return accumulator;
   }, {});
 
-  // Chuyển đổi đối tượng thành mảng
   const cinemasArray = Object.values(cinemas);
 
   return (
@@ -339,40 +125,80 @@ const CinemaSelectionScreen = ({ navigation, route }: any) => {
           keyExtractor={(item, index) => index.toString()}
           horizontal
           showsHorizontalScrollIndicator={false}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              style={[
-                styles.dateItem,
-                item.fullDate === selectedDate && styles.selectedDate,
-              ]}
-              onPress={() => {
-                setSelectedDate(item.fullDate);
-                setSelectedTime(null); // Reset selectedTime khi thay đổi ngày
-              }}
-            >
-              <Text style={styles.dateText}>{item.day}</Text>
-              <Text style={styles.dateText}>{item.date}</Text>
-            </TouchableOpacity>
-          )}
+          contentContainerStyle={styles.dateList}
+          extraData={selectedDate}
+          renderItem={({ item }) => {
+            const isSelected = item.fullDate === selectedDate;
+            return (
+              <TouchableOpacity
+                style={[
+                  styles.dateItem,
+                  isSelected && styles.selectedDate,
+                ]}
+                onPress={() => {
+                  if (isSelected) {
+                    // Bỏ chọn ngày nếu người dùng nhấp lại
+                    setSelectedDate(null);
+                    setSelectedTime(null);
+                  } else {
+                    // Chọn ngày mới
+                    setSelectedDate(item.fullDate);
+                    setSelectedTime(null);
+                  }
+                }}
+                activeOpacity={0.7}
+              >
+                <Text
+                  style={[
+                    styles.dateText,
+                    isSelected && styles.selectedDateText,
+                  ]}
+                >
+                  {item.day}
+                </Text>
+                <Text
+                  style={[
+                    styles.dateText,
+                    isSelected && styles.selectedDateText,
+                  ]}
+                >
+                  {item.date}
+                </Text>
+              </TouchableOpacity>
+            );
+          }}
         />
 
         {loading ? (
-          <ActivityIndicator size="large" color="#FF5524" />
+          <ActivityIndicator size="large" color={COLORS.Orange} />
+        ) : !selectedDate ? (
+          <Text style={styles.noShowtimesText}>
+            Vui lòng chọn ngày để xem suất chiếu.
+          </Text>
         ) : cinemasArray.length === 0 ? (
           <Text style={styles.noShowtimesText}>
             Không có suất chiếu cho ngày đã chọn.
           </Text>
         ) : (
-          cinemasArray.map((cinema : any, index) => (
+          cinemasArray.map((cinema: any) => (
             <View key={cinema.id}>
               <TouchableOpacity
                 style={styles.cinemaItem}
                 onPress={() => toggleCinema(cinema.id)}
+                activeOpacity={0.7}
               >
                 <Text style={styles.cinemaText}>{cinema.name}</Text>
+                <MaterialIcons
+                  name={
+                    expandedCinema === cinema.id
+                      ? 'keyboard-arrow-up'
+                      : 'keyboard-arrow-down'
+                  }
+                  style={styles.cinemaIcon}
+                />
               </TouchableOpacity>
 
-              {expandedCinema === cinema.id && (
+              <Collapsible collapsed={expandedCinema !== cinema.id}>
                 <View style={styles.formatContainer}>
                   {Object.values(cinema.theaters).map((theater: any) => (
                     <View key={theater.id} style={styles.formatItem}>
@@ -381,23 +207,44 @@ const CinemaSelectionScreen = ({ navigation, route }: any) => {
                       </Text>
                       <View style={styles.timeContainer}>
                         {theater.showtimes.map((showtime: any) => {
-                          const time = showtime.start_time.substring(11, 16); // Lấy giờ và phút
-                          const price = showtime.price; 
+                          const time = showtime.start_time.substring(11, 16);
+                          const price = showtime.price;
+                          const isTimeSelected = showtime.id === selectedTime;
+                          { console.log(isTimeSelected) }
                           return (
+                           
                             <TouchableOpacity
                               key={showtime.id}
                               style={[
                                 styles.timeItem,
-                                showtime.id === selectedTime
+                                isTimeSelected
                                   ? styles.selectedTime
                                   : styles.defaultTime,
                               ]}
-                              onPress={() => {setSelectedTime(showtime.id)
-                                setSelectedPrice(price); // Lưu selectedPrice
-                              }
-                              }
+                              onPress={() => {
+                                if (isTimeSelected) {
+                                  // Bỏ chọn suất chiếu nếu người dùng nhấp lại
+                                  setSelectedTime(null);
+                                  setSelectedPrice(null);
+                                  
+                                } else {
+                                  // Chọn suất chiếu mới
+                                  setSelectedTime(showtime.id);
+                                  setSelectedPrice(price);
+                                }
+                              }}
+                              activeOpacity={0.7}
                             >
-                              <Text style={styles.timeText}>{time}</Text>
+                              <Text
+                                style={[
+                                  styles.timeText,
+                                  isTimeSelected && styles.selectedTimeText,
+                                ]}
+                              >
+                                {time}
+                              </Text>
+                              {/* Bạn có thể hiển thị giá vé nếu muốn */}
+                              {/* <Text style={styles.priceText}>{price} VND</Text> */}
                             </TouchableOpacity>
                           );
                         })}
@@ -405,7 +252,7 @@ const CinemaSelectionScreen = ({ navigation, route }: any) => {
                     </View>
                   ))}
                 </View>
-              )}
+              </Collapsible>
             </View>
           ))
         )}
@@ -415,19 +262,19 @@ const CinemaSelectionScreen = ({ navigation, route }: any) => {
       <TouchableOpacity
         style={styles.continueButton}
         onPress={() => {
-          // Kiểm tra xem người dùng đã chọn giờ chiếu hay chưa
-          if (selectedTime) {
-            // Điều hướng đến SeatBookingScreen với các thông tin đã chọn
+          if (!selectedDate) {
+            Alert.alert('Vui lòng chọn ngày và suất chiếu trước khi tiếp tục!');
+          } else if (!selectedTime) {
+            Alert.alert('Vui lòng chọn suất chiếu trước khi tiếp tục!');
+          } else {
             navigation.navigate('SeatBooking', {
               showtimeId: selectedTime,
               movieId: movieId,
               showtimePrice: selectedPrice,
             });
-          } else {
-            // Nếu chưa chọn, hiển thị thông báo hoặc xử lý lỗi ở đây
-            Alert.alert('Vui lòng chọn suất chiếu trước khi tiếp tục!');
           }
         }}
+        activeOpacity={0.9}
       >
         <Text style={styles.continueButtonText}>Tiếp tục</Text>
       </TouchableOpacity>
@@ -436,90 +283,125 @@ const CinemaSelectionScreen = ({ navigation, route }: any) => {
 };
 
 const styles = StyleSheet.create({
-  // ... giữ nguyên các styles hiện tại ...
   container: {
     flex: 1,
-    backgroundColor: 'black', // Đổi màu nền thành đen
+    backgroundColor: COLORS.Black,
+    paddingTop: 30
   },
   scrollContainer: {
-    paddingBottom: 80, // Dưới cùng để tránh bị che khuất bởi nút
+    paddingBottom: SPACING.space_80,
+    
+  },
+  dateList: {
+    paddingVertical: SPACING.space_10,
+    paddingHorizontal: SPACING.space_10,
   },
   dateItem: {
-    padding: 10,
-    backgroundColor: '#555', // Đổi màu nền item ngày sang xám
-    borderRadius: 10,
-    marginHorizontal: 5,
+    padding: SPACING.space_10,
+    backgroundColor: COLORS.Black,
+    borderRadius: BORDERRADIUS.radius_8,
+    marginHorizontal: SPACING.space_8,
     alignItems: 'center',
   },
   selectedDate: {
-    backgroundColor: '#FF5524', // Màu xám nhạt cho ngày đã chọn
+    backgroundColor: COLORS.Orange,
   },
   dateText: {
-    color: 'white', // Đổi màu chữ thành trắng
+    color: COLORS.WhiteRGBA75,
+    fontFamily: FONTFAMILY.poppins_regular,
+    fontSize: FONTSIZE.size_14,
+  },
+  selectedDateText: {
+    color: COLORS.White,
+    fontFamily: FONTFAMILY.poppins_medium,
+    fontSize: FONTSIZE.size_14,
   },
   cinemaItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    padding: 15,
-    backgroundColor: 'black', // Đổi màu nền item rạp sang xám
+    alignItems: 'center',
+    padding: SPACING.space_15,
+    backgroundColor: COLORS.DarkGrey,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
+    borderBottomColor: COLORS.Gray,
   },
   cinemaText: {
-    fontSize: 16,
-    color: 'white', // Đổi màu chữ thành trắng
+    fontSize: FONTSIZE.size_16,
+    color: COLORS.White,
+    fontFamily: FONTFAMILY.poppins_medium,
+  },
+  cinemaIcon: {
+    fontSize: FONTSIZE.size_20,
+    color: COLORS.White,
   },
   formatContainer: {
-    padding: 10,
-    backgroundColor: 'black', // Đổi màu nền cho định dạng sang xám
+    padding: SPACING.space_10,
+    backgroundColor: COLORS.Black,
   },
   formatItem: {
-    marginBottom: 10,
+    marginBottom: SPACING.space_10,
   },
   formatText: {
-    fontWeight: 'bold',
-    marginBottom: 5,
-    color: 'white', // Đổi màu chữ thành trắng
+    fontFamily: FONTFAMILY.poppins_medium,
+    fontSize: FONTSIZE.size_14,
+    color: COLORS.White,
+    marginBottom: SPACING.space_5,
   },
   timeContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
   },
   timeItem: {
-    padding: 10,
-    backgroundColor: '#FF5524', // Đổi màu nút giờ mặc định sang xám
-    borderRadius: 5,
-    margin: 5,
+    paddingVertical: SPACING.space_8,
+    paddingHorizontal: SPACING.space_12,
+    borderRadius: BORDERRADIUS.radius_8,
+    margin: SPACING.space_4,
+    alignItems: 'center',
   },
   selectedTime: {
-    backgroundColor: '#FF5524', // Màu cam cho giờ đã chọn
+    backgroundColor: COLORS.Orange,
   },
   defaultTime: {
-    backgroundColor: '#555', // Màu xám cho giờ không được chọn
+    backgroundColor: COLORS.Grey, // Thử màu xanh để kiểm tra
   },
+
   timeText: {
-    color: 'white',
+    color: COLORS.WhiteRGBA75,
+    fontFamily: FONTFAMILY.poppins_regular,
+    fontSize: FONTSIZE.size_14,
+  },
+  selectedTimeText: {
+    color: COLORS.White,
+    fontFamily: FONTFAMILY.poppins_medium,
+    fontSize: FONTSIZE.size_14,
+  },
+  priceText: {
+    color: COLORS.WhiteRGBA75,
+    fontFamily: FONTFAMILY.poppins_regular,
+    fontSize: FONTSIZE.size_12,
   },
   continueButton: {
-    padding: 15,
-    backgroundColor: '#FF5524', // Đổi màu nút thành xám nhạt
-    borderRadius: 5,
-    margin: 20,
+    paddingVertical: SPACING.space_15,
+    backgroundColor: COLORS.Orange,
+    borderRadius: BORDERRADIUS.radius_8,
+    marginHorizontal: SPACING.space_20,
     alignItems: 'center',
     position: 'absolute',
-    bottom: 0,
+    bottom: SPACING.space_20,
     left: 0,
     right: 0,
   },
   continueButtonText: {
-    color: '#ffffff', // Đổi màu chữ nút thành trắng
-    fontWeight: 'bold',
+    color: COLORS.White,
+    fontFamily: FONTFAMILY.poppins_medium,
+    fontSize: FONTSIZE.size_16,
   },
-
   noShowtimesText: {
     textAlign: 'center',
-    color: 'white',
-    marginTop: 20,
+    color: COLORS.White,
+    marginTop: SPACING.space_20,
+    fontFamily: FONTFAMILY.poppins_regular,
+    fontSize: FONTSIZE.size_14,
   },
 });
 

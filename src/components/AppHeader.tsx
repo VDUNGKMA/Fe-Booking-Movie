@@ -12,7 +12,7 @@ import {
 const AppHeader = (props: any) => {
   return (
     <View style={styles.container}>
-      <TouchableOpacity style={styles.iconBG} onPress={() => props.action()}>
+      <TouchableOpacity style={styles.iconBG} onPress={props.action || (() => { })}>
         <CustomIcon name={props.name} style={styles.iconStyle} />
       </TouchableOpacity>
        <Text style={styles.headerText}>{props.header}</Text>

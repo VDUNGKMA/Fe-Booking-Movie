@@ -20,9 +20,10 @@ const SignInScreen = ({ navigation }: any) => {
       await AsyncStorage.setItem('userId', userId.toString());
       setIsLoggedIn(true); // Đặt trạng thái đăng nhập thành true
       // Nếu đăng nhập thành công, điều hướng tới UserAccountScreen
-      // navigation.navigate('UserAccountScreen', { userId: userId });
-      // navigation.navigate('Home');
-      navigation.navigate('Home', { isLoggedIn: true });
+      navigation.replace('TabNavigator', {
+        screen: 'Home',
+        params: { isLoggedIn: true },
+      });
     } catch (error: any) {
       console.error(error);
       // Hiển thị thông báo lỗi nếu đăng nhập thất bại
@@ -81,6 +82,69 @@ const SignInScreen = ({ navigation }: any) => {
   );
 };
 
+// const styles = StyleSheet.create({
+//   container: { flex: 1 },
+//   topContainer: {
+//     marginTop: 100,
+//     alignItems: 'center',
+//   },
+//   title: {
+//     color: COLORS.white,
+//     fontWeight: 'bold',
+//     fontSize: SIZES.h1 * 1.5,
+//   },
+//   subtitle: {
+//     color: COLORS.white,
+//     fontSize: SIZES.h4,
+//     paddingTop: 3,
+//   },
+//   dataContainer: {
+//     marginTop: 50,
+//   },
+//   textInput: {
+//     color: COLORS.white,
+//     fontSize: SIZES.h3,
+//     borderBottomColor: COLORS.lightGrey,
+//     borderBottomWidth: 1,
+//     paddingVertical: 15,
+//     marginHorizontal: 15,
+//     marginVertical: 5,
+//   },
+//   btnContainer: {
+//     marginTop: 50,
+//   },
+//   button: {
+//     backgroundColor: COLORS.primary,
+//     padding: 20,
+//     marginHorizontal: 30,
+//     borderRadius: 10,
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//     marginVertical: 10,
+//   },
+//   btnText: {
+//     color: COLORS.white,
+//     fontWeight: 'bold',
+//     fontSize: SIZES.h4,
+//   },
+//   text: {
+//     color: COLORS.white,
+//     textAlign: 'center',
+//     marginTop: 10,
+//     fontWeight: '600',
+//     fontSize: SIZES.h5,
+//   },
+//   bottomContainer: {
+//     justifyContent: 'center',
+//     marginTop: 50,
+//   },
+//   errorText: {
+//     color: 'red',
+//     textAlign: 'center',
+//     marginTop: 10,
+//     fontSize: SIZES.h5,
+//   },
+// });
 const styles = StyleSheet.create({
   container: { flex: 1 },
   topContainer: {
@@ -113,7 +177,7 @@ const styles = StyleSheet.create({
     marginTop: 50,
   },
   button: {
-    backgroundColor: COLORS.primary,
+    backgroundColor: COLORS.Orange,
     padding: 20,
     marginHorizontal: 30,
     borderRadius: 10,
@@ -144,5 +208,4 @@ const styles = StyleSheet.create({
     fontSize: SIZES.h5,
   },
 });
-
 export default SignInScreen;
