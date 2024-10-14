@@ -18,12 +18,13 @@ import CustomIcon from './CustomIcon';
 const InputHeader = (props: any) => {
   const [searchText, setSearchText] = useState<string>('');
   return (
+    <View style={styles.container}>
     <View style={styles.inputBox}>
       <TextInput
         style={styles.textInput}
         onChangeText={textInput => setSearchText(textInput)}
         value={searchText}
-        placeholder="Search your Movies..."
+        placeholder="Tìm kiếm phim..."
         placeholderTextColor={COLORS.WhiteRGBA32}
       />
       <TouchableOpacity
@@ -36,10 +37,14 @@ const InputHeader = (props: any) => {
         />
       </TouchableOpacity>
     </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container:{
+    paddingTop:20
+  },
   inputBox: {
     display: 'flex',
     paddingVertical: SPACING.space_8,

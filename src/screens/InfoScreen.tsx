@@ -13,34 +13,6 @@ const InfoScreen = ({ route, navigation }: any) => {
         navigation.navigate('ChangePwdScreen', { userId: user.id });
     };
 
-    // const handleSaveUsername = async () => {
-    //     if (newUsername && newUsername !== user.username) {
-    //         setLoading(true); // Bắt đầu trạng thái loading
-    //         try {
-    //             // Gọi API để cập nhật username
-    //             const response = await updateUsername(user.id, newUsername);
-    //             console.log('Response from server:', response); // Log phản hồi từ server
-
-    //             // Kiểm tra phản hồi từ server
-    //             if (response && response.status === "success") { // Sửa điều kiện ở đây
-    //                 Alert.alert('Thành công', 'Tên người dùng đã được cập nhật.');
-    //                 setModalVisible(false);
-    //                 setNewUsername(response.data.user.username); // Cập nhật tên người dùng từ phản hồi
-    //             } else {
-    //                 // Nếu không thành công
-    //                 Alert.alert('Lỗi', response.message || 'Cập nhật tên người dùng thất bại.');
-    //             }
-    //         } catch (error) {
-    //             // Nếu có lỗi, hiển thị thông báo lỗi
-    //             console.error('Error updating username:', error); // Log lỗi để kiểm tra
-    //             Alert.alert('Lỗi', 'Cập nhật tên người dùng thất bại.');
-    //         } finally {
-    //             setLoading(false); // Kết thúc trạng thái loading
-    //         }
-    //     } else {
-    //         Alert.alert('Thông báo', 'Tên người dùng không được để trống hoặc trùng với tên hiện tại.');
-    //     }
-    // };
 
     const handleSaveUsername = async () => {
         if (newUsername && newUsername !== user.username) {
@@ -141,6 +113,7 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: SPACING.space_20,
         backgroundColor: COLORS.Black,
+        paddingTop: 80
     },
     title: {
         fontFamily: FONTFAMILY.poppins_medium,

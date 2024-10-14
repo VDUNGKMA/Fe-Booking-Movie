@@ -25,6 +25,8 @@ export type AuthStackParamList = {
     InfoCardScreen: undefined;
     PaymentConfirmationScreen: { ticketId: number; userId: number };
     ChangePwdScreen: undefined;
+    TicketScreen: { refresh?: boolean };
+    PayPalPaymentScreen: undefined;
 };
 
 // Định nghĩa các màn hình trong Root Stack Navigator

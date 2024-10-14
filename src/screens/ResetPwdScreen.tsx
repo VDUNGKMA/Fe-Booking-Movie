@@ -10,67 +10,62 @@ const ResetPwdScreen = ({ route, navigation }: any) => {
 
     const handleResetPassword = async () => {
         if (!newPassword || !confirmPassword) {
-            Alert.alert('Error', 'Please fill in all fields');
+            Alert.alert('Lỗi', 'Vui lòng điền đầy đủ thông tin');
             return;
         }
-
         if (newPassword !== confirmPassword) {
-            Alert.alert('Error', 'New password and confirmation do not match');
+            Alert.alert('Lỗi', 'Mật khẩu mới và xác nhận mật khẩu không khớp');
             return;
         }
-
         try {
             const response = await api.post('/api/auth/resetPassword', {
                 email,
-                newPassword: newPassword
+                newPassword,
             });
-
             if (response.status === 200) {
-                Alert.alert('Success', 'Password changed successfully', [
-                    {
-                        text: 'OK',
-                        onPress: () => navigation.navigate('SignInScreen') // Điều hướng sau khi đổi mật khẩu thành công
-                    }
+                Alert.alert('Thành công', 'Đổi mật khẩu thành công', [
+                    { text: 'OK', onPress: () => navigation.navigate('SignInScreen') }
                 ]);
             } else {
-                Alert.alert('Error', 'Unable to change password');
+                Alert.alert('Lỗi', 'Không thể thay đổi mật khẩu');
             }
         } catch (error) {
-            Alert.alert('Error', 'An error occurred while changing the password');
+            Alert.alert('Lỗi', 'Đã xảy ra lỗi khi đổi mật khẩu');
         }
     };
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Reset Password</Text>
+            <Text style={styles.title}>Đặt Lại Mật Khẩu</Text>
+            <Text style={styles.subtitle}>Nhập và xác nhận mật khẩu mới của bạn bên dưới</Text>
 
             {/* New Password Input */}
             <View style={styles.textBox}>
                 <TextInput
-                    placeholder='New Password'
+                    placeholder='Mật khẩu mới'
                     placeholderTextColor={COLORS.Grey}
                     secureTextEntry
                     value={newPassword}
                     onChangeText={setNewPassword}
-                    style={styles.textinput}
+                    style={styles.textInput}
                 />
             </View>
 
             {/* Confirm Password Input */}
             <View style={styles.textBox}>
                 <TextInput
-                    placeholder='Confirm New Password'
+                    placeholder='Xác nhận mật khẩu mới'
                     placeholderTextColor={COLORS.Grey}
                     secureTextEntry
                     value={confirmPassword}
                     onChangeText={setConfirmPassword}
-                    style={styles.textinput}
+                    style={styles.textInput}
                 />
             </View>
 
             {/* Change Password Button */}
             <TouchableOpacity style={styles.button} onPress={handleResetPassword}>
-                <Text style={styles.buttonText}>Change Password</Text>
+                <Text style={styles.buttonText}>Đổi Mật Khẩu</Text>
             </TouchableOpacity>
         </View>
     );
@@ -81,42 +76,60 @@ const styles = StyleSheet.create({
         flex: 1,
         padding: SPACING.space_20,
         backgroundColor: COLORS.Black,
+        paddingTop: 100,
+        alignItems: 'center',
     },
     title: {
-        fontFamily: FONTFAMILY.poppins_medium,
+        fontFamily: FONTFAMILY.poppins_bold,
         fontSize: FONTSIZE.size_24,
-        marginBottom: SPACING.space_20,
         color: COLORS.White,
+        marginBottom: SPACING.space_10,
+        textAlign: 'center',
+    },
+    subtitle: {
+        fontFamily: FONTFAMILY.poppins_regular,
+        fontSize: FONTSIZE.size_14,
+        color: COLORS.WhiteRGBA75,
+        textAlign: 'center',
+        marginBottom: SPACING.space_30,
     },
     textBox: {
-        backgroundColor: COLORS.White,
-        padding: SPACING.space_12,
-        borderRadius: 8,
-        marginBottom: SPACING.space_15,
-        shadowColor: 'rgba(0, 0, 0, 0.4)',
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.3,
-        shadowRadius: 10,
-        elevation: 12,
+        backgroundColor: COLORS.WhiteRGBA50,
+        borderRadius: 10,
+        paddingVertical: SPACING.space_15,
+        paddingHorizontal: SPACING.space_12,
+        marginBottom: SPACING.space_20,
+        width: '100%',
+        shadowColor: COLORS.Black,
+        shadowOpacity: 0.25,
+        shadowOffset: { width: 0, height: 4 },
+        shadowRadius: 8,
+        elevation: 5,
     },
-    textinput: {
+    textInput: {
         fontFamily: FONTFAMILY.poppins_regular,
         fontSize: FONTSIZE.size_16,
-        color: COLORS.Black,
+        color: COLORS.White,
+        paddingHorizontal: 5,
     },
     button: {
-        marginTop: SPACING.space_20,
         backgroundColor: COLORS.Orange,
-        paddingVertical: SPACING.space_12,
-        paddingHorizontal: SPACING.space_24,
-        borderRadius: 5,
+        borderRadius: 30,
+        paddingVertical: SPACING.space_15,
+        paddingHorizontal: SPACING.space_55,
+        marginTop: SPACING.space_30,
         alignItems: 'center',
+        shadowColor: COLORS.Black,
+        shadowOpacity: 0.3,
+        shadowOffset: { width: 0, height: 5 },
+        shadowRadius: 10,
+        elevation: 6,
     },
     buttonText: {
         color: COLORS.White,
         fontFamily: FONTFAMILY.poppins_medium,
         fontSize: FONTSIZE.size_16,
-    }
+    },
 });
 
 export default ResetPwdScreen;

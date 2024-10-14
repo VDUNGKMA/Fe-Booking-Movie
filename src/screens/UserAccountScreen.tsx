@@ -9,39 +9,56 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthContext } from '../context/AuthContext';
 
 const UserAccountScreen = ({ route, navigation }: any) => {
-    const [user, setUser] = useState<any>(null); // State lưu thông tin người dùng
-    const [loading, setLoading] = useState(true); // State để theo dõi trạng thái loading
+    const [user, setUser] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
     const { setIsLoggedIn } = useContext(AuthContext);
-    // Hàm gọi API để lấy thông tin người dùng
+
     const fetchUserData = async () => {
         const userId = await AsyncStorage.getItem('userId');
         try {
-            const response = await api.get(`api/customer/user/${userId}`); // Sửa URL API ở đây
+            const response = await api.get(`api/customer/user/${userId}`);
             setUser(response.data.data.user);
         } catch (error) {
-            console.error('Error fetching user data:', error);
+            console.error('Lỗi khi tải dữ liệu người dùng:', error);
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        fetchUserData(); // Gọi API khi component được render
+        fetchUserData();
 
-        // Lắng nghe sự kiện quay lại màn hình
         const unsubscribe = navigation.addListener('focus', () => {
-            fetchUserData(); // Cập nhật dữ liệu người dùng mỗi khi màn hình được hiển thị lại
+            fetchUserData();
         });
 
-        return unsubscribe; // Trả về hàm huỷ sự kiện khi component unmount
+        return unsubscribe;
     }, [navigation]);
 
-    const handleBankAccountPress = () => {
-        if (user?.hasBankAccount) {
-            navigation.navigate('InfoCardScreen');
-        } else {
-            navigation.navigate('CardScreen');
-        }
+    const handleLogoutPress = () => {
+        Alert.alert(
+            'Xác nhận Đăng Xuất',
+            'Bạn có chắc chắn muốn đăng xuất không?',
+            [
+                {
+                    text: 'Không',
+                    style: 'cancel',
+                },
+                {
+                    text: 'Có',
+                    onPress: async () => {
+                        await AsyncStorage.removeItem('userId');
+                        await AsyncStorage.removeItem('jwtToken');
+                        setIsLoggedIn(false);
+                        navigation.replace('TabNavigator', {
+                            screen: 'Home',
+                            params: { isLoggedIn: false },
+                        });
+                    },
+                },
+            ],
+            { cancelable: true }
+        );
     };
 
     if (loading) {
@@ -52,41 +69,13 @@ const UserAccountScreen = ({ route, navigation }: any) => {
         );
     }
 
-    const handleLogoutPress = () => {
-        Alert.alert(
-            'Confirm Logout',
-            'Are you sure you want to logout?',
-            [
-                {
-                    text: 'No', // Nếu nhấn "No" sẽ đóng popup
-                    style: 'cancel',
-                },
-                {
-                    text: 'Yes', // Nếu nhấn "Yes" sẽ chuyển đến màn hình đăng nhập
-                    onPress: async () => {
-                        await AsyncStorage.removeItem('userId');
-                        await AsyncStorage.removeItem('jwtToken');
-                        setIsLoggedIn(false);
-                        // navigation.navigate('SignInScreen');
-                        navigation.replace('TabNavigator', {
-                            screen: 'Home',
-                            params: { isLoggedIn: true },
-                        });
-
-                    },
-                },
-            ],
-            { cancelable: true } // Cho phép đóng popup bằng cách nhấn ra ngoài
-        );
-    };
-
     return (
         <View style={styles.container}>
             <StatusBar hidden />
             <View style={styles.appHeaderContainer}>
                 <AppHeader
                     name="close"
-                    header={'My Profile'}
+                    header={'Thông Tin Tài Khoản'}
                     action={() => navigation.goBack()}
                 />
             </View>
@@ -99,26 +88,19 @@ const UserAccountScreen = ({ route, navigation }: any) => {
                 <Text style={styles.avatarText}>{user?.username}</Text>
             </View>
 
-            <View style={styles.profileContainer}>
+            <View style={styles.settingsContainer}>
                 <SettingComponent
                     icon="user"
-                    heading="Account"
-                    subheading="Edit Profile"
-                    subtitle="Change Password"
-                    onPress={() => navigation.navigate('InfoScreen', { user })} // Điều hướng đến InfoScreen với thông tin người dùng
-                />
-
-                <SettingComponent
-                    icon="setting"
-                    heading="Settings"
-                    subheading="Theme"
-                    subtitle="Permissions"
+                    heading="Tài Khoản"
+                    subheading="Chỉnh Sửa Thông Tin"
+                    subtitle="Đổi Mật Khẩu"
+                    onPress={() => navigation.navigate('InfoScreen', { user })}
                 />
                 <SettingComponent
                     icon="close"
-                    heading="Logout"
-                    subheading="Logout from your account"
-                    subtitle="Confirm Logout"
+                    heading="Đăng Xuất"
+                    subheading="Thoát khỏi tài khoản của bạn"
+                    subtitle="Xác nhận Đăng Xuất"
                     onPress={handleLogoutPress}
                 />
             </View>
@@ -128,28 +110,42 @@ const UserAccountScreen = ({ route, navigation }: any) => {
 
 const styles = StyleSheet.create({
     container: {
-        display: 'flex',
         flex: 1,
         backgroundColor: COLORS.Black,
+        paddingTop: SPACING.space_20,
     },
     appHeaderContainer: {
         marginHorizontal: SPACING.space_36,
-        marginTop: SPACING.space_20 * 2,
+        marginTop: SPACING.space_40,
     },
     profileContainer: {
         alignItems: 'center',
-        padding: SPACING.space_36,
+        paddingVertical: SPACING.space_36,
     },
     avatarImage: {
-        height: 80,
-        width: 80,
-        borderRadius: 80,
+        height: 100,
+        width: 100,
+        borderRadius: 50,
+        borderWidth: 2,
+        borderColor: COLORS.White,
+        marginBottom: SPACING.space_16,
     },
     avatarText: {
-        fontFamily: FONTFAMILY.poppins_medium,
-        fontSize: FONTSIZE.size_16,
-        marginTop: SPACING.space_16,
+        fontFamily: FONTFAMILY.poppins_bold,
+        fontSize: FONTSIZE.size_18,
         color: COLORS.White,
+    },
+    settingsContainer: {
+        backgroundColor: COLORS.DarkGrey,
+        borderRadius: 20,
+        marginHorizontal: SPACING.space_20,
+        paddingVertical: SPACING.space_16,
+        paddingHorizontal: SPACING.space_20,
+        shadowColor: COLORS.Black,
+        shadowOffset: { width: 0, height: 5 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 10,
     },
     loadingContainer: {
         flex: 1,

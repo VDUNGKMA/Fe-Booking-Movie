@@ -1,104 +1,127 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { COLORS, SIZES } from '../theme/theme';
 import api from '../api/api'; // Import file API
-import { AxiosError } from 'axios';
-import axios from 'axios';
 
 const ForgetPwdScreen = ({ navigation }: any) => {
     const [email, setEmail] = useState('');
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [loading, setLoading] = useState(false); // Loading state
 
     const handleSendEmail = async () => {
+        setLoading(true); // Start loading
         try {
-            // Gọi API để gửi email khôi phục mật khẩu
             const response = await api.post('/api/auth/forgotPassword', { email });
-
             if (response.status === 200) {
-                setSuccess('Password recovery email sent successfully.');
-                navigation.navigate('VerificationScreen',{email}); // Điều hướng đến màn hình xác minh sau khi gửi email thành công
+                setSuccess('Đã gửi email khôi phục mật khẩu thành công.');
+                navigation.navigate('VerificationScreen', { email });
             } else {
-                setError('Unable to send recovery email. Please try again.');
+                setError('Không thể gửi email khôi phục. Vui lòng thử lại.');
             }
         } catch (error) {
             console.error(error);
-            setError('Unable to connect to the server. Please try again later.');
+            setError('Không thể kết nối với máy chủ. Vui lòng thử lại sau.');
+        } finally {
+            setLoading(false); // Stop loading after API call completes
         }
     };
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Forgot Password</Text>
+            <Text style={styles.title}>Quên Mật Khẩu</Text>
             <Text style={styles.subtitle}>
-                Enter your email address below and we will send you an email with instructions on how to reset your password.
+                Nhập địa chỉ email của bạn bên dưới và chúng tôi sẽ gửi cho bạn email hướng dẫn cách đặt lại mật khẩu.
             </Text>
             <TextInput
-                placeholder='Enter your email'
+                placeholder='Nhập email của bạn'
                 value={email}
                 onChangeText={setEmail}
-                style={styles.textinput}
-                placeholderTextColor="gray"
+                style={styles.textInput}
+                placeholderTextColor="#808080"
+                keyboardType="email-address"
+                autoCapitalize="none"
             />
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
             {success ? <Text style={styles.successText}>{success}</Text> : null}
-            <TouchableOpacity onPress={handleSendEmail}>
-                <View style={styles.button}>
-                    <Text style={styles.buttonTxt}>Send</Text>
-                </View>
-            </TouchableOpacity>
+
+            {/* Show loading spinner if loading, otherwise show button */}
+            {loading ? (
+                <ActivityIndicator size="large" color={COLORS.Orange} style={styles.loadingIndicator} />
+            ) : (
+                <TouchableOpacity onPress={handleSendEmail} style={styles.button} disabled={loading}>
+                    <Text style={styles.buttonText}>Gửi</Text>
+                </TouchableOpacity>
+            )}
         </View>
     );
 };
 
-// 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: COLORS.Black, // Nền đen
-        paddingHorizontal: 20,
-        paddingTop: 20,
+        backgroundColor: COLORS.Black,
+        paddingHorizontal: 24,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
     title: {
         fontWeight: 'bold',
-        color: COLORS.white, // Chữ trắng
+        color: COLORS.White,
         fontSize: SIZES.h1,
-        marginVertical: 10,
+        marginBottom: 10,
+        textAlign: 'center',
     },
     subtitle: {
-        fontWeight: '500',
-        color: COLORS.white, // Chữ trắng
+        color: COLORS.WhiteRGBA75,
+        fontSize: SIZES.h5,
+        textAlign: 'center',
+        lineHeight: 22,
+        marginBottom: 30,
     },
-    textinput: {
-        borderBottomColor: COLORS.white, // Viền trắng
+    textInput: {
+        borderBottomColor: COLORS.WhiteRGBA50,
         borderBottomWidth: 1,
         fontSize: SIZES.h4,
-        paddingVertical: 10,
-        marginVertical: 30,
-        color: COLORS.white, // Chữ trắng
+        color: COLORS.White,
+        paddingVertical: 8,
+        marginVertical: 10,
+        width: '100%',
     },
     button: {
-        backgroundColor: COLORS.Orange, // Nút màu cam
-        padding: 20,
-        borderRadius: 10,
-        marginHorizontal: 20,
-        marginTop: 60,
+        backgroundColor: COLORS.Orange,
+        paddingVertical: 15,
+        paddingHorizontal: 30,
+        borderRadius: 8,
+        marginTop: 40,
+        width: '60%',
         alignItems: 'center',
+        shadowColor: COLORS.Black,
+        shadowOpacity: 0.3,
+        shadowOffset: { width: 0, height: 4 },
+        shadowRadius: 8,
+        elevation: 5,
     },
-    buttonTxt: {
-        color: COLORS.white, // Chữ trắng trên nút
+    buttonText: {
+        color: COLORS.White,
         fontWeight: 'bold',
         fontSize: SIZES.h4,
     },
+    loadingIndicator: {
+        marginTop: 40,
+    },
     errorText: {
-        color: 'red',
+        color: COLORS.Red,
+        fontSize: SIZES.h5,
         textAlign: 'center',
         marginTop: 10,
     },
     successText: {
-        color: 'green',
+        color: COLORS.Green,
+        fontSize: SIZES.h5,
         textAlign: 'center',
         marginTop: 10,
     },
 });
+
 export default ForgetPwdScreen;

@@ -24,6 +24,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import CustomIcon from '../components/CustomIcon';
 import { fetchMovieDetails } from '../api/api';
 import Video from 'react-native-video';
+import RenderHTML from 'react-native-render-html';  // Import RenderHTML
 
 const { width, height } = Dimensions.get('window');
 
@@ -114,8 +115,21 @@ const MovieDetailsScreen = ({ navigation, route }: any) => {
           ))}
         </View>
 
-        {/* Mô tả */}
-        <Text style={styles.descriptionText}>{movieData?.description}</Text>
+        {movieData?.description ? (
+          <RenderHTML
+            contentWidth={width}
+            source={{ html: movieData.description }}
+            baseStyle={{
+              fontFamily: FONTFAMILY.poppins_light,
+              fontSize: FONTSIZE.size_14,
+              color: COLORS.WhiteRGBA75,
+              textAlign: 'justify',
+              marginVertical: SPACING.space_16,
+            }}
+          />
+        ) : (
+          <Text style={styles.descriptionText}>Không có mô tả</Text>
+        )}
 
         {/* Trailer */}
         {movieData?.trailer_url && (

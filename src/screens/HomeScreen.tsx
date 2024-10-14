@@ -1,5 +1,4 @@
 
-
 // export default HomeScreen;
 import React, { useEffect, useRef, useState } from 'react';
 import {
@@ -16,6 +15,7 @@ import {
 } from 'react-native';
 import { COLORS, SPACING } from '../theme/theme';
 import { fetchNowPlayingMovies, fetchUpcomingMovies } from '../api/api';
+import { fetchPopularMovies, Movie } from '../api/apicalls';
 import CategoryHeader from '../components/CategoryHeader';
 import SubMovieCard from '../components/SubMovieCard';
 import MovieCard from '../components/MovieCard';
@@ -25,21 +25,26 @@ const { width } = Dimensions.get('window');
 const HomeScreen = ({ navigation }: any) => {
   const [nowPlayingMoviesList, setNowPlayingMoviesList] = useState<any[]>([]);
   const [upcomingMoviesList, setUpcomingMoviesList] = useState<any[]>([]);
+  const [popularMoviesList, setPopularMoviesList] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
-  const flatListRef = useRef<FlatList>(null); // Reference for FlatList
+  const flatListRef = useRef<FlatList>(null);
 
+  // Fetch movies on mount
   useEffect(() => {
     const fetchMovies = async () => {
       try {
         setLoading(true);
         setError(null);
+
         const nowPlaying = await fetchNowPlayingMovies();
         const upcoming = await fetchUpcomingMovies();
+        const popular = await fetchPopularMovies();
 
         setNowPlayingMoviesList(Array.isArray(nowPlaying) ? nowPlaying : []);
         setUpcomingMoviesList(Array.isArray(upcoming) ? upcoming : []);
+        setPopularMoviesList(Array.isArray(popular) ? popular : []);
       } catch (error) {
         console.error('Error fetching movies:', error);
         setError('Failed to load movies. Please try again later.');
@@ -52,16 +57,18 @@ const HomeScreen = ({ navigation }: any) => {
     fetchMovies();
   }, []);
 
+  // Auto-slide effect
   useEffect(() => {
     const slideInterval = setInterval(() => {
       setCurrentSlideIndex((prevIndex) =>
-        prevIndex === nowPlayingMoviesList.length - 1 ? 0 : prevIndex + 1
+        prevIndex === popularMoviesList.length - 1 ? 0 : prevIndex + 1
       );
-    }, 3000); // Auto scroll every 3 seconds
+    }, 3000);
 
-    return () => clearInterval(slideInterval); // Clear interval when component unmounts
-  }, [nowPlayingMoviesList.length]);
+    return () => clearInterval(slideInterval);
+  }, [popularMoviesList.length]);
 
+  // Scroll to the current slide
   useEffect(() => {
     if (flatListRef.current) {
       flatListRef.current.scrollToIndex({
@@ -71,16 +78,15 @@ const HomeScreen = ({ navigation }: any) => {
     }
   }, [currentSlideIndex]);
 
-  const renderSmallMovieAd = ({ item }: any) => {
-    return (
-      <View style={styles.smallSlide}>
-        <Image source={{ uri: item.poster_url }}
-         style={styles.smallAdImage} 
-          resizeMode="contain" />
-         
-      </View>
-    );
-  };
+  const renderSlideImage = ({ item }: { item: Movie }) => (
+    <View style={styles.imageWrapper}>
+      <Image
+        source={{ uri: `https://image.tmdb.org/t/p/w500${item.poster_path}` }}
+        style={styles.slideImage}
+        resizeMode="contain" // Ensures the full image is visible within the smaller frame
+      />
+    </View>
+  );
 
   if (loading) {
     return (
@@ -113,28 +119,27 @@ const HomeScreen = ({ navigation }: any) => {
     <ScrollView style={styles.container} bounces={false}>
       <StatusBar hidden />
 
-      {/* Khung viền cố định cho slide */}
+      {/* Slide Carousel with Popular Movies */}
       <View style={styles.carouselContainer}>
         <FlatList
           ref={flatListRef}
-          data={nowPlayingMoviesList}
-          renderItem={renderSmallMovieAd}
+          data={popularMoviesList}
+          renderItem={renderSlideImage}
           keyExtractor={(item) => item.id.toString()}
           horizontal
           showsHorizontalScrollIndicator={false}
           pagingEnabled={true}
-          snapToInterval={width * 0.7} // Thay đổi kích thước snapToInterval
+          snapToInterval={width * 0.5} // Adjusted for smaller slide frame
           decelerationRate="fast"
-          contentContainerStyle={{ paddingHorizontal: SPACING.space_20 }}
-          style={{ marginBottom: SPACING.space_28 }}
+          contentContainerStyle={{ paddingHorizontal: SPACING.space_10 }}
+          style={{ marginBottom: SPACING.space_20 }}
         />
       </View>
 
-     
       {/* Now Playing Movies */}
       {nowPlayingMoviesList.length > 0 && (
         <>
-          <CategoryHeader title={'Now Playing'} />
+          <CategoryHeader title={'Đang khởi chiếu'} />
           <FlatList
             data={nowPlayingMoviesList}
             keyExtractor={(item) => item.id.toString()}
@@ -147,6 +152,7 @@ const HomeScreen = ({ navigation }: any) => {
                 cardWidth={width * 0.7}
                 title={item.title}
                 imagePath={item.poster_url}
+                rating={item.rating}
                 genres={Array.isArray(item.genres) ? item.genres : []}
               />
             )}
@@ -157,7 +163,7 @@ const HomeScreen = ({ navigation }: any) => {
       {/* Upcoming Movies */}
       {upcomingMoviesList.length > 0 && (
         <>
-          <CategoryHeader title={'Upcoming'} />
+          <CategoryHeader title={'Sắp khởi chiếu'} />
           <FlatList
             data={upcomingMoviesList}
             keyExtractor={(item) => item.id.toString()}
@@ -193,26 +199,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   carouselContainer: {
-    marginTop: 50, // Adjust this value to move the carousel down
-    // marginBottom: SPACING.space_28,
+    marginTop: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 2,
+    borderWidth: 1,
     borderColor: COLORS.White,
-    borderRadius: 12,
+    borderRadius: 10,
     overflow: 'hidden',
-    width: width * 0.8,
+    width: width * 0.5, // Smaller width of carousel container
     alignSelf: 'center',
   },
-  smallSlide: {
-    justifyContent: 'center',
+  imageWrapper: {
+    width: width * 0.7, // Smaller width for the image wrapper
+    height: 150, // Smaller height for a more compact slide
+    overflow: 'hidden',
+    borderRadius: 10,
     alignItems: 'center',
-    width: width * 0.7, // Kích thước nhỏ hơn
+    justifyContent: 'center',
   },
-  smallAdImage: {
+  slideImage: {
     width: '100%',
-    height: 100,
-    borderRadius: 8,
+    height: '100%',
+    borderRadius: 10,
   },
   containerGap36: {
     gap: SPACING.space_55,

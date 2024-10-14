@@ -68,6 +68,8 @@ import { AuthStackParamList } from '../types/navigationTypes';
 import TabNavigator from './TabNavigator';
 import { AuthContext } from '../context/AuthContext'; // Import AuthContext
 import HomeScreen from '../screens/HomeScreen';
+import TicketScreen from '../screens/TicketScreen';
+import PayPalPaymentScreen from '../screens/PayPalPaymentScreen';
 const Stack = createStackNavigator<AuthStackParamList>();
 
 const AppNavigator = () => {
@@ -86,6 +88,8 @@ const AppNavigator = () => {
       <Stack.Screen name="InfoCardScreen" component={InfoCardScreen} />
       <Stack.Screen name="PaymentConfirmationScreen" component={PaymentConfirmationScreen} />
       <Stack.Screen name="ChangePwdScreen" component={ChangePwdScreen} />
+      <Stack.Screen name="TicketScreen" component={TicketScreen} /> 
+      <Stack.Screen name="PayPalPaymentScreen" component={PayPalPaymentScreen} /> 
 
       {/* Không định nghĩa SuccessScreen và FailScreen ở đây để tránh trùng lặp */}
     </Stack.Navigator>

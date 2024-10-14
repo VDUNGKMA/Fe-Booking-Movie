@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -9,60 +9,98 @@ import {
   ScrollView,
   Alert,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import { COLORS, SIZES } from '../theme/theme';
-import api from '../api/api'; // Import file API
-import { AxiosError } from 'axios';
-import axios from 'axios';
+import api from '../api/api';
 
-const VerificationScreen = ({ route,navigation }: any) => {
-  //const navigation = useNavigation();
-  const [code, setCode] = useState(['', '', '', '', '', '']); // Mã xác thực gồm 6 số
+const VerificationScreen = ({ route, navigation }: any) => {
+  const [code, setCode] = useState(['', '', '', '', '', '']);
   const [error, setError] = useState('');
-  const {email} = route.params;
+  const [countdown, setCountdown] = useState(120);
+  const { email } = route.params;
+  const inputsRef = useRef<Array<TextInput | null>>([]); // References for each TextInput
+
+  useEffect(() => {
+    if (countdown > 0) {
+      const timer = setInterval(() => {
+        setCountdown((prevCountdown) => prevCountdown - 1);
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [countdown]);
 
   const handleCodeChange = (value: string, index: number) => {
+    // Check if a paste event has occurred
+    if (value.length > 1) {
+      const newCode = value.slice(0, 6).split('');
+      setCode(newCode);
+      newCode.forEach((val, idx) => {
+        if (inputsRef.current[idx]) inputsRef.current[idx]?.setNativeProps({ text: val });
+      });
+      if (newCode.every((digit) => digit !== '')) {
+        handleContinue(); // Automatically submit if the OTP is complete
+      }
+      return;
+    }
+
+    // Update code array and move focus to next input
     const newCode = [...code];
     newCode[index] = value;
     setCode(newCode);
+    if (value !== '' && index < 5) {
+      inputsRef.current[index + 1]?.focus();
+    }
   };
 
   const handleContinue = async () => {
-    // Kiểm tra nếu tất cả các ô đã được điền đầy đủ
     if (code.every((digit) => digit !== '')) {
-      const verificationCode = code.join(''); // Nối tất cả các số thành một chuỗi
+      const verificationCode = code.join('');
       try {
-        // Gọi API xác thực mã
-        const response = await api.post('/api/auth/verifyOTP', { otp: verificationCode , email});
-        console.log('Verification response:', response); // Log response
-        console.log('Navigating to ResetPwdScreen with email:', email);
-
-        console.log(response);
+        const response = await api.post('/api/auth/verifyOTP', { otp: verificationCode, email });
         if (response.status === 200) {
-      
-          navigation.navigate('ResetPwdScreen',{email}); // Điều hướng đến màn hình đặt lại mật khẩu
-          
+          navigation.navigate('ResetPwdScreen', { email });
         } else {
-          setError('Invalid verification code. Please try again.');
+          setError('Mã xác thực không hợp lệ. Vui lòng thử lại.');
         }
       } catch (error) {
-        setError('Unable to verify the code. Please try again later.');
+        setError('Không thể xác minh mã. Vui lòng thử lại sau.');
       }
     } else {
-      Alert.alert('Please enter the full verification code');
+      Alert.alert('Vui lòng nhập đầy đủ mã xác thực.');
     }
+  };
+
+  const handleResendCode = async () => {
+    setCountdown(120);
+    setError('');
+    setCode(['', '', '', '', '', '']);
+    try {
+      const response = await api.post('/api/auth/forgotPassword', { email });
+      if (response.status === 200) {
+        Alert.alert('OTP mới đã được gửi tới email của bạn.');
+      } else {
+        setError('Không thể gửi lại mã. Vui lòng thử lại.');
+      }
+    } catch (error) {
+      setError('Không thể gửi lại mã. Vui lòng thử lại sau.');
+    }
+  };
+
+  const formatTime = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
   };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Image
-        source={require('../assets/image/img12.png')} // Đảm bảo rằng đường dẫn hình ảnh là chính xác
+        source={require('../assets/image/img12.png')}
         style={styles.image}
         resizeMode="contain"
       />
-      <Text style={styles.title}>Enter verification code</Text>
+      <Text style={styles.title}>Nhập mã xác thực</Text>
       <Text style={styles.subtitle}>
-        We have sent the code to your email. Please check your mailbox
+        Chúng tôi đã gửi mã tới email của bạn. Vui lòng kiểm tra hộp thư đến.
       </Text>
 
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
@@ -72,19 +110,30 @@ const VerificationScreen = ({ route,navigation }: any) => {
           <TextInput
             key={index}
             style={styles.inputBox}
+            ref={(ref) => (inputsRef.current[index] = ref)}
             keyboardType="numeric"
             maxLength={1}
             value={digit}
             onChangeText={(value) => handleCodeChange(value, index)}
+            onKeyPress={({ nativeEvent }) => {
+              if (nativeEvent.key === 'Backspace' && index > 0 && !digit) {
+                inputsRef.current[index - 1]?.focus();
+              }
+            }}
           />
         ))}
       </View>
-      <TouchableOpacity>
-        <Text style={styles.resendText}>Code not received? Resend code</Text>
+
+      <Text style={styles.countdownText}>Mã hết hạn trong: {formatTime(countdown)}</Text>
+
+      <TouchableOpacity onPress={handleResendCode} disabled={countdown > 0}>
+        <Text style={[styles.resendText, countdown > 0 && styles.disabledText]}>
+          Không nhận được mã? Gửi lại mã
+        </Text>
       </TouchableOpacity>
-      {/* Nút "Continue" để điều hướng */}
+
       <TouchableOpacity style={styles.button} onPress={handleContinue}>
-        <Text style={styles.buttonText}>Continue</Text>
+        <Text style={styles.buttonText}>Tiếp tục</Text>
       </TouchableOpacity>
     </ScrollView>
   );
@@ -95,7 +144,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: COLORS.Black,
   },
   image: {
     width: 200,
@@ -105,7 +154,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: SIZES.h2,
     fontWeight: 'bold',
-    color: COLORS.Black,
+    color: COLORS.white,
     marginBottom: 10,
   },
   subtitle: {
@@ -127,13 +176,21 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     textAlign: 'center',
     fontSize: 18,
-    color: COLORS.Black,
+    color: COLORS.white,
     marginHorizontal: 5,
+  },
+  countdownText: {
+    fontSize: SIZES.h5,
+    color: COLORS.Red,
+    marginTop: 10,
   },
   resendText: {
     fontSize: SIZES.h5,
-    color: COLORS.grey,
+    color: COLORS.primary,
     marginVertical: 20,
+  },
+  disabledText: {
+    color: COLORS.grey,
   },
   button: {
     backgroundColor: COLORS.primary,

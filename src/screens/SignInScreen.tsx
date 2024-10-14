@@ -1,58 +1,86 @@
+
 import React, { useContext, useState } from 'react';
-import { View, Text, ImageBackground, ScrollView, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, ImageBackground, ScrollView, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { COLORS, SIZES } from '../theme/theme';
-import api from '../api/api'; // Import API
+import api, { createTicket } from '../api/api';
 import { AxiosError } from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-const SignInScreen = ({ navigation }: any) => {
+
+
+const SignInScreen = ({ navigation, route }: any) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState(''); // Biến để lưu thông báo lỗi
-  // const [isLoggedIn, setIsLoggedIn] = useState(false); // Trạng thái để quản lý đăng nhập
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const { setIsLoggedIn } = useContext(AuthContext);
+
+  // Retrieve booking details if provided
+  const redirectTo = route.params?.redirectTo;
+  const showtimeId = route.params?.showtimeId;
+  const selectedSeats = route.params?.selectedSeats || [];
+  const totalPrice = route.params?.totalPrice || 0;
+
   const handleSignIn = async () => {
     try {
-      const response = await api.post('/api/auth/login', { email, password }); // Gọi API đăng nhập
+      setLoading(true);
+      const response = await api.post('/api/auth/login', { email, password });
       const userId = response.data.data.user.id;
-
-      // Lưu userId vào AsyncStorage
       await AsyncStorage.setItem('userId', userId.toString());
-      setIsLoggedIn(true); // Đặt trạng thái đăng nhập thành true
-      // Nếu đăng nhập thành công, điều hướng tới UserAccountScreen
-      navigation.replace('TabNavigator', {
-        screen: 'Home',
-        params: { isLoggedIn: true },
-      });
-    } catch (error: any) {
-      console.error(error);
-      // Hiển thị thông báo lỗi nếu đăng nhập thất bại
-      setError('Invalid email or password');
+      setIsLoggedIn(true);
+      // navigation.replace('TabNavigator', { screen: 'Home', params: { isLoggedIn: true } });
+      // navigation.navigate('TabNavigator', { screen: 'Home', params: { isLoggedIn: true } });
+      // Redirect based on where the login was initiated from
+      // If redirected from SeatBookingScreen, immediately create the ticket
+      if (redirectTo === 'bookTicket' && showtimeId && selectedSeats.length) {
+        await createTicketAndNavigate(userId);
+      } else {
+        navigation.navigate('TabNavigator', { screen: 'Home', params: { isLoggedIn: true } });
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Invalid email or password');
+    } finally {
+      setLoading(false);
     }
   };
-
+  const createTicketAndNavigate = async (userId: string) => {
+    try {
+      const response = await createTicket(showtimeId, selectedSeats, 'paypal', userId);
+      if (response.status === 'success') {
+        navigation.navigate('PayPalPayment', {
+          userId,
+          ticketId: response.data.ticketId,
+        });
+      } else {
+        Alert.alert('Booking Failed', response.message || 'Could not create ticket.');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Booking error. Try again.');
+    }
+  };
   return (
     <View style={styles.container}>
       <ImageBackground
-        source={require('../assets/image/img8.png')}
+        source={require('../assets/image/login.jpg')}
         style={{ flex: 1 }}
         resizeMode="cover"
       >
+        <View style={styles.overlay} />
         <ScrollView>
           <View style={styles.topContainer}>
-            <Text style={styles.title}>Welcome Back</Text>
-            <Text style={styles.subtitle}>Sign in to continue</Text>
+            <Text style={styles.title}>Chào mừng trở lại</Text>
+            <Text style={styles.subtitle}>Đăng nhập để tiếp tục</Text>
           </View>
           <View style={styles.dataContainer}>
             <TextInput
-              placeholder='Email'
+              placeholder="Email"
               value={email}
               onChangeText={setEmail}
               style={styles.textInput}
               placeholderTextColor={COLORS.white}
             />
             <TextInput
-              placeholder='Password'
+              placeholder="Mật khẩu"
               value={password}
               onChangeText={setPassword}
               style={styles.textInput}
@@ -62,107 +90,52 @@ const SignInScreen = ({ navigation }: any) => {
             {error ? <Text style={styles.errorText}>{error}</Text> : null}
           </View>
           <View style={styles.btnContainer}>
-            <TouchableOpacity onPress={handleSignIn}>
+            <TouchableOpacity onPress={handleSignIn} style={styles.buttonShadow}>
               <View style={styles.button}>
-                <Text style={styles.btnText}>SIGN IN</Text>
+                <Text style={styles.btnText}>ĐĂNG NHẬP</Text>
               </View>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => navigation.navigate('ForgetPwdScreen')}>
-              <Text style={styles.text}>Forgot your password? | Click here</Text>
+              <Text style={styles.text}>Quên mật khẩu? | Nhấn vào đây</Text>
             </TouchableOpacity>
           </View>
           <View style={styles.bottomContainer}>
             <TouchableOpacity onPress={() => navigation.navigate('SignUpScreen')}>
-              <Text style={styles.text}>Don't have an account? | Sign Up</Text>
+              <Text style={styles.text}>Bạn chưa có tài khoản? | Đăng ký</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
+
       </ImageBackground>
     </View>
   );
 };
 
-// const styles = StyleSheet.create({
-//   container: { flex: 1 },
-//   topContainer: {
-//     marginTop: 100,
-//     alignItems: 'center',
-//   },
-//   title: {
-//     color: COLORS.white,
-//     fontWeight: 'bold',
-//     fontSize: SIZES.h1 * 1.5,
-//   },
-//   subtitle: {
-//     color: COLORS.white,
-//     fontSize: SIZES.h4,
-//     paddingTop: 3,
-//   },
-//   dataContainer: {
-//     marginTop: 50,
-//   },
-//   textInput: {
-//     color: COLORS.white,
-//     fontSize: SIZES.h3,
-//     borderBottomColor: COLORS.lightGrey,
-//     borderBottomWidth: 1,
-//     paddingVertical: 15,
-//     marginHorizontal: 15,
-//     marginVertical: 5,
-//   },
-//   btnContainer: {
-//     marginTop: 50,
-//   },
-//   button: {
-//     backgroundColor: COLORS.primary,
-//     padding: 20,
-//     marginHorizontal: 30,
-//     borderRadius: 10,
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     marginVertical: 10,
-//   },
-//   btnText: {
-//     color: COLORS.white,
-//     fontWeight: 'bold',
-//     fontSize: SIZES.h4,
-//   },
-//   text: {
-//     color: COLORS.white,
-//     textAlign: 'center',
-//     marginTop: 10,
-//     fontWeight: '600',
-//     fontSize: SIZES.h5,
-//   },
-//   bottomContainer: {
-//     justifyContent: 'center',
-//     marginTop: 50,
-//   },
-//   errorText: {
-//     color: 'red',
-//     textAlign: 'center',
-//     marginTop: 10,
-//     fontSize: SIZES.h5,
-//   },
-// });
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+  },
   topContainer: {
-    marginTop: 100,
+    marginTop: 120,
+    paddingTop: 80,
     alignItems: 'center',
   },
   title: {
     color: COLORS.white,
     fontWeight: 'bold',
-    fontSize: SIZES.h1 * 1.5,
+    fontSize: SIZES.h1 * 1.4,
+    letterSpacing: 1,
   },
   subtitle: {
     color: COLORS.white,
     fontSize: SIZES.h4,
-    paddingTop: 3,
+    paddingTop: 5,
+    letterSpacing: 0.5,
   },
   dataContainer: {
-    marginTop: 50,
+    marginTop: 60,
   },
   textInput: {
     color: COLORS.white,
@@ -170,36 +143,46 @@ const styles = StyleSheet.create({
     borderBottomColor: COLORS.lightGrey,
     borderBottomWidth: 1,
     paddingVertical: 15,
-    marginHorizontal: 15,
-    marginVertical: 5,
+    marginHorizontal: 20,
+    marginVertical: 8,
   },
   btnContainer: {
-    marginTop: 50,
+    marginTop: 40,
+    alignItems: 'center',
+  },
+  buttonShadow: {
+    borderRadius: 10,
+    shadowColor: COLORS.Black,
+    shadowOpacity: 0.3,
+    shadowOffset: { width: 2, height: 2 },
+    shadowRadius: 6,
   },
   button: {
     backgroundColor: COLORS.Orange,
-    padding: 20,
-    marginHorizontal: 30,
+    paddingVertical: 18,
+    paddingHorizontal: 30,
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    marginVertical: 10,
+    width: '80%',
   },
   btnText: {
     color: COLORS.white,
     fontWeight: 'bold',
     fontSize: SIZES.h4,
+    letterSpacing: 1,
   },
   text: {
     color: COLORS.white,
     textAlign: 'center',
-    marginTop: 10,
+    marginTop: 15,
     fontWeight: '600',
     fontSize: SIZES.h5,
   },
   bottomContainer: {
     justifyContent: 'center',
-    marginTop: 50,
+    alignItems: 'center',
+    marginTop: 60,
   },
   errorText: {
     color: 'red',
@@ -208,4 +191,5 @@ const styles = StyleSheet.create({
     fontSize: SIZES.h5,
   },
 });
+
 export default SignInScreen;

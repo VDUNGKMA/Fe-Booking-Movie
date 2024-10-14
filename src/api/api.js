@@ -250,4 +250,7 @@ export const executePayment = (token) => {
 export const cancelPaymentApi = (token) => {
   return api.get(`/api/customer/cancel-payment?token=${token}`);
 };
+export const fetchBookingHistoryApi = (userId) => {
+  return api.get(`/api/customer/users/${userId}/booking-history`);
+};
 export default api;

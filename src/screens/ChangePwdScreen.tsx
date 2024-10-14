@@ -3,13 +3,11 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'reac
 import { COLORS, FONTSIZE, SPACING, FONTFAMILY } from '../theme/theme';
 import { changePassword } from '../api/api';
 
-const ChangePwdScreen = ({route,navigation}: any) => {
+const ChangePwdScreen = ({ route, navigation }: any) => {
     const { userId } = route.params || {};
-    
-    console.log('User ID:', userId); // Log userId để kiểm tra
 
     if (!userId) {
-        Alert.alert('Error', 'User ID is missing');
+        Alert.alert('Lỗi', 'Thiếu mã người dùng');
         navigation.goBack();
         return null;
     }
@@ -20,71 +18,65 @@ const ChangePwdScreen = ({route,navigation}: any) => {
 
     const handleChangePassword = async () => {
         if (!currentPassword) {
-            Alert.alert('Error', 'Please enter your current password');
+            Alert.alert('Lỗi', 'Vui lòng nhập mật khẩu hiện tại');
             return;
         }
         if (newPassword !== confirmPassword) {
-            Alert.alert('Error', 'New password and confirmation do not match');
+            Alert.alert('Lỗi', 'Mật khẩu mới và xác nhận không khớp');
             return;
         }
-    
+
         try {
             const response = await changePassword(userId, currentPassword, newPassword);
-            console.log('Response:', response); // Log response để kiểm tra
             if (response.status === 'success') {
-                Alert.alert('Success', 'Password changed successfully', [
+                Alert.alert('Thành công', 'Đổi mật khẩu thành công', [
                     {
                         text: 'OK',
                         onPress: () => navigation.navigate('SignInScreen')
                     }
                 ]);
             } else {
-                Alert.alert('Error', response.message || 'Failed to change password');
+                Alert.alert('Lỗi', response.message || 'Đổi mật khẩu thất bại');
             }
         } catch (error) {
-            // console.error('Error in changePassword:', error); // Log chi tiết lỗi
-            // console.error('Error response:', error.response); // Log response để kiểm tra
-           // const errorMessage = error.response?.data?.message || error.message || 'Failed to change password';
-            //Alert.alert('Error', errorMessage);
+            Alert.alert('Lỗi', 'Xảy ra lỗi trong quá trình đổi mật khẩu');
         }
-        
     };
-    
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Change Password</Text>
+            <Text style={styles.title}>Đổi Mật Khẩu</Text>
 
             <TextInput
-                placeholder='Current Password'
+                placeholder='Mật khẩu hiện tại'
                 placeholderTextColor={COLORS.grey}
                 secureTextEntry
                 value={currentPassword}
                 onChangeText={setCurrentPassword}
-                style={styles.textinput}
+                style={styles.textInput}
             />
 
             <TextInput
-                placeholder='New Password'
+                placeholder='Mật khẩu mới'
                 placeholderTextColor={COLORS.grey}
                 secureTextEntry
                 value={newPassword}
                 onChangeText={setNewPassword}
-                style={styles.textinput}
+                style={styles.textInput}
             />
 
             <TextInput
-                placeholder='Confirm New Password'
+                placeholder='Xác nhận mật khẩu mới'
                 placeholderTextColor={COLORS.grey}
                 secureTextEntry
                 value={confirmPassword}
                 onChangeText={setConfirmPassword}
-                style={styles.textinput}
+                style={styles.textInput}
             />
 
             <TouchableOpacity onPress={handleChangePassword}>
                 <View style={styles.button}>
-                    <Text style={styles.buttonTxt}>Change Password</Text>
+                    <Text style={styles.buttonText}>Xác nhận đổi mật khẩu</Text>
                 </View>
             </TouchableOpacity>
         </View>
@@ -96,35 +88,47 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: COLORS.Black,
         paddingHorizontal: SPACING.space_20,
-        paddingTop: 50,
+        paddingTop: 80,
+        alignItems: 'center',
     },
     title: {
         fontFamily: FONTFAMILY.poppins_medium,
         fontSize: FONTSIZE.size_24,
-        marginBottom: 30,
+        marginBottom: SPACING.space_30,
         color: COLORS.White,
         textAlign: 'center',
     },
-    textinput: {
+    textInput: {
         backgroundColor: COLORS.White,
-        borderRadius: 8,
+        borderRadius: 10,
         fontFamily: FONTFAMILY.poppins_regular,
         fontSize: FONTSIZE.size_16,
         paddingVertical: SPACING.space_12,
         paddingHorizontal: SPACING.space_15,
-        marginVertical: SPACING.space_15,
+        marginVertical: SPACING.space_12,
         color: COLORS.Black,
+        width: '100%',
+        shadowColor: COLORS.Black,
+        shadowOpacity: 0.15,
+        shadowOffset: { width: 0, height: 5 },
+        shadowRadius: 8,
+        elevation: 6,
     },
     button: {
         backgroundColor: COLORS.Orange,
-        paddingVertical: SPACING.space_12,
-        paddingHorizontal: SPACING.space_40,
-        borderRadius: 8,
+        paddingVertical: SPACING.space_15,
+        paddingHorizontal: SPACING.space_55,
+        borderRadius: 25,
         alignItems: 'center',
         alignSelf: 'center',
-        marginTop: SPACING.space_20,
+        marginTop: SPACING.space_24,
+        shadowColor: COLORS.Black,
+        shadowOpacity: 0.25,
+        shadowOffset: { width: 0, height: 8 },
+        shadowRadius: 10,
+        elevation: 10,
     },
-    buttonTxt: {
+    buttonText: {
         color: COLORS.White,
         fontFamily: FONTFAMILY.poppins_medium,
         fontSize: FONTSIZE.size_16,

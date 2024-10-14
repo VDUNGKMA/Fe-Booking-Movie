@@ -3,12 +3,15 @@ import { View, Text, FlatList, StyleSheet, ActivityIndicator, Image, Modal, Touc
 import axios from 'axios';
 import moment from 'moment';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import { useIsFocused } from '@react-navigation/native';
+import { useBooking } from '../context/BookingContext';
+import { fetchBookingHistoryApi } from '../api/api';
+// Interface for Ticket
 interface Ticket {
   ticketId: number;
   price: string;
   bookingDate: string;
-  seats: string,
+  seats: string;
   qrCode: string | null;
   movie: string;
   cinema: string;
@@ -22,58 +25,79 @@ const TicketScreen = () => {
   const [loading, setLoading] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedQrCode, setSelectedQrCode] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchBookingHistory = async () => {
-      try {
-
-        const userId = await AsyncStorage.getItem('userId');
-        const response = await axios.get(`http://192.168.1.14:5000/api/customer/users/${userId}/booking-history`);
-        setTickets(response.data.data);
-      } catch (error) {
-        console.error('Error fetching booking history:', error);
-      } finally {
-        setLoading(false);
+  const { bookingUpdated, setBookingUpdated } = useBooking();
+  const isFocused = useIsFocused(); // Kiểm tra xem màn hình có được focus không
+  
+  const fetchBookingHistory = async () => {
+    try {
+      const userId = await AsyncStorage.getItem('userId');
+      if (!userId) {
+        setTickets([]); // Nếu không có userId, đặt lại danh sách vé rỗng
+        return;
       }
-    };
+      const response = await fetchBookingHistoryApi(userId)
+      setTickets(response.data.data);
+    } catch (error) {
+      console.error('Error fetching booking history:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchBookingHistory();
-  }, []);
+  // Lấy dữ liệu khi màn hình lần đầu được load hoặc khi nó được focus
+  useEffect(() => {
+    
+    if (isFocused || bookingUpdated) {
+      fetchBookingHistory();
+      setBookingUpdated(false); // Reset trạng thái sau khi tải lại dữ liệu
+    }
+  }, [isFocused, bookingUpdated]);
+
 
   const handleQrCodePress = (qrCode: string) => {
     setSelectedQrCode(qrCode);
     setModalVisible(true);
   };
 
-  const renderTicketItem = ({ item }: { item: Ticket }) => (
-    <View style={styles.ticketContainer}>
-      <Text style={styles.movieTitle}>{item.movie}</Text>
-      <Text style={styles.cinemaText}>Rạp: {item.cinema} - Phòng: {item.theater}</Text>
-      <Text style={styles.dateText}>
-        Thời gian: {moment(item.startTime).format('DD/MM/YYYY HH:mm')} - {moment(item.endTime).format('HH:mm')}
-      </Text>
-      <Text style={styles.seatsText}>Ghế ngồi: {item.seats} </Text>
+  const formatPrice = (price: string) => {
+    return parseInt(price, 10).toLocaleString('vi-VN', {
+      style: 'currency',
+      currency: 'VND',
+    });
+  };
 
-      <Text style={styles.priceText}>Giá vé: {item.price}VND</Text>
-      <Text style={styles.bookingDate}>Giờ đặt: {moment(item.bookingDate).format('DD/MM/YYYY HH:mm')}</Text>
+  const renderTicketItem = ({ item }: { item: Ticket }) => {
+    const isExpired = moment().isAfter(moment(item.endTime));
 
+    return (
+      <View style={[styles.ticketContainer, isExpired && styles.expiredTicket]}>
+        <Text style={styles.movieTitle}>{item.movie}</Text>
+        <Text style={styles.cinemaText}>Rạp: {item.cinema} - Phòng: {item.theater}</Text>
+        <Text style={styles.dateText}>
+          Thời gian: {moment(item.startTime).format('DD/MM/YYYY HH:mm')} - {moment(item.endTime).format('HH:mm')}
+        </Text>
+        <Text style={styles.seatsText}>Ghế ngồi: {item.seats} </Text>
+        <Text style={styles.priceText}>Giá vé: {formatPrice(item.price)}</Text>
+        <Text style={styles.bookingDate}>Giờ đặt: {moment(item.bookingDate).format('DD/MM/YYYY HH:mm')}</Text>
 
-      {item.qrCode ? (
-        <TouchableOpacity onPress={() => item.qrCode && handleQrCodePress(item.qrCode)}>
-          <Image source={{ uri: item.qrCode }} style={styles.qrCode} />
-        </TouchableOpacity>
+        {isExpired && <Text style={styles.expiredText}>Vé này đã hết hạn</Text>}
 
-      ) : (
-        <Text style={styles.noQrText}>Không có mã QR</Text>
-      )}
-    </View>
-  );
+        {item.qrCode ? (
+          <TouchableOpacity onPress={() => item.qrCode &&  handleQrCodePress(item.qrCode)}>
+            <Image source={{ uri: item.qrCode }} style={styles.qrCode} />
+          </TouchableOpacity>
+        ) : (
+          <Text style={styles.noQrText}>Không có mã QR</Text>
+        )}
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Lịch sử đặt vé</Text>
       {loading ? (
-        <ActivityIndicator size="large" color="#0000ff" />
+        <ActivityIndicator size="large" color="#ffffff" />
       ) : tickets.length > 0 ? (
         <FlatList
           data={tickets}
@@ -110,49 +134,58 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#000', // Black background
   },
   header: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 16,
+    paddingTop: 40,
+    marginBottom: 20,
     textAlign: 'center',
-    color: '#333',
+    color: '#fff', // White text color
   },
   ticketContainer: {
-    backgroundColor: '#ffffff',
-    borderRadius: 8,
+    backgroundColor: '#1c1c1c', // Dark gray background for tickets
+    borderRadius: 10,
     padding: 16,
-    marginBottom: 12,
+    marginBottom: 15,
     shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 5,
+    borderWidth: 1,
+    borderColor: '#333', // Darker border color
+  },
+  expiredTicket: {
+    backgroundColor: '#2c2c2c', // Slightly different color for expired tickets
+    borderColor: '#ff8a80',
   },
   movieTitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 8,
+    color: '#4fc3f7', // Light blue text color
+    marginBottom: 10,
   },
   cinemaText: {
     fontSize: 16,
-    color: '#666',
+    color: '#a9a9a9', // Light gray
     marginBottom: 4,
   },
   dateText: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 4,
-  },
-  priceText: {
-    fontSize: 16,
-    color: '#444',
+    fontSize: 15,
+    color: '#a9a9a9',
     marginBottom: 4,
   },
   seatsText: {
-    fontSize: 14,
-    color: '#666',
+    fontSize: 15,
+    color: '#a9a9a9',
+    marginBottom: 4,
+  },
+  priceText: {
+    fontSize: 17,
+    fontWeight: '500',
+    color: '#ff7043', // Bright color for price
     marginBottom: 4,
   },
   bookingDate: {
@@ -160,19 +193,31 @@ const styles = StyleSheet.create({
     color: '#888',
     marginBottom: 8,
   },
+  expiredText: {
+    color: '#ff3d00', // Bright red for expiration warning
+    fontWeight: 'bold',
+    fontSize: 16,
+    marginTop: 10,
+    textAlign: 'center',
+  },
   noQrText: {
     color: '#888',
     fontStyle: 'italic',
+    textAlign: 'center',
+    marginTop: 10,
   },
   noTicketsText: {
     fontSize: 16,
     textAlign: 'center',
-    color: '#666',
+    color: '#a9a9a9',
+    marginTop: 20,
   },
   qrCode: {
     width: 100,
     height: 100,
-    marginBottom: 5,
+    marginTop: 8,
+    alignSelf: 'center',
+    borderRadius: 8,
   },
   modalContainer: {
     flex: 1,
@@ -181,24 +226,25 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   modalContent: {
-    backgroundColor: '#fff',
-    padding: 20,
-    borderRadius: 8,
+    backgroundColor: '#1c1c1c', // Dark background for modal
+    padding: 25,
+    borderRadius: 12,
     alignItems: 'center',
   },
   modalQrCode: {
-    width: 200,
-    height: 200,
-    marginBottom: 16,
+    width: 220,
+    height: 220,
+    marginBottom: 20,
+    borderRadius: 8,
   },
   closeButton: {
-    backgroundColor: '#007AFF',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 4,
+    backgroundColor: '#3D5AFE',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 8,
   },
   closeButtonText: {
-    color: '#fff',
+    color: '#fff', // White text for the button
     fontSize: 16,
   },
 });

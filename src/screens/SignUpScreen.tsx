@@ -1,9 +1,10 @@
+
+// export default SignUpScreen;
 import React, { useState } from 'react';
 import { View, Text, ImageBackground, ScrollView, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { COLORS, SIZES } from '../theme/theme';
 import api from '../api/api';
 import { AxiosError } from 'axios';
-import axios from 'axios';
 
 const SignUpScreen = ({ navigation }: any) => {
     const [username, setUsername] = useState('');
@@ -13,12 +14,11 @@ const SignUpScreen = ({ navigation }: any) => {
     const [error, setError] = useState<string | null>(null);
 
     const handleSignUp = async () => {
-        // Kiểm tra các trường bắt buộc
         if (!username || !email || !contactNumber || !password) {
             setError('Please fill in all fields');
             return;
         }
-    
+
         try {
             const response = await api.post('/api/auth/register-customer', {
                 username,
@@ -26,62 +26,58 @@ const SignUpScreen = ({ navigation }: any) => {
                 phone_number: contactNumber,
                 password,
             });
-    
-            // console.log("cmt",response);
             if (response.status === 201) {
-                // Đăng ký thành công, điều hướng đến màn hình đăng nhập
                 navigation.navigate('SignInScreen');
             }
         } catch (err) {
-            // Xử lý lỗi từ API
             if (err instanceof AxiosError && err.response) {
-                // Lỗi trả về từ server
                 setError(err.response.data.message || 'Something went wrong');
             } else {
-                // Lỗi kết nối hoặc lỗi khác
                 setError('Unable to connect to the server. Please try again later.');
             }
         }
     };
-    
+
     return (
         <View style={styles.container}>
             <ImageBackground
-                source={require('../assets/image/img8.png')}
+                source={require('../assets/image/register.jpg')}
                 style={{ flex: 1 }}
                 resizeMode="cover"
             >
+                <View style={styles.overlay} />
+                <View style={styles.overlay} />
                 <ScrollView>
                     <View style={styles.topContainer}>
-                        <Text style={styles.title}>Get Started</Text>
-                        <Text style={styles.subtitle}>Sign up to continue</Text>
+                        <Text style={styles.title}>Bắt đầu</Text>
+                        <Text style={styles.subtitle}>Đăng ký để tiếp tục</Text>
                     </View>
                     <View style={styles.dataContainer}>
                         <TextInput
-                            placeholder='Username'
+                            placeholder='Tên người dùng'
                             style={styles.textInput}
-                            placeholderTextColor={COLORS.white}
+                            placeholderTextColor={COLORS.lightGrey}
                             value={username}
                             onChangeText={setUsername}
                         />
                         <TextInput
                             placeholder='Email'
                             style={styles.textInput}
-                            placeholderTextColor={COLORS.white}
+                            placeholderTextColor={COLORS.lightGrey}
                             value={email}
                             onChangeText={setEmail}
                         />
                         <TextInput
-                            placeholder='Contact Number'
+                            placeholder='Số điện thoại'
                             style={styles.textInput}
-                            placeholderTextColor={COLORS.white}
+                            placeholderTextColor={COLORS.lightGrey}
                             value={contactNumber}
                             onChangeText={setContactNumber}
                         />
                         <TextInput
-                            placeholder='Password'
+                            placeholder='Mật khẩu'
                             style={styles.textInput}
-                            placeholderTextColor={COLORS.white}
+                            placeholderTextColor={COLORS.lightGrey}
                             secureTextEntry
                             value={password}
                             onChangeText={setPassword}
@@ -89,18 +85,19 @@ const SignUpScreen = ({ navigation }: any) => {
                     </View>
                     {error && <Text style={styles.errorText}>{error}</Text>}
                     <View style={styles.btnContainer}>
-                        <TouchableOpacity onPress={handleSignUp}>
+                        <TouchableOpacity onPress={handleSignUp} style={styles.buttonShadow}>
                             <View style={styles.button}>
-                                <Text style={styles.btnText}>SIGN UP</Text>
+                                <Text style={styles.btnText}>ĐĂNG KÝ</Text>
                             </View>
                         </TouchableOpacity>
                     </View>
                     <View style={styles.bottomContainer}>
                         <TouchableOpacity onPress={() => navigation.navigate('SignInScreen')}>
-                            <Text style={styles.text}>Already have an account? | Sign In</Text>
+                            <Text style={styles.text}>Bạn đã có tài khoản? | Đăng nhập</Text>
                         </TouchableOpacity>
                     </View>
                 </ScrollView>
+
             </ImageBackground>
         </View>
     );
@@ -108,19 +105,27 @@ const SignUpScreen = ({ navigation }: any) => {
 
 const styles = StyleSheet.create({
     container: { flex: 1 },
+    overlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    
+    },
     topContainer: {
-        marginTop: 100,
+        marginTop: 80,
         alignItems: 'center',
+        paddingTop:80
     },
     title: {
         color: COLORS.white,
         fontWeight: 'bold',
-        fontSize: SIZES.h1 * 1.5,
+        fontSize: SIZES.h1 * 1.4,
+        letterSpacing: 1,
     },
     subtitle: {
         color: COLORS.white,
         fontSize: SIZES.h4,
-        paddingTop: 3,
+        paddingTop: 5,
+        letterSpacing: 0.5,
     },
     dataContainer: {
         marginTop: 50,
@@ -131,43 +136,55 @@ const styles = StyleSheet.create({
         borderBottomColor: COLORS.lightGrey,
         borderBottomWidth: 1,
         paddingVertical: 15,
-        marginHorizontal: 15,
-        marginVertical: 5,
+        marginHorizontal: 20,
+        marginVertical: 10,
     },
     errorText: {
         color: 'red',
         fontSize: SIZES.h5,
         textAlign: 'center',
         marginTop: 10,
+        paddingHorizontal: 20,
     },
     btnContainer: {
-        marginTop: 50,
+        marginTop: 40,
+        alignItems: 'center',
+    },
+    buttonShadow: {
+        borderRadius: 10,
+        shadowColor: COLORS.Black,
+        shadowOpacity: 0.4,
+        shadowOffset: { width: 2, height: 4 },
+        shadowRadius: 5,
     },
     button: {
-        backgroundColor: COLORS.primary,
-        padding: 20,
-        marginHorizontal: 30,
+        backgroundColor: COLORS.Orange,
+        paddingVertical: 18,
+        paddingHorizontal: 30,
         borderRadius: 10,
         justifyContent: 'center',
         alignItems: 'center',
-        marginVertical: 10,
+        width: '80%',
     },
     btnText: {
         color: COLORS.white,
         fontWeight: 'bold',
         fontSize: SIZES.h4,
+        letterSpacing: 1,
     },
     text: {
         color: COLORS.white,
         textAlign: 'center',
-        marginTop: 10,
+        marginTop: 15,
         fontWeight: '600',
         fontSize: SIZES.h5,
     },
     bottomContainer: {
         justifyContent: 'center',
+        alignItems: 'center',
         marginTop: 50,
     },
 });
 
 export default SignUpScreen;
+

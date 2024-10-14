@@ -1,6 +1,4 @@
 
-// src/screens/SeatBookingScreen.tsx
-
 import React, { useState, useEffect } from 'react';
 import {
   Text,
@@ -23,7 +21,8 @@ import {
 import AppHeader from '../components/AppHeader';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createTicket, fetchSeatsByShowtime } from '../api/api';
-import { PinchGestureHandler, State } from 'react-native-gesture-handler';
+import { PinchGestureHandler } from 'react-native-gesture-handler';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 const { width } = Dimensions.get('window');
 
@@ -34,7 +33,7 @@ const SeatBookingScreen = ({ navigation, route }: any) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedSeats, setSelectedSeats] = useState<any[]>([]);
   const [price, setPrice] = useState<number>(0);
-  const [scale, setScale] = useState<number>(1); // Scale state for zooming
+  const [scale, setScale] = useState<number>(1);
 
   useEffect(() => {
     const fetchSeats = async () => {
@@ -42,7 +41,6 @@ const SeatBookingScreen = ({ navigation, route }: any) => {
         setLoading(true);
         const data = await fetchSeatsByShowtime(showtimeId);
 
-        // Sort seats by row and number
         const sortedData = data.sort((a: any, b: any) => {
           if (a.row < b.row) return -1;
           if (a.row > b.row) return 1;
@@ -82,7 +80,7 @@ const SeatBookingScreen = ({ navigation, route }: any) => {
   };
 
   const onZoomEvent = (event: any) => {
-    setScale(Math.max(1, Math.min(scale * event.nativeEvent.scale, 3))); // Limit zoom between 1x and 3x
+    setScale(Math.max(1, Math.min(scale * event.nativeEvent.scale, 3)));
   };
 
   const BookSeats = async () => {
@@ -96,29 +94,35 @@ const SeatBookingScreen = ({ navigation, route }: any) => {
             ToastAndroid.SHORT,
             ToastAndroid.BOTTOM,
           );
-          navigation.navigate('SignInScreen');
-          return;
-        }
-
-        const response = await createTicket(
-          showtimeId,
-          selectedSeats,
-          'paypal',
-          userId,
-        );
-
-        if (response.status === 'success') {
-          navigation.navigate('PayPalPayment', {
-            userId,
-            ticketId: response.data.ticketId,
+          navigation.navigate('SignInScreen', {
+            redirectTo: 'bookTicket',
+            showtimeId,
+            selectedSeats,
+            totalPrice: price,
           });
-        } else {
-          ToastAndroid.showWithGravity(
-            response.message || 'Đặt vé thất bại.',
-            ToastAndroid.SHORT,
-            ToastAndroid.BOTTOM,
-          );
         }
+       else {
+          const response = await createTicket(
+            showtimeId,
+            selectedSeats,
+            'paypal',
+            userId,
+          );
+
+          if (response.status === 'success') {
+            navigation.navigate('PayPalPayment', {
+              userId,
+              ticketId: response.data.ticketId,
+            });
+          } else {
+            ToastAndroid.showWithGravity(
+              response.message || 'Đặt vé thất bại.',
+              ToastAndroid.SHORT,
+              ToastAndroid.BOTTOM,
+            );
+          }
+       }
+        
       } catch (error) {
         console.error('Error booking seats: ', error);
         ToastAndroid.showWithGravity(
@@ -150,13 +154,13 @@ const SeatBookingScreen = ({ navigation, route }: any) => {
     <View style={styles.container}>
       <StatusBar hidden />
       <AppHeader
-        name="arrow-left" // Adjust icon name if needed
+        name="arrow-left"
         header="Chọn ghế"
-        action={() => navigation.goBack()} // Ensuring action is a function
+        action={() => navigation.goBack()}
         style={styles.appHeader}
       />
       <View style={styles.screenContainer}>
-        <Text style={styles.screenText}>Screen</Text>
+        <Text style={styles.screenText}>Màn hình chiếu</Text>
         <View style={styles.screenLine} />
       </View>
 
@@ -172,24 +176,12 @@ const SeatBookingScreen = ({ navigation, route }: any) => {
                 <View key={index} style={styles.seatRow}>
                   <Text style={styles.rowLabel}>{seatRow[0]?.row}</Text>
                   {seatRow.map((seat: any) => (
-                    <TouchableOpacity
+                    <SeatIcon
                       key={seat.id}
-                      onPress={() => selectSeat(seat.id, seat.price)}
-                      disabled={seat.status !== 'available'}
-                      style={[
-                        styles.seatIconContainer,
-                        seat.status === 'booked' && styles.seatBooked,
-                        selectedSeats.includes(seat.id) && styles.seatSelected,
-                        seat.type === 'VIP' && styles.seatVIP,
-                        seat.type === 'CineComfort' && styles.seatCineComfort,
-                        seat.type === 'Couple' && styles.seatCouple,
-                      ]}
-                    >
-                      {selectedSeats.includes(seat.id) && (
-                        <View style={styles.selectionDot} />
-                      )}
-                      <Text style={styles.seatLabel}>{`${seat.row}${String(seat.number).padStart(2, '0')}`}</Text>
-                    </TouchableOpacity>
+                      seat={seat}
+                      onSelect={selectSeat}
+                      isSelected={selectedSeats.includes(seat.id)}
+                    />
                   ))}
                   <Text style={styles.rowLabel}>{seatRow[0]?.row}</Text>
                 </View>
@@ -199,37 +191,7 @@ const SeatBookingScreen = ({ navigation, route }: any) => {
         </ScrollView>
       </PinchGestureHandler>
 
-      {/* Legend arranged in two rows */}
-      <View style={styles.seatStatusContainer}>
-        <View style={styles.statusRow}>
-          <View style={styles.statusItem}>
-            <View style={[styles.statusIcon, { backgroundColor: COLORS.NormalSeatColor }]} />
-            <Text style={styles.statusText}>Normal Chair</Text>
-          </View>
-          <View style={styles.statusItem}>
-            <View style={[styles.statusIcon, { backgroundColor: COLORS.VIPSeatColor }]} />
-            <Text style={styles.statusText}>VIP Chair</Text>
-          </View>
-          <View style={styles.statusItem}>
-            <View style={[styles.statusIcon, { backgroundColor: COLORS.CineComfortColor }]} />
-            <Text style={styles.statusText}>CineComfort Chair</Text>
-          </View>
-        </View>
-        <View style={styles.statusRow}>
-          <View style={styles.statusItem}>
-            <View style={[styles.statusIcon, { backgroundColor: COLORS.CoupleSeatColor }]} />
-            <Text style={styles.statusText}>Couple Chair</Text>
-          </View>
-          <View style={styles.statusItem}>
-            <View style={[styles.statusIcon, { backgroundColor: COLORS.Grey }]} />
-            <Text style={styles.statusText}>Booked Chair</Text>
-          </View>
-          <View style={styles.statusItem}>
-            <View style={[styles.statusIcon, { backgroundColor: COLORS.Orange }]} />
-            <Text style={styles.statusText}>Selected Chair</Text>
-          </View>
-        </View>
-      </View>
+      <SeatLegend />
 
       <View style={styles.bottomContainer}>
         <View style={styles.priceContainer}>
@@ -237,18 +199,75 @@ const SeatBookingScreen = ({ navigation, route }: any) => {
           <Text style={styles.price}>{price.toLocaleString('vi-VN')} VND</Text>
         </View>
         <TouchableOpacity style={styles.button} onPress={BookSeats}>
-          <Text style={styles.buttonText}>Book Now</Text>
+          <Text style={styles.buttonText}>Tiếp tục</Text>
         </TouchableOpacity>
       </View>
     </View>
   );
 };
 
+const SeatIcon = ({ seat, onSelect, isSelected }: any) => {
+  return (
+    <TouchableOpacity
+      onPress={() => onSelect(seat.id, seat.price)}
+      disabled={seat.status !== 'available'}
+      style={[
+        styles.seatIconContainer,
+        seat.status === 'booked' && styles.bookedSeat,
+        isSelected && styles.selectedSeat,
+        seat.type === 'VIP' && styles.vipSeat,
+        seat.type === 'Couple' && styles.coupleSeat,
+      ]}
+    >
+      {seat.type === 'VIP' && <Icon name="star" size={18} color="white" />}
+      {seat.type === 'Couple' && <Icon name="favorite" size={18} color="white" />}
+      {seat.type === 'Normal' && <Icon name="event-seat" size={18} color="white" />}
+      {seat.status === 'booked' && (
+        <Icon name="close" size={24} color="red" style={styles.crossIcon} />
+      )}
+      {isSelected && (
+        <Icon name="check-circle" size={12} color="green" style={styles.selectionIndicator} />
+      )}
+      <Text style={styles.seatLabel}>{`${seat.row}${String(seat.number).padStart(2, '0')}`}</Text>
+    </TouchableOpacity>
+  );
+};
+
+// Updated SeatLegend component with 2-column layout and X mark for booked seats
+const SeatLegend = () => (
+  <View style={styles.legendContainer}>
+    <View style={styles.legendColumn}>
+      <View style={styles.legendItem}>
+        <Icon name="event-seat" size={14} color={COLORS.NormalSeatColor} />
+        <Text style={styles.legendText}>Ghế thường</Text>
+      </View>
+      <View style={styles.legendItem}>
+        <Icon name="star" size={14} color={COLORS.VIPSeatColor} />
+        <Text style={styles.legendText}>Ghế VIP</Text>
+      </View>
+      <View style={styles.legendItem}>
+        <Icon name="favorite" size={14} color={COLORS.CoupleSeatColor} />
+        <Text style={styles.legendText}>Ghế cặp đôi</Text>
+      </View>
+    </View>
+    <View style={styles.legendColumn}>
+      <View style={styles.legendItem}>
+        <Icon name="close" size={14} color={COLORS.Grey} />
+        <Text style={styles.legendText}>Ghế đã được đặt (X)</Text>
+      </View>
+      <View style={styles.legendItem}>
+        <Icon name="check-circle" size={14} color="green" />
+        <Text style={styles.legendText}>Ghế đang chọn</Text>
+      </View>
+    </View>
+  </View>
+);
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.Black,
-    paddingTop: 50
+    paddingTop: 50,
   },
   appHeader: {
     marginTop: 90,
@@ -291,64 +310,47 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   seatIconContainer: {
-    marginHorizontal: SPACING.space_6, // Increased margin for spacing between seats
-    paddingVertical: SPACING.space_10, // Increased padding to make seat icon larger
-    paddingHorizontal: SPACING.space_16, // Increased padding for a larger appearance
-    borderRadius: 6, // Slightly larger border radius for rounded corners
-    backgroundColor: COLORS.NormalSeatColor,
-    position: 'relative',
+    margin: SPACING.space_6,
+    padding: SPACING.space_10,
+    borderRadius: 6,
     alignItems: 'center',
   },
+  vipSeat: { backgroundColor: COLORS.VIPSeatColor },
+  coupleSeat: { backgroundColor: COLORS.CoupleSeatColor },
+  bookedSeat: { backgroundColor: COLORS.Grey },
+  selectedSeat: { backgroundColor: COLORS.Orange },
   seatLabel: {
     color: COLORS.White,
-    fontSize: FONTSIZE.size_16, // Increased font size for seat label
-    textAlign: 'center',
+    fontSize: FONTSIZE.size_14,
   },
-  seatVIP: {
-    backgroundColor: COLORS.VIPSeatColor,
-  },
-  seatCineComfort: {
-    backgroundColor: COLORS.CineComfortColor,
-  },
-  seatCouple: {
-    backgroundColor: COLORS.CoupleSeatColor,
-  },
-  seatBooked: {
-    backgroundColor: COLORS.Grey,
-  },
-  seatSelected: {
-    backgroundColor: COLORS.Orange,
-  },
-  selectionDot: {
+  selectionIndicator: {
     position: 'absolute',
-    top: -SPACING.space_8, // Adjusted position for the larger seat
-    width: SPACING.space_8, // Increased size of the selection dot
-    height: SPACING.space_8, // Increased size of the selection dot
-    borderRadius: SPACING.space_4,
-    backgroundColor: COLORS.White,
+    top: 0,
+    right: 0,
   },
-  seatStatusContainer: {
+  crossIcon: {
+    position: 'absolute',
+    top: '25%',
+    left: '25%',
+  },
+  legendContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: SPACING.space_16,
     paddingHorizontal: SPACING.space_16,
   },
-  statusRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    marginVertical: SPACING.space_8,
+  legendColumn: {
+    flex: 1,
   },
-  statusItem: {
+  legendItem: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: SPACING.space_8,
   },
-  statusIcon: {
-    width: SPACING.space_18, // Increased size for status icons
-    height: SPACING.space_18,
-    borderRadius: 4,
-    marginRight: SPACING.space_8,
-  },
-  statusText: {
-    fontFamily: FONTFAMILY.poppins_regular,
-    fontSize: FONTSIZE.size_14,
+  legendText: {
     color: COLORS.White,
+    fontSize: FONTSIZE.size_12,
+    marginLeft: SPACING.space_4,
   },
   bottomContainer: {
     flexDirection: 'row',
@@ -383,6 +385,5 @@ const styles = StyleSheet.create({
     color: COLORS.White,
   },
 });
-
 
 export default SeatBookingScreen;
