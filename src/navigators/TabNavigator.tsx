@@ -13,7 +13,6 @@ import { View, StyleSheet } from 'react-native';
 import { TabParamList } from '../types/navigationTypes';
 import UserAccountScreen from '../screens/UserAccountScreen';
 import { AuthContext } from '../context/AuthContext'; // Import AuthContext
-import { BookingProvider } from './context/BookingContext';
 const Tab = createBottomTabNavigator<TabParamList>();
 
 const TabNavigator = ({route}:any) => {
@@ -29,7 +28,7 @@ const TabNavigator = ({route}:any) => {
         tabBarStyle: {
           backgroundColor: COLORS.Black,
           borderTopWidth: 0,
-          height: SPACING.space_10 * 10,
+          height: SPACING.space_10 * 9,
         },
       }}
     >
