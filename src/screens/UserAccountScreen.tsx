@@ -4,7 +4,7 @@ import axios from 'axios';
 import { COLORS, FONTFAMILY, FONTSIZE, SPACING } from '../theme/theme';
 import AppHeader from '../components/AppHeader';
 import SettingComponent from '../components/SettingComponent';
-import api from '../api/api';
+import api, { fetchUserInfo } from '../api/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthContext } from '../context/AuthContext';
 
@@ -16,8 +16,8 @@ const UserAccountScreen = ({ route, navigation }: any) => {
     const fetchUserData = async () => {
         const userId = await AsyncStorage.getItem('userId');
         try {
-            const response = await api.get(`api/customer/user/${userId}`);
-            setUser(response.data.data.user);
+            const response = await fetchUserInfo(userId)
+            setUser(response.data.user);
         } catch (error) {
             console.error('Lỗi khi tải dữ liệu người dùng:', error);
         } finally {
@@ -48,7 +48,7 @@ const UserAccountScreen = ({ route, navigation }: any) => {
                     text: 'Có',
                     onPress: async () => {
                         await AsyncStorage.removeItem('userId');
-                        await AsyncStorage.removeItem('jwtToken');
+                        await AsyncStorage.removeItem('token');
                         setIsLoggedIn(false);
                         navigation.replace('TabNavigator', {
                             screen: 'Home',

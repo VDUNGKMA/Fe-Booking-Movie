@@ -26,6 +26,9 @@ const SignInScreen = ({ navigation, route }: any) => {
       setLoading(true);
       const response = await api.post('/api/auth/login', { email, password });
       const userId = response.data.data.user.id;
+      const token = response.data.token; // Giả sử token được trả về ở đây
+      console.log('Token received:', token); // Thêm dòng này
+      await AsyncStorage.setItem('token', token); // Lưu token vào AsyncStorage
       await AsyncStorage.setItem('userId', userId.toString());
       setIsLoggedIn(true);
       // navigation.replace('TabNavigator', { screen: 'Home', params: { isLoggedIn: true } });

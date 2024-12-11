@@ -12,7 +12,7 @@ const PayPalPaymentScreen = ({ navigation, route }: any) => {
   const [loading, setLoading] = useState(true);
   const [approvalUrl, setApprovalUrl] = useState<string | null>(null);
   const { setBookingUpdated } = useBooking();
-  
+
   useEffect(() => {
     // Tạo đơn hàng PayPal khi component được mount
     const initiatePayment = async () => {
@@ -43,17 +43,18 @@ const PayPalPaymentScreen = ({ navigation, route }: any) => {
       const payerIdMatch = url.match(/PayerID=([^&]+)/);
       const token = tokenMatch ? tokenMatch[1] : null;
       const payerId = payerIdMatch ? payerIdMatch[1] : null;
-      console.log("check token ", token);
-      console.log("check PayerID ", payerId);
+
 
       if (token && payerId) {
+        console.log("check token ", token);
+        console.log("check PayerID1 ", payerId);
         executePayment(token)
           .then((captureResponse) => {
             console.log("check capture", captureResponse.data.details.status);
             if (captureResponse.data.details.status === 'COMPLETED') { // Đảm bảo captureResponse trả về status
               setBookingUpdated(true);
               navigation.navigate('SuccessScreen', { qrCode: captureResponse.data.qrCode });
-           
+
 
             } else {
               navigation.navigate('FailScreen');

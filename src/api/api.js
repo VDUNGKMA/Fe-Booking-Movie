@@ -1,55 +1,15 @@
 // src/services/api.js
 import axios from 'axios';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 // Tạo instance axios với cấu hình mặc định
 const api = axios.create({
-  baseURL: 'http://192.168.1.14:5000', // Thay thế bằng URL của BE
+  baseURL: 'http://192.168.198.1:5000', // Thay thế bằng URL của BE
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Hàm gọi API để lấy danh sách phim đang chiếu
-// export const fetchNowPlayingMovies = async () => {
-//   try {
-//     const response = await api.get(`/api/customer/movies`);
-//     if (response.data.status === 'success') {
-//       // console.log("check fetchMovies", response.data.data.movies)
-//       return response.data.data.movies; // Trả về danh sách phim
-//     }
-//   } catch (error) {
-//     console.error('Error fetching movies:', error);
-//     return [];
-//   }
-// };
 
-// // Hàm gọi API để lấy danh sách phim sắp chiếu
-// export const fetchUpcomingMovies = async () => {
-//   try {
-//     const response = await api.get(`/api/customer/movies`);
-//     if (response.data.status === 'success') {
-//       // console.log("check fetchMovies", response.data.data.movies)
-//       return response.data.data.movies; // Trả về danh sách phim
-//     }
-//   } catch (error) {
-//     console.error('Error fetching movies:', error);
-//     return [];
-//   }
-// };
-
-// // Hàm gọi API để lấy danh sách phim phổ biến
-// export const fetchPopularMovies = async () => {
-//   try {
-//     const response = await api.get(`/api/customer/movies`);
-//     if (response.data.status === 'success') {
-//       // console.log("check fetchMovies", response.data.data.movies)
-//       return response.data.data.movies; // Trả về danh sách phim
-//     }
-//   } catch (error) {
-//     console.error('Error fetching movies:', error);
-//     return [];
-//   }
-// };
 // Hàm gọi API để lấy danh sách phim đang chiếu
 
 export const fetchNowPlayingMovies = async () => {
@@ -136,25 +96,43 @@ export const fetchMovieDetails = async (id) => {
   }
 };
 
-
-
-
 // Hàm gọi API để lấy thông tin người dùng
 export const fetchUserInfo = async (userId) => {
   try {
-    const response = await api.get(`/api/user/${userId}`); // Đổi đường dẫn nếu cần
+    const token = await AsyncStorage.getItem('token'); // Lấy token từ AsyncStorage
+    console.log('Token in fetchUserInfo:', token); // Thêm dòng này
+    if (!token) {
+      throw new Error('No token found'); // Xử lý khi không có token
+    }
+
+    // Gửi yêu cầu GET đến API với token trong header
+    const response = await api.get(`/api/customer/user/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${token}` // Đính kèm token vào header Authorization
+      }
+    });
+
     return response.data;
   } catch (error) {
     console.error('Something went wrong in fetchUserInfo:', error);
     throw error; // Đảm bảo ném lỗi để có thể xử lý ở nơi gọi hàm
   }
 };
+
 // Hàm cập nhật username
 export const updateUsername = async (userId, newUsername) => {
   try {
+    const token = await AsyncStorage.getItem('token');
+    if (!token) {
+      throw new Error('No token found'); // Xử lý khi không có token
+    }
     // Gửi yêu cầu POST đến API để cập nhật username
     const response = await api.post(`/api/customer/changeUsername/${userId}`, {
       newUsername, // Truyền username mới vào body
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}` // Đính kèm token vào header Authorization
+      }
     });
 
     console.log('Response from server:', response.data); // Log phản hồi từ server
@@ -169,17 +147,25 @@ export const updateUsername = async (userId, newUsername) => {
     }
   } catch (error) {
     console.error('Error updating username:', error);
-    throw error; // Quăng lỗi để xử lý ngoài hàm nếu cần
+    throw error;
   }
 };
+
 // Hàm gọi API để thay đổi mật khẩu người dùng
 export const changePassword = async (userId, currentPassword, newPassword) => {
-  console.log("m", userId);
   try {
+    const token = await AsyncStorage.getItem('token');
+    if (!token) {
+      throw new Error('No token found'); // Xử lý khi không có token
+    }
     // Truyền userId vào API URL hoặc body nếu BE yêu cầu
     const response = await api.post(`/api/customer/${userId}/change-password`, {
       currentPassword,
       newPassword,
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}` // Đính kèm token vào header Authorization
+      }
     });
     return response.data;
   } catch (error) {
@@ -187,15 +173,7 @@ export const changePassword = async (userId, currentPassword, newPassword) => {
     throw error; // Đảm bảo ném lỗi để có thể xử lý ở nơi gọi hàm
   }
 };
-// export const fetchShowtimesByMovie = async (movieId) => {
-//   try {
-//     const response = await axios.get(`/api/customer/movie/${movieId}/showtimes`);
-//     return response.data;
-//   } catch (error) {
-//     console.error('Error fetching showtimes: ', error);
-//     throw error;
-//   }
-// };
+
 export const fetchShowtimesByMovie = async (movieId, date) => {
   try {
     const response = await api.get(`/api/customer/movie/${movieId}/showtimes`, {
@@ -227,11 +205,19 @@ export const fetchSeatsByShowtime = async (showtimeId) => {
 // Tạo ticket
 export const createTicket = async (showtimeId, seatIds, paymentMethod, userId) => {
   try {
+    const token = await AsyncStorage.getItem('token');
+    if (!token) {
+      throw new Error('No token found'); // Xử lý khi không có token
+    }
     const response = await api.post(`/api/customer/tickets`, {
       showtimeId,
       seatIds,
       paymentMethod,
       userId,
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}` // Đính kèm token vào header Authorization
+      }
     });
     console.log("check ress", response.data)
     return response.data;
@@ -240,17 +226,51 @@ export const createTicket = async (showtimeId, seatIds, paymentMethod, userId) =
   }
 };
 // Các hàm gọi API
-export const createPayment = (userId, ticketId) => {
-  return api.post('/api/customer/create-payment', { userId, ticketId, });
+export const createPayment = async (userId, ticketId) => {
+  const token = await AsyncStorage.getItem('token') // Lấy token từ AsyncStorage
+  if (!token) {
+    return Promise.reject(new Error('No token found')); // Xử lý khi không có token
+  }
+  return await api.post('/api/customer/create-payment', { userId, ticketId }, {
+    headers: {
+      Authorization: `Bearer ${token}` // Đính kèm token vào header Authorization
+    }
+  });
 };
 
-export const executePayment = (token) => {
-  return api.get(`/api/customer/payment/success?token=${token}`);
+export const executePayment = async (token) => {
+  const authToken = await AsyncStorage.getItem('token'); // Lấy token từ localStorage
+  console.log("check authToken", authToken)
+  if (!authToken) {
+    return Promise.reject(new Error('No token found')); // Xử lý khi không có token
+  }
+  console.log("checkkkee1")
+  return api.get(`/api/customer/payment/success?token=${token}`, {
+    headers: {
+      Authorization: `Bearer ${authToken}` // Đính kèm token vào header Authorization
+    }
+  });
 };
 export const cancelPaymentApi = (token) => {
-  return api.get(`/api/customer/cancel-payment?token=${token}`);
+  const authToken = AsyncStorage.getItem('token'); // Lấy token từ localStorage
+  if (!authToken) {
+    return Promise.reject(new Error('No token found')); // Xử lý khi không có token
+  }
+  return api.get(`/api/customer/cancel-payment?token=${token}`, {
+    headers: {
+      Authorization: `Bearer ${authToken}` // Đính kèm token vào header Authorization
+    }
+  });
 };
 export const fetchBookingHistoryApi = (userId) => {
-  return api.get(`/api/customer/users/${userId}/booking-history`);
+  const token = AsyncStorage.getItem('token'); // Lấy token từ localStorage
+  if (!token) {
+    return Promise.reject(new Error('No token found')); // Xử lý khi không có token
+  }
+  return api.get(`/api/customer/users/${userId}/booking-history`, {
+    headers: {
+      Authorization: `Bearer ${token}` // Đính kèm token vào header Authorization
+    }
+  });
 };
 export default api;
