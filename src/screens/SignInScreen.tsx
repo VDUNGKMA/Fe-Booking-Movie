@@ -2,6 +2,7 @@
 import React, { useContext, useState } from 'react';
 import { View, Text, ImageBackground, ScrollView, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { COLORS, SIZES } from '../theme/theme';
+import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import api, { createTicket } from '../api/api';
 import { AxiosError } from 'axios';
 import { AuthContext } from '../context/AuthContext';
@@ -20,7 +21,58 @@ const SignInScreen = ({ navigation, route }: any) => {
   const showtimeId = route.params?.showtimeId;
   const selectedSeats = route.params?.selectedSeats || [];
   const totalPrice = route.params?.totalPrice || 0;
+  React.useEffect(() => {
+    GoogleSignin.configure({
+      webClientId: '950935021307-1up2n3aqmnuo3biaphdl89o9bbvhp5hs.apps.googleusercontent.com', // Sử dụng Web Client ID cho backend
+      // androidClientId: 'YOUR_ANDROID_CLIENT_ID.apps.googleusercontent.com', // Sử dụng Android Client ID cho Android
+      offlineAccess: true, // Hỗ trợ refresh token
+    });
+  }, []);
+  const handleGoogleSignIn = async () => {
+    try {
+      // Kiểm tra Google Play Services
+      console.log("Before checking Google Play Services");
+      await GoogleSignin.hasPlayServices();  // Kiểm tra dịch vụ Google Play
+      console.log("Google Play Services is available");
 
+
+      console.log("Before calling GoogleSignin.signIn()");
+      const userInfo = await GoogleSignin.signIn();
+      console.log("Google Sign-In successful", userInfo);
+
+      // // Kiểm tra xem token có tồn tại không
+      // const idToken = userInfo?.idToken;
+      // if (!idToken) {
+      //   console.error('ID Token is missing.');
+      //   Alert.alert('Error', 'Unable to retrieve ID Token.');
+      //   return;
+      // }
+
+      // Gửi ID token tới server để xác thực
+      // const response = await api.post('/api/auth/google-login', { token: idToken });
+
+      // Lưu token từ backend
+      // const { token, data } = response.data;
+      // await AsyncStorage.setItem('token', token);
+      // await AsyncStorage.setItem('userId', data.user.id.toString());
+
+      setIsLoggedIn(true);
+      navigation.navigate('TabNavigator', { screen: 'Home', params: { isLoggedIn: true } });
+    } catch (error) {
+      if (typeof error === 'object' && error !== null && 'code' in error) {
+        const code = (error as any).code;
+        if (code === statusCodes.SIGN_IN_CANCELLED) {
+          Alert.alert('Cancelled', 'Google Sign-In was cancelled.');
+        } else if (code === statusCodes.IN_PROGRESS) {
+          Alert.alert('In Progress', 'Google Sign-In is already in progress.');
+        } else {
+          Alert.alert('Error', 'An error occurred during Google Sign-In.');
+        }
+      } else {
+        Alert.alert('Error', 'An unknown error occurred.');
+      }
+    }
+  };
   const handleSignIn = async () => {
     try {
       setLoading(true);
@@ -31,10 +83,6 @@ const SignInScreen = ({ navigation, route }: any) => {
       await AsyncStorage.setItem('token', token); // Lưu token vào AsyncStorage
       await AsyncStorage.setItem('userId', userId.toString());
       setIsLoggedIn(true);
-      // navigation.replace('TabNavigator', { screen: 'Home', params: { isLoggedIn: true } });
-      // navigation.navigate('TabNavigator', { screen: 'Home', params: { isLoggedIn: true } });
-      // Redirect based on where the login was initiated from
-      // If redirected from SeatBookingScreen, immediately create the ticket
       if (redirectTo === 'bookTicket' && showtimeId && selectedSeats.length) {
         await createTicketAndNavigate(userId);
       } else {
@@ -46,6 +94,7 @@ const SignInScreen = ({ navigation, route }: any) => {
       setLoading(false);
     }
   };
+
   const createTicketAndNavigate = async (userId: string) => {
     try {
       const response = await createTicket(showtimeId, selectedSeats, 'paypal', userId);
@@ -96,6 +145,11 @@ const SignInScreen = ({ navigation, route }: any) => {
             <TouchableOpacity onPress={handleSignIn} style={styles.buttonShadow}>
               <View style={styles.button}>
                 <Text style={styles.btnText}>ĐĂNG NHẬP</Text>
+              </View>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleGoogleSignIn} style={styles.buttonShadow}>
+              <View style={styles.button}>
+                <Text style={styles.btnText}>ĐĂNG NHẬP BẰNG GOOGLE</Text>
               </View>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => navigation.navigate('ForgetPwdScreen')}>

@@ -23,6 +23,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createTicket, fetchSeatsByShowtime } from '../api/api';
 import { PinchGestureHandler } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { AxiosError } from 'axios';
 
 const { width } = Dimensions.get('window');
 
@@ -35,40 +36,42 @@ const SeatBookingScreen = ({ navigation, route }: any) => {
   const [price, setPrice] = useState<number>(0);
   const [scale, setScale] = useState<number>(1);
 
+  // useEffect(() => {
+  const fetchSeats = async () => {
+    try {
+      setLoading(true);
+      const data = await fetchSeatsByShowtime(showtimeId);
+
+      const sortedData = data.sort((a: any, b: any) => {
+        if (a.row < b.row) return -1;
+        if (a.row > b.row) return 1;
+        return a.number - b.number;
+      });
+
+      const rows: any[][] = [];
+      sortedData.forEach((seat: any) => {
+        const rowIndex = rows.findIndex((row) => row[0]?.row === seat.row);
+        if (rowIndex > -1) {
+          rows[rowIndex].push(seat);
+        } else {
+          rows.push([seat]);
+        }
+      });
+
+      setSeatsData(data);
+      setSeatRows(rows);
+    } catch (error) {
+      console.error('Error fetching seats:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  //   fetchSeats();
+  // }, [showtimeId]);
   useEffect(() => {
-    const fetchSeats = async () => {
-      try {
-        setLoading(true);
-        const data = await fetchSeatsByShowtime(showtimeId);
-
-        const sortedData = data.sort((a: any, b: any) => {
-          if (a.row < b.row) return -1;
-          if (a.row > b.row) return 1;
-          return a.number - b.number;
-        });
-
-        const rows: any[][] = [];
-        sortedData.forEach((seat: any) => {
-          const rowIndex = rows.findIndex((row) => row[0]?.row === seat.row);
-          if (rowIndex > -1) {
-            rows[rowIndex].push(seat);
-          } else {
-            rows.push([seat]);
-          }
-        });
-
-        setSeatsData(data);
-        setSeatRows(rows);
-      } catch (error) {
-        console.error('Error fetching seats:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchSeats();
   }, [showtimeId]);
-
   const selectSeat = (seatId: number, seatPrice: number) => {
     if (selectedSeats.includes(seatId)) {
       setSelectedSeats(selectedSeats.filter((id) => id !== seatId));
@@ -83,63 +86,96 @@ const SeatBookingScreen = ({ navigation, route }: any) => {
     setScale(Math.max(1, Math.min(scale * event.nativeEvent.scale, 3)));
   };
 
-  const BookSeats = async () => {
-    if (selectedSeats.length !== 0) {
-      try {
-        setLoading(true);
-        const userId = await AsyncStorage.getItem('userId');
-        if (!userId) {
-          ToastAndroid.showWithGravity(
-            'Vui lòng đăng nhập để tiếp tục.',
-            ToastAndroid.SHORT,
-            ToastAndroid.BOTTOM,
-          );
-          navigation.navigate('SignInScreen', {
-            redirectTo: 'bookTicket',
-            showtimeId,
-            selectedSeats,
-            totalPrice: price,
-          });
-        }
-       else {
-          const response = await createTicket(
-            showtimeId,
-            selectedSeats,
-            'paypal',
-            userId,
-          );
 
-          if (response.status === 'success') {
-            navigation.navigate('PayPalPayment', {
-              userId,
-              ticketId: response.data.ticketId,
-            });
-          } else {
-            ToastAndroid.showWithGravity(
-              response.message || 'Đặt vé thất bại.',
-              ToastAndroid.SHORT,
-              ToastAndroid.BOTTOM,
-            );
-          }
-       }
-        
-      } catch (error) {
-        console.error('Error booking seats: ', error);
-        ToastAndroid.showWithGravity(
-          'Lỗi khi đặt vé. Vui lòng thử lại.',
-          ToastAndroid.SHORT,
-          ToastAndroid.BOTTOM,
-        );
-      } finally {
-        setLoading(false);
-      }
-    } else {
+  const BookSeats = async () => {
+    if (selectedSeats.length === 0) {
       ToastAndroid.showWithGravity(
         'Vui lòng chọn ghế',
         ToastAndroid.SHORT,
         ToastAndroid.BOTTOM,
       );
+      return;
     }
+
+    try {
+      setLoading(true);
+      const userId = await AsyncStorage.getItem('userId');
+      if (!userId) {
+        ToastAndroid.showWithGravity(
+          'Vui lòng đăng nhập để tiếp tục.',
+          ToastAndroid.SHORT,
+          ToastAndroid.BOTTOM,
+        );
+        navigation.navigate('SignInScreen', {
+          redirectTo: 'bookTicket',
+          showtimeId,
+          selectedSeats,
+          totalPrice: price,
+        });
+        return;
+      }
+
+      const response = await createTicket(
+        showtimeId,
+        selectedSeats,
+        'paypal',
+        userId,
+      );
+
+      if (response.status === 'success') {
+        navigation.navigate('PayPalPayment', {
+          userId,
+          ticketId: response.data.ticketId,
+        });
+      } else {
+        ToastAndroid.showWithGravity(
+          response.message || 'Đặt vé thất bại.',
+          ToastAndroid.SHORT,
+          ToastAndroid.BOTTOM,
+        );
+        fetchSeats();
+      }
+    } catch (error: unknown) {
+      if (error instanceof AxiosError) {
+        // Lỗi từ server (AxiosError)
+        const serverMessage = error.response?.data?.message || 'Đặt vé thất bại. Vui lòng thử lại.';
+        ToastAndroid.showWithGravity(
+          serverMessage,
+          ToastAndroid.SHORT,
+          ToastAndroid.BOTTOM,
+        );
+        fetchSeats();
+      } else if (error instanceof Error) {
+        // Lỗi thông thường (Error)
+        if (error.message.includes('Network')) {
+          ToastAndroid.showWithGravity(
+            'Lỗi kết nối mạng. Vui lòng kiểm tra internet.',
+            ToastAndroid.SHORT,
+            ToastAndroid.BOTTOM,
+          );
+          fetchSeats();
+        } else {
+          ToastAndroid.showWithGravity(
+            error.message || 'Lỗi khi đặt vé. Vui lòng thử lại.',
+            ToastAndroid.SHORT,
+            ToastAndroid.BOTTOM,
+          );
+          fetchSeats();
+        }
+      } else {
+        // Lỗi không xác định
+        ToastAndroid.showWithGravity(
+          'Đã xảy ra lỗi không xác định. Vui lòng thử lại.',
+          ToastAndroid.SHORT,
+          ToastAndroid.BOTTOM,
+        );
+        fetchSeats();
+      }
+    } finally {
+      setLoading(false);
+    }
+
+
   };
 
   if (loading) {

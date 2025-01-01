@@ -27,7 +27,7 @@ const TicketScreen = () => {
   const [selectedQrCode, setSelectedQrCode] = useState<string | null>(null);
   const { bookingUpdated, setBookingUpdated } = useBooking();
   const isFocused = useIsFocused(); // Kiểm tra xem màn hình có được focus không
-  
+
   const fetchBookingHistory = async () => {
     try {
       const userId = await AsyncStorage.getItem('userId');
@@ -38,7 +38,7 @@ const TicketScreen = () => {
       const response = await fetchBookingHistoryApi(userId)
       setTickets(response.data.data);
     } catch (error) {
-      console.error('Error fetching booking history:', error);
+      // console.error('Error fetching booking history:', error);
     } finally {
       setLoading(false);
     }
@@ -46,7 +46,7 @@ const TicketScreen = () => {
 
   // Lấy dữ liệu khi màn hình lần đầu được load hoặc khi nó được focus
   useEffect(() => {
-    
+
     if (isFocused || bookingUpdated) {
       fetchBookingHistory();
       setBookingUpdated(false); // Reset trạng thái sau khi tải lại dữ liệu
@@ -83,7 +83,7 @@ const TicketScreen = () => {
         {isExpired && <Text style={styles.expiredText}>Vé này đã hết hạn</Text>}
 
         {item.qrCode ? (
-          <TouchableOpacity onPress={() => item.qrCode &&  handleQrCodePress(item.qrCode)}>
+          <TouchableOpacity onPress={() => item.qrCode && handleQrCodePress(item.qrCode)}>
             <Image source={{ uri: item.qrCode }} style={styles.qrCode} />
           </TouchableOpacity>
         ) : (

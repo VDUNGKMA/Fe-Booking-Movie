@@ -3,7 +3,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 // Tạo instance axios với cấu hình mặc định
 const api = axios.create({
-  baseURL: 'http://192.168.198.1:5000', // Thay thế bằng URL của BE
+  baseURL: 'http://192.168.1.38:5000', // Thay thế bằng URL của BE
   headers: {
     'Content-Type': 'application/json',
   },
