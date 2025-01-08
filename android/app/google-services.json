@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "950935021307",
+    "project_id": "booking-ticket-film-438610",
+    "storage_bucket": "booking-ticket-film-438610.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:950935021307:android:a105e28ffe3ae49069725e",
+        "android_client_info": {
+          "package_name": "com.movie_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "950935021307-83uqnb8eoa3gu2pdcm0acq7fd054u71b.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.movie_app",
+            "certificate_hash": "258fe314b04260d17387cd2c36ab5394b2db26c1"
+          }
+        },
+        {
+          "client_id": "950935021307-j6eemne0fimigjmupoiskdrr37b975jj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.movie_app",
+            "certificate_hash": "92747e7ac510f029fcad11bf07468bd6a16a7d93"
+          }
+        },
+        {
+          "client_id": "950935021307-fcb8r2hjpmuif54reaijjao4gdapep70.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA5snyoqe--LX0_Nnqu0_VtpdUqjnA5U64"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "950935021307-1up2n3aqmnuo3biaphdl89o9bbvhp5hs.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

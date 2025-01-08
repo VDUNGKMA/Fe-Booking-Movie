@@ -2,7 +2,7 @@
 
 // App.tsx
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import TabNavigator from './src/navigators/TabNavigator';
@@ -21,6 +21,9 @@ import InfoScreen from './src/screens/InfoScreen';
 import ChangePwdScreen from './src/screens/ChangePwdScreen';
 import SignInScreen from './src/screens/SignInScreen';
 import { BookingProvider } from './src/context/BookingContext';
+
+
+
 enableScreens();
 const Stack = createNativeStackNavigator<RootStackParamList>();
 

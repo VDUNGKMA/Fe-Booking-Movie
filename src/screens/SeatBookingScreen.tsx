@@ -24,6 +24,7 @@ import { createTicket, fetchSeatsByShowtime } from '../api/api';
 import { PinchGestureHandler } from 'react-native-gesture-handler';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { AxiosError } from 'axios';
+import EncryptedStorage from 'react-native-encrypted-storage';
 
 const { width } = Dimensions.get('window');
 
@@ -99,8 +100,9 @@ const SeatBookingScreen = ({ navigation, route }: any) => {
 
     try {
       setLoading(true);
-      const userId = await AsyncStorage.getItem('userId');
-      if (!userId) {
+      // const userId = await AsyncStorage.getItem('userId');
+      const authData = await EncryptedStorage.getItem('authData');
+      if (!authData) {
         ToastAndroid.showWithGravity(
           'Vui lòng đăng nhập để tiếp tục.',
           ToastAndroid.SHORT,
@@ -114,7 +116,7 @@ const SeatBookingScreen = ({ navigation, route }: any) => {
         });
         return;
       }
-
+      const { userId } = JSON.parse(authData); // Giải mã authData và lấy userId
       const response = await createTicket(
         showtimeId,
         selectedSeats,

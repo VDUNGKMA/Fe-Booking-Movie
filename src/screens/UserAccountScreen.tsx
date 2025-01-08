@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { Text, View, StyleSheet, StatusBar, Image, ActivityIndicator, Alert } from 'react-native';
+import { Text, View, StyleSheet, StatusBar, Image, ActivityIndicator, Alert, Switch } from 'react-native';
 import axios from 'axios';
 import { COLORS, FONTFAMILY, FONTSIZE, SPACING } from '../theme/theme';
 import AppHeader from '../components/AppHeader';
@@ -7,16 +7,32 @@ import SettingComponent from '../components/SettingComponent';
 import api, { fetchUserInfo } from '../api/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AuthContext } from '../context/AuthContext';
+import EncryptedStorage from 'react-native-encrypted-storage';
+
+
 
 const UserAccountScreen = ({ route, navigation }: any) => {
     const [user, setUser] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const { setIsLoggedIn } = useContext(AuthContext);
-
+    const [isFingerprintEnabled, setIsFingerprintEnabled] = useState(false);
     const fetchUserData = async () => {
-        const userId = await AsyncStorage.getItem('userId');
+        setLoading(true);
         try {
-            const response = await fetchUserInfo(userId)
+            const authData = await EncryptedStorage.getItem('authData');
+            if (!authData) {
+                throw new Error('Không tìm thấy dữ liệu người dùng');
+            }
+
+            let userId;
+            try {
+                const parsedData = JSON.parse(authData);
+                userId = parsedData.userId;
+            } catch (parseError) {
+                throw new Error('Dữ liệu authData bị lỗi, không thể phân tích.');
+            }
+
+            const response = await fetchUserInfo(userId);
             setUser(response.data.user);
         } catch (error) {
             console.error('Lỗi khi tải dữ liệu người dùng:', error);
@@ -25,9 +41,14 @@ const UserAccountScreen = ({ route, navigation }: any) => {
         }
     };
 
+
     useEffect(() => {
         fetchUserData();
-
+        const fetchFingerprintPreference = async () => {
+            const enabled = await AsyncStorage.getItem('fingerprintEnabled');
+            setIsFingerprintEnabled(enabled === 'true');
+        };
+        fetchFingerprintPreference();
         const unsubscribe = navigation.addListener('focus', () => {
             fetchUserData();
         });
@@ -35,6 +56,10 @@ const UserAccountScreen = ({ route, navigation }: any) => {
         return unsubscribe;
     }, [navigation]);
 
+    const toggleFingerprintLogin = async (value: boolean) => {
+        setIsFingerprintEnabled(value);
+        await AsyncStorage.setItem('fingerprintEnabled', value.toString());
+    };
     const handleLogoutPress = () => {
         Alert.alert(
             'Xác nhận Đăng Xuất',
@@ -47,8 +72,9 @@ const UserAccountScreen = ({ route, navigation }: any) => {
                 {
                     text: 'Có',
                     onPress: async () => {
-                        await AsyncStorage.removeItem('userId');
-                        await AsyncStorage.removeItem('token');
+                        // await AsyncStorage.removeItem('userId');
+                        // await AsyncStorage.removeItem('token');
+                        // await EncryptedStorage.removeItem('authData'); // Xóa dữ liệu đăng nhập
                         setIsLoggedIn(false);
                         navigation.replace('TabNavigator', {
                             screen: 'Home',
@@ -103,6 +129,17 @@ const UserAccountScreen = ({ route, navigation }: any) => {
                     subtitle="Xác nhận Đăng Xuất"
                     onPress={handleLogoutPress}
                 />
+
+            </View>
+            <View style={styles.settingsContainer}>
+                <View style={styles.settingItem}>
+                    <Text style={styles.settingText}>Đăng Nhập Bằng Vân Tay</Text>
+                    <Switch
+                        value={isFingerprintEnabled}
+                        onValueChange={toggleFingerprintLogin}
+                        thumbColor={isFingerprintEnabled ? COLORS.Orange : COLORS.White}
+                    />
+                </View>
             </View>
         </View>
     );
@@ -152,6 +189,16 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: COLORS.Black,
+    },
+    settingItem: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: SPACING.space_16,
+    },
+    settingText: {
+        fontSize: FONTSIZE.size_16,
+        color: COLORS.White,
     },
 });
 

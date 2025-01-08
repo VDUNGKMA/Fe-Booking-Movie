@@ -1,9 +1,10 @@
 // src/services/api.js
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import EncryptedStorage from 'react-native-encrypted-storage';
 // Tạo instance axios với cấu hình mặc định
 const api = axios.create({
-  baseURL: 'http://192.168.1.38:5000', // Thay thế bằng URL của BE
+  baseURL: 'http://192.168.0.102:5000', // Thay thế bằng URL của BE
   headers: {
     'Content-Type': 'application/json',
   },
@@ -99,12 +100,28 @@ export const fetchMovieDetails = async (id) => {
 // Hàm gọi API để lấy thông tin người dùng
 export const fetchUserInfo = async (userId) => {
   try {
-    const token = await AsyncStorage.getItem('token'); // Lấy token từ AsyncStorage
-    console.log('Token in fetchUserInfo:', token); // Thêm dòng này
-    if (!token) {
-      throw new Error('No token found'); // Xử lý khi không có token
+    // const token = await AsyncStorage.getItem('token'); // Lấy token từ AsyncStorage
+    // console.log('Token in fetchUserInfo:', token); // Thêm dòng này
+    // Lấy dữ liệu authData từ EncryptedStorage
+    const authData = await EncryptedStorage.getItem('authData');
+
+    if (!authData) {
+      throw new Error('No authentication data found');
+    }
+    // Chuyển đổi từ chuỗi JSON sang đối tượng
+    const { token, userId: storedUserId } = JSON.parse(authData);
+    // if (!token) {
+    //   throw new Error('No token found'); // Xử lý khi không có token
+    // }
+    // Kiểm tra nếu không có token hoặc userId
+    if (!token || !storedUserId) {
+      throw new Error('Token or userId is missing');
     }
 
+    // Đảm bảo userId từ authData trùng khớp với userId truyền vào hàm
+    if (storedUserId !== userId) {
+      throw new Error('UserId mismatch');
+    }
     // Gửi yêu cầu GET đến API với token trong header
     const response = await api.get(`/api/customer/user/${userId}`, {
       headers: {
@@ -122,9 +139,26 @@ export const fetchUserInfo = async (userId) => {
 // Hàm cập nhật username
 export const updateUsername = async (userId, newUsername) => {
   try {
-    const token = await AsyncStorage.getItem('token');
-    if (!token) {
-      throw new Error('No token found'); // Xử lý khi không có token
+    // const token = await AsyncStorage.getItem('token');
+    // if (!token) {
+    //   throw new Error('No token found'); // Xử lý khi không có token
+    // }
+    // Lấy dữ liệu authData từ EncryptedStorage
+    const authData = await EncryptedStorage.getItem('authData');
+    if (!authData) {
+      throw new Error('No authentication data found');
+    }
+
+    // Chuyển đổi từ chuỗi JSON sang đối tượng
+    const { token, userId: storedUserId } = JSON.parse(authData);
+
+    // Kiểm tra nếu không có token hoặc userId
+    if (!token || !storedUserId) {
+      throw new Error('Token or userId is missing');
+    }
+    // Đảm bảo userId từ authData trùng khớp với userId truyền vào hàm
+    if (storedUserId !== userId) {
+      throw new Error('UserId mismatch');
     }
     // Gửi yêu cầu POST đến API để cập nhật username
     const response = await api.post(`/api/customer/changeUsername/${userId}`, {
@@ -154,10 +188,24 @@ export const updateUsername = async (userId, newUsername) => {
 // Hàm gọi API để thay đổi mật khẩu người dùng
 export const changePassword = async (userId, currentPassword, newPassword) => {
   try {
-    const token = await AsyncStorage.getItem('token');
-    if (!token) {
-      throw new Error('No token found'); // Xử lý khi không có token
+    // const token = await AsyncStorage.getItem('token');
+    // if (!token) {
+    //   throw new Error('No token found'); // Xử lý khi không có token
+    // }
+    // Lấy dữ liệu authData từ EncryptedStorage
+    const authData = await EncryptedStorage.getItem('authData');
+
+    if (!authData) {
+      throw new Error('No authentication data found');
     }
+    // Chuyển đổi từ chuỗi JSON sang đối tượng
+    const { token } = JSON.parse(authData);
+
+    // Kiểm tra nếu không có token
+    if (!token) {
+      throw new Error('Token is missing');
+    }
+
     // Truyền userId vào API URL hoặc body nếu BE yêu cầu
     const response = await api.post(`/api/customer/${userId}/change-password`, {
       currentPassword,
@@ -205,9 +253,22 @@ export const fetchSeatsByShowtime = async (showtimeId) => {
 // Tạo ticket
 export const createTicket = async (showtimeId, seatIds, paymentMethod, userId) => {
   try {
-    const token = await AsyncStorage.getItem('token');
+    // const token = await AsyncStorage.getItem('token');
+    // if (!token) {
+    //   throw new Error('No token found'); // Xử lý khi không có token
+    // }
+    const authData = await EncryptedStorage.getItem('authData');
+
+    if (!authData) {
+      throw new Error('No authentication data found');
+    }
+
+    // Chuyển đổi từ chuỗi JSON sang đối tượng
+    const { token } = JSON.parse(authData);
+
+    // Kiểm tra nếu không có token
     if (!token) {
-      throw new Error('No token found'); // Xử lý khi không có token
+      throw new Error('Token is missing');
     }
     const response = await api.post(`/api/customer/tickets`, {
       showtimeId,
@@ -227,50 +288,89 @@ export const createTicket = async (showtimeId, seatIds, paymentMethod, userId) =
 };
 // Các hàm gọi API
 export const createPayment = async (userId, ticketId) => {
-  const token = await AsyncStorage.getItem('token') // Lấy token từ AsyncStorage
-  if (!token) {
-    return Promise.reject(new Error('No token found')); // Xử lý khi không có token
-  }
-  return await api.post('/api/customer/create-payment', { userId, ticketId }, {
-    headers: {
-      Authorization: `Bearer ${token}` // Đính kèm token vào header Authorization
+  // const token = await AsyncStorage.getItem('token') // Lấy token từ AsyncStorage
+  // if (!token) {
+  //   return Promise.reject(new Error('No token found')); // Xử lý khi không có token
+  // }
+  const authData = await EncryptedStorage.getItem('authData'); // Lấy authData từ EncryptedStorage
+    if (!authData) {
+      return Promise.reject(new Error('No authentication data found')); // Kiểm tra nếu không có authData
     }
-  });
+
+  const { token } = JSON.parse(authData); // Giải mã authData và lấy token
+    if (!token) {
+      return Promise.reject(new Error('No token found')); // Kiểm tra nếu không có token
+    }
+    return await api.post('/api/customer/create-payment', { userId, ticketId }, {
+      headers: {
+        Authorization: `Bearer ${token}` // Đính kèm token vào header Authorization
+      }
+    });
 };
 
 export const executePayment = async (token) => {
-  const authToken = await AsyncStorage.getItem('token'); // Lấy token từ localStorage
-  console.log("check authToken", authToken)
-  if (!authToken) {
-    return Promise.reject(new Error('No token found')); // Xử lý khi không có token
+  // const authToken = await AsyncStorage.getItem('token'); // Lấy token từ localStorage
+  // console.log("check authToken", authToken)
+  // if (!authToken) {
+  //   return Promise.reject(new Error('No token found')); // Xử lý khi không có token
+  // }
+  // console.log("checkkkee1")
+  const authData = await EncryptedStorage.getItem('authData'); // Lấy authData từ EncryptedStorage
+  if (!authData) {
+    return Promise.reject(new Error('No authentication data found')); // Kiểm tra nếu không có authData
   }
-  console.log("checkkkee1")
+
+  const { token: authToken } = JSON.parse(authData); // Giải mã authData và lấy token
+  console.log("check authToken", authToken);
+  if (!authToken) {
+    return Promise.reject(new Error('No token found')); // Kiểm tra nếu không có token
+  }
+
   return api.get(`/api/customer/payment/success?token=${token}`, {
     headers: {
       Authorization: `Bearer ${authToken}` // Đính kèm token vào header Authorization
     }
   });
 };
-export const cancelPaymentApi = (token) => {
-  const authToken = AsyncStorage.getItem('token'); // Lấy token từ localStorage
-  if (!authToken) {
-    return Promise.reject(new Error('No token found')); // Xử lý khi không có token
-  }
-  return api.get(`/api/customer/cancel-payment?token=${token}`, {
-    headers: {
-      Authorization: `Bearer ${authToken}` // Đính kèm token vào header Authorization
+export const cancelPaymentApi = async (token) => {
+  // const authToken = AsyncStorage.getItem('token'); // Lấy token từ localStorage
+  // if (!authToken) {
+  //   return Promise.reject(new Error('No token found')); // Xử lý khi không có token
+  // }
+    const authData = await EncryptedStorage.getItem('authData'); // Lấy authData từ EncryptedStorage
+    if (!authData) {
+      return Promise.reject(new Error('No authentication data found')); // Kiểm tra nếu không có authData
     }
-  });
+
+    const { token: authToken } = JSON.parse(authData); // Giải mã authData và lấy token
+    if (!authToken) {
+      return Promise.reject(new Error('No token found')); // Kiểm tra nếu không có token
+    }
+    return api.get(`/api/customer/cancel-payment?token=${token}`, {
+      headers: {
+        Authorization: `Bearer ${authToken}` // Đính kèm token vào header Authorization
+      }
+    });
 };
-export const fetchBookingHistoryApi = (userId) => {
-  const token = AsyncStorage.getItem('token'); // Lấy token từ localStorage
-  if (!token) {
-    return Promise.reject(new Error('No token found')); // Xử lý khi không có token
-  }
-  return api.get(`/api/customer/users/${userId}/booking-history`, {
-    headers: {
-      Authorization: `Bearer ${token}` // Đính kèm token vào header Authorization
+export const fetchBookingHistoryApi = async (userId) => {
+  // const token = AsyncStorage.getItem('token'); // Lấy token từ localStorage
+  // if (!token) {
+  //   return Promise.reject(new Error('No token found')); // Xử lý khi không có token
+  // }
+    const authData = await EncryptedStorage.getItem('authData'); // Lấy authData từ EncryptedStorage
+    if (!authData) {
+      return Promise.reject(new Error('No authentication data found')); // Kiểm tra nếu không có authData
     }
-  });
+
+    const { token } = JSON.parse(authData); // Giải mã authData và lấy token
+    if (!token) {
+      return Promise.reject(new Error('No token found')); // Kiểm tra nếu không có token
+    }
+
+    return api.get(`/api/customer/users/${userId}/booking-history`, {
+      headers: {
+        Authorization: `Bearer ${token}` // Đính kèm token vào header Authorization
+      }
+    });
 };
 export default api;

@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useIsFocused } from '@react-navigation/native';
 import { useBooking } from '../context/BookingContext';
 import { fetchBookingHistoryApi } from '../api/api';
+import EncryptedStorage from 'react-native-encrypted-storage';
 // Interface for Ticket
 interface Ticket {
   ticketId: number;
@@ -30,19 +31,32 @@ const TicketScreen = () => {
 
   const fetchBookingHistory = async () => {
     try {
-      const userId = await AsyncStorage.getItem('userId');
-      if (!userId) {
-        setTickets([]); // Nếu không có userId, đặt lại danh sách vé rỗng
+      // Lấy toàn bộ dữ liệu từ EncryptedStorage
+      const authDataString = await EncryptedStorage.getItem('authData');
+      if (!authDataString) {
+        setTickets([]); // Nếu không có dữ liệu, đặt danh sách vé rỗng
         return;
       }
-      const response = await fetchBookingHistoryApi(userId)
-      setTickets(response.data.data);
+
+      // Chuyển chuỗi JSON sang đối tượng
+      const authData = JSON.parse(authDataString);
+      const userId = authData.userId; // Lấy userId từ đối tượng
+
+      if (!userId) {
+        setTickets([]); // Nếu userId không tồn tại, đặt danh sách vé rỗng
+        return;
+      }
+
+      // Gọi API lấy lịch sử đặt vé
+      const response = await fetchBookingHistoryApi(userId);
+      setTickets(response.data.data); // Cập nhật danh sách vé
     } catch (error) {
-      // console.error('Error fetching booking history:', error);
+      console.error('Error fetching booking history:', error);
     } finally {
-      setLoading(false);
+      setLoading(false); // Dừng trạng thái loading
     }
   };
+
 
   // Lấy dữ liệu khi màn hình lần đầu được load hoặc khi nó được focus
   useEffect(() => {
