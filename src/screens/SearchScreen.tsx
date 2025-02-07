@@ -40,7 +40,7 @@ const SearchScreen = ({ navigation }: any) => {
         setSearchList(response.data); // Cập nhật danh sách phim
       }
     } catch (error) {
-      console.error('Something went wrong in searchMoviesFunction: ', error);
+      // console.error('Something went wrong in searchMoviesFunction: ', error);
       setNoResults(true); // Xử lý lỗi, không có kết quả
     } finally {
       setLoading(false); // Kết thúc loading

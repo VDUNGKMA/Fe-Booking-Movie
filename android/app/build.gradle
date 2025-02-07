@@ -87,6 +87,16 @@ android {
         versionCode 1
         versionName "1.0"
     }
+      aaptOptions {
+       cruncherEnabled = false
+    }
+     lint {
+        tasks.whenTaskAdded { task ->
+            if (task.name == "lintVitalAnalyzeRelease") {
+                task.dependsOn(":app:copyReactNativeVectorIconFonts")
+            }
+         }
+     }
     signingConfigs {
         // debug {
         //     storeFile file('new.keystore')
